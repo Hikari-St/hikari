@@ -15,6 +15,7 @@
     "dashboard": "node frontend/server.js",
     "daemon": "npm run daemon --prefix agents",
     "keeper:start": "node engine/dist/keeper_daemon.js",
+    "install:all": "npm install && npm install --prefix engine && npm install --prefix agents && npm install --prefix sdk && npm install --prefix services/x402-gateway && npm install --prefix services/database && npm install --prefix services/social-bot && npm install --prefix services/automation",
     "test": "npm run test:contracts && npm run test:engine",
     "test:contracts": "node scripts/run_contracts_test.js",
     "test:engine": "npm test --prefix engine",

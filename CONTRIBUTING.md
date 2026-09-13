@@ -104,7 +104,8 @@ Before finalizing any addition, verify against this checklist:
 ### Prerequisites
 - **Node.js**: `v20.0.0+`
 - **Rust & Cargo**: `1.79.0+`
-- **Soroban CLI**: `v21.0.0+` with target `wasm32-unknown-unknown`
+- **Stellar CLI**: `v22.0.0+` / `v27.0.0+` with target `wasm32v1-none` (or `wasm32-unknown-unknown`)
+- **Docker & Docker Compose**: For containerized multi-service orchestration
 - **Git**: Configured with valid signing identity
 
 ### Setup
