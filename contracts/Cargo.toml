@@ -17,6 +17,7 @@ members = [
     "sentinel",
     "oracle",
     "governance",
+    "streamer",
 ]
 
 [workspace.package]

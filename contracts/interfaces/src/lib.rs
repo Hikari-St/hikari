@@ -30,6 +30,7 @@ pub enum Error {
     QuorumNotMet = 23,
     TimelockNotExpired = 24,
     ProposalVetoed = 25,
+    StreamNotFound = 26,
 }
 
 #[contracttype]
@@ -313,5 +314,32 @@ pub trait HikariGovernanceTrait {
     fn get_config(env: Env) -> GovernanceConfig;
 }
 
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct YieldStream {
+    pub id: u32,
+    pub depositor: Address,
+    pub token: Address,
+    pub vault: Address,
+    pub total_amount: i128,
+    pub claimed_amount: i128,
+    pub start_time: u64,
+    pub duration_seconds: u64,
+}
 
-
+#[contractclient(name = "LinearYieldStreamerClient")]
+pub trait LinearYieldStreamerTrait {
+    fn initialize(env: Env, admin: Address) -> Result<(), Error>;
+    fn add_yield_stream(
+        env: Env,
+        from: Address,
+        token: Address,
+        vault: Address,
+        amount: i128,
+        duration_seconds: u64,
+    ) -> Result<u32, Error>;
+    fn harvest_claimable(env: Env, vault: Address, token: Address) -> Result<i128, Error>;
+    fn get_claimable(env: Env, vault: Address, token: Address) -> i128;
+    fn get_stream(env: Env, stream_id: u32) -> Result<YieldStream, Error>;
+    fn total_streams(env: Env) -> u32;
+}

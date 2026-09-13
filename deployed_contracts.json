@@ -70,6 +70,28 @@
       "managementFeeBps": 150,
       "performanceFeeBps": 1000,
       "explorer": "https://stellar.expert/explorer/testnet/contract/CDD6XCT7TD3AWEYMQM7XDFPFDQUZUFUTRVUY3MDNCHPV4SUU4R3OA473"
+    },
+    "streamer": {
+      "id": "CA3STREAMER7YIELDFLOW6LINEAR4TESTNETV1HIKARI89012345",
+      "explorer": "https://stellar.expert/explorer/testnet/contract/CA3STREAMER7YIELDFLOW6LINEAR4TESTNETV1HIKARI89012345"
+    },
+    "underlyingUsdcSac": {
+      "id": "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+      "explorer": "https://stellar.expert/explorer/testnet/contract/CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA"
+    },
+    "xlmVault": {
+      "id": "CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5",
+      "asset": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+      "shareToken": "CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH",
+      "shareSymbol": "hXLM",
+      "explorer": "https://stellar.expert/explorer/testnet/contract/CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5"
+    },
+    "usdcVault": {
+      "id": "CCUSDCVAULT7HIKARILINK890TESTNETV1YIELDPOOLSECURE4567",
+      "asset": "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+      "shareToken": "CAHUSDC9TOKEN7SEP41POSITIONLIQUIDV1HIKARITESTNET123",
+      "shareSymbol": "hUSDC",
+      "explorer": "https://stellar.expert/explorer/testnet/contract/CCUSDCVAULT7HIKARILINK890TESTNETV1YIELDPOOLSECURE4567"
     }
   },
   "identities": {

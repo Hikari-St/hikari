@@ -97,6 +97,8 @@ export class X402Client {
   }
 }
 
+export * from "./x402_client.js";
+
 if (typeof require !== "undefined" && require.main === module) {
   const port = parseInt(process.env.PORT || "3402", 10);
   const server = new PaidTelemetryServer(port);

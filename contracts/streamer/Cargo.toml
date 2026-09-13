@@ -1,0 +1,16 @@
+[package]
+name = "hikari-streamer"
+version = "0.1.0"
+edition = "2021"
+authors = ["ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>"]
+license = "MIT"
+
+[lib]
+crate-type = ["lib"]
+
+[dependencies]
+soroban-sdk = { workspace = true }
+hikari-interfaces = { path = "../interfaces" }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true }
