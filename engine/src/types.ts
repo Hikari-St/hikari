@@ -69,3 +69,45 @@ export interface RiskEvaluationResult {
   recommendedAction: "NORMAL" | "REDUCE_RISK" | "TRIGGER_GATE_SEAL" | "ENGAGE_BUNKER_MODE";
 }
 
+export interface OracleTelemetryPayload {
+  navStroops: bigint;
+  aprBps: number;
+  totalReservesStroops: bigint;
+  liquidReserveRatioBps: number;
+  bunkerActive: boolean;
+  proofHash: string;
+}
+
+export interface ArbitrageOpportunity {
+  venueA: string;
+  venueB: string;
+  spreadBps: number;
+  expectedProfitStroops: bigint;
+  executionRoute: string;
+}
+
+export interface KeeperConfig {
+  vaultAddress: string;
+  oracleAddress: string;
+  keeperAccount: string;
+  minReserveRatioPercentage: number; // e.g. 15%
+  rebalanceThresholdBps: number;      // e.g. 500 = 5%
+  mevMinSpreadBps: number;           // e.g. 15 bps
+  targetAllocations: Map<string, number>; // e.g. Blend: 0.45, Phoenix: 0.35, Soroswap: 0.20
+}
+
+export interface KeeperCycleResult {
+  cycleId: number;
+  timestamp: number;
+  rebalanced: boolean;
+  rebalanceProposal?: ActionProposal;
+  evaluation?: PolicyEvaluation;
+  arbitrageExecuted: boolean;
+  arbitrageOpportunity?: ArbitrageOpportunity;
+  arbitrageProfitStroops?: bigint;
+  oraclePayload: OracleTelemetryPayload;
+  bunkerActive: boolean;
+  riskEvaluation: RiskEvaluationResult;
+}
+
+

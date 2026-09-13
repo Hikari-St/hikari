@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 soroban-sdk = { workspace = true }
-interfaces = { path = "../interfaces" }
+interfaces = { package = "hikari-interfaces", path = "../interfaces" }
 
 [dev-dependencies]
 soroban-sdk = { workspace = true, features = ["testutils"] }

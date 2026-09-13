@@ -15,6 +15,7 @@ members = [
     "gate_seal",
     "factory",
     "sentinel",
+    "oracle",
 ]
 
 [workspace.package]

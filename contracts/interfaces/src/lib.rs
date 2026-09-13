@@ -176,3 +176,38 @@ pub trait PolicyAccountTrait {
     ) -> Result<(), Error>;
 }
 
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct OracleTelemetry {
+    pub nav_stroops: i128,
+    pub apr_bps: u32,
+    pub total_reserves: i128,
+    pub liquid_reserve_ratio_bps: u32,
+    pub bunker_active: bool,
+    pub last_updated_ledger: u32,
+    pub proof_hash: BytesN<32>,
+}
+
+#[contractclient(name = "HikariOracleClient")]
+pub trait HikariOracleTrait {
+    fn initialize(env: Env, admin: Address, publisher: Address) -> Result<(), Error>;
+    fn get_hxlm_nav(env: Env) -> i128;
+    fn get_average_apr(env: Env) -> u32;
+    fn get_total_reserves(env: Env) -> i128;
+    fn get_liquid_reserve_ratio(env: Env) -> u32;
+    fn is_bunker_active(env: Env) -> bool;
+    fn get_telemetry(env: Env) -> OracleTelemetry;
+    fn update_telemetry(
+        env: Env,
+        caller: Address,
+        nav_stroops: i128,
+        apr_bps: u32,
+        total_reserves: i128,
+        liquid_reserve_ratio_bps: u32,
+        bunker_active: bool,
+        proof_hash: BytesN<32>,
+    ) -> Result<(), Error>;
+    fn set_publisher(env: Env, caller: Address, new_publisher: Address) -> Result<(), Error>;
+}
+
+

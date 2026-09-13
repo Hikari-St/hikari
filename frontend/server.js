@@ -101,6 +101,14 @@ function handleRequest(req, res) {
         allocatedAssetsStroops: "961000000000",
         reservePercentage: 22.8,
       },
+      oracleTelemetry: {
+        navStroops: "10480000",
+        aprBps: 1140,
+        totalReservesStroops: "1245000000000",
+        liquidReserveRatioBps: 2280,
+        bunkerActive: false,
+        proofHash: "0x8f3c71a92e4b6d05f31e9c8a7b6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d",
+      },
       mevMetrics: {
         totalCapturedStroops: "8420000000",
         vaultBoostStroops: "4210000000",
@@ -114,6 +122,7 @@ function handleRequest(req, res) {
       recentLogs: [
         "Hikari Agent Layer running in continuous mode.",
         "Phoenix CLAMM liquidity rebalanced successfully.",
+        "Oracle telemetry published on-chain with RFC-8785 proof hash.",
         "Yield harvest routed: +42.80 XLM added to vault reserve."
       ],
     });
@@ -130,9 +139,12 @@ function handleRequest(req, res) {
       shareToken: "CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH",
       strategyRegistry: "CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ",
       policyAccount: "CAPXDOMRO7U6XGOSNWKP6YBY7GMBRH7FPTYWTAW6CRGPMYIZHIJDO3UP",
+      withdrawalQueue: "CAV3C7P5F56LQZ32Q642LGBK2T7I7WOU2E6DGLXQ4H4YGB64NZG2U43N",
+      oracle: "CDORACLEXLK77HKR42YIELDORACLETROOPSTELEMETRYPROOFS7XQL6Z",
       adapters: {
         blend: "CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL",
-        phoenix: "CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5"
+        phoenix: "CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5",
+        soroswap: "CC7K4SWAP2M4Z6P8TNV4Q9LX7GBL36PQUY8V7A4C6DE8F9B1E2G3H4J5"
       },
       gateSeal: "CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ"
     });

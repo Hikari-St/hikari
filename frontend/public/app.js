@@ -550,6 +550,15 @@ async function applyTelemetry(data) {
     }
   }
 
+  if (data.oracleTelemetry) {
+    state.oracleTelemetry = data.oracleTelemetry;
+    if (data.oracleTelemetry.proofHash && state._lastLoggedOracleProof !== data.oracleTelemetry.proofHash) {
+      state._lastLoggedOracleProof = data.oracleTelemetry.proofHash;
+      const navDisplay = (Number(BigInt(data.oracleTelemetry.navStroops || "10000000")) / 1e7).toFixed(4);
+      addLog("[OracleContract]", `Verified on-chain telemetry proof: ${data.oracleTelemetry.proofHash.slice(0, 18)}... (NAV: ${navDisplay} XLM)`, "log-tag-agent");
+    }
+  }
+
   function setBunkerMode(active, haircutBps = 0) {
     state.bunkerMode = !!active;
     state.haircutBps = Number(haircutBps) || 0;

@@ -31,4 +31,5 @@ Desktop.ini
 contracts/**/target/
 contracts/wasm/
 *.wasm
+test_snapshots/
 scripts/testnet_keys.json
