@@ -37,7 +37,9 @@
     "solvency:proof": "node services/automation/dist/merkle-solvency.js",
     "test:hikari": "node scripts/verify_hakiru_full_suite.js",
     "test:suite": "node scripts/verify_hakiru_full_suite.js",
-    "test:hakiru": "node scripts/verify_hakiru_full_suite.js"
+    "test:hakiru": "node scripts/verify_hakiru_full_suite.js",
+    "agent:trade": "python scripts/run_xlm_trading_agent.py",
+    "test:trading-agents": "python -m unittest tests/test_trading_agents_xlm.py"
   },
   "devDependencies": {
     "puppeteer-core": "^25.10.0"
