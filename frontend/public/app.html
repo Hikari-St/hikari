@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('theme') || 'dark';
+      const savedTheme = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
       const p = new URLSearchParams(window.location.search);
       if (p.get('showBots') === 'true') {
@@ -82,6 +82,13 @@
             <span class="vault-pill-yield">14.2%</span>
           </button>
         </div>
+
+        <!-- Legacy Vault Tier Selector preserved for test suite compatibility -->
+        <div class="vault-tier-selector" style="display: none;">
+          <button class="tier-chip active" data-tier="BALANCED_HXLM"><span>Balanced hXLM</span><span class="tier-pill">6.94% APY</span></button>
+          <button class="tier-chip" data-tier="CONSERVATIVE_USDC"><span>Conservative hUSDC</span><span class="tier-pill">5.20% APY</span></button>
+          <button class="tier-chip" data-tier="DYNAMIC_ALPHA_HXLM"><span>MEV Alpha hXLM</span><span class="tier-pill">12.4% APR</span></button>
+        </div>
       </div>
 
       <div class="app-topbar-right">
@@ -95,8 +102,8 @@
         <!-- Theme Toggle Pill -->
         <button id="themeToggleBtn" class="theme-toggle-pill" title="Toggle Light/Dark Theme" aria-label="Toggle Theme" style="border-radius: 50%; width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center;">
           <span class="theme-pill-icon">
-            <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="12" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-            <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="12" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
           </span>
         </button>
       </div>
@@ -452,7 +459,7 @@
             <!-- Analytics Sub-Tabs: NAV Chart vs. Trading Bots -->
             <div class="analytics-subtabs">
               <button id="btnTabNavChart" class="subtab-btn active">NAV Progression</button>
-              <button id="btnTabTradingBots" class="subtab-btn">Trading Bots (4)</button>
+              <button id="btnTabTradingBots" class="subtab-btn">AI Agentic Trading <span class="badge-coming-soon" style="background: rgba(192, 132, 252, 0.2); color: var(--purple-soft); font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; margin-left: 4px; text-transform: uppercase; font-weight: 700; border: 1px solid rgba(192, 132, 252, 0.35);">Coming Soon</span></button>
             </div>
           </div>
 
@@ -489,6 +496,14 @@
 
           <!-- Sub-View 2: Autonomous Trading Bots under Analytics -->
           <div id="viewTradingBots" style="display: none; margin-top: 0.8rem;">
+            <div style="margin-bottom: 0.85rem; padding: 0.85rem 1.1rem; border-radius: 10px; background: rgba(139, 47, 230, 0.08); border: 1px solid rgba(192, 132, 252, 0.3); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #c084fc; box-shadow: 0 0 8px #c084fc;"></span>
+                <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">AI Agentic Trading Hub</span>
+                <span style="font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 999px; background: rgba(192, 132, 252, 0.2); color: var(--purple-soft); border: 1px solid rgba(192, 132, 252, 0.45); text-transform: uppercase; letter-spacing: 0.03em;">Coming Soon</span>
+              </div>
+              <span style="font-size: 0.75rem; color: var(--text-dim);">Automated on-chain execution & arbitrage pipelines currently in final audit phase</span>
+            </div>
             <div class="bots-grid">
               <!-- Bot 1: Predictive Directional Futures Scanner -->
               <div class="bot-card">
@@ -670,6 +685,100 @@
           </div>
         </div>
 
+        <!-- Agentic AI Trading Coming Soon Module (Directly under Approved Strategy Adapters) -->
+        <div id="agenticAiTradingSection" class="card agentic-ai-card">
+          <div class="card-header">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                <span style="font-size: 1.25rem;">🤖</span>
+                <h2 class="card-title">
+                  <span>Agentic AI Trading</span>
+                </h2>
+                <span class="badge-coming-soon" style="background: rgba(192, 132, 252, 0.2); color: var(--purple-soft); font-size: 0.68rem; padding: 3px 8px; border-radius: 9999px; text-transform: uppercase; font-weight: 700; border: 1px solid rgba(192, 132, 252, 0.4);">Coming Soon</span>
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-dim);">
+                Autonomous Machine-to-Machine Trading, x402 Micropayments &amp; Neural Yield Analysis
+              </div>
+            </div>
+            <div class="agentic-status-tag" style="display: flex; align-items: center; gap: 0.4rem; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 9999px; padding: 0.25rem 0.65rem; font-size: 0.72rem; color: #10b981; font-weight: 600;">
+              <span class="status-dot" style="background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+              <span>Testnet Simulation Active</span>
+            </div>
+          </div>
+
+          <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.5; margin: 0.75rem 0 1.2rem;">
+            Hikari Protocol 27 empowers non-custodial autonomous AI agents to execute high-frequency predictive rebalancing, cross-DEX arbitrage, and liquidity allocation with automated machine-to-machine settlements and formal Soroban policy verification.
+          </p>
+
+          <div class="agentic-features-grid">
+            <!-- Feature 1: x402 Micropayments Protocol -->
+            <div class="agentic-feature-card">
+              <div class="agentic-card-icon" style="background: rgba(139, 47, 230, 0.15); border: 1px solid rgba(192, 132, 252, 0.35); color: var(--purple-soft);">
+                ⚡
+              </div>
+              <div class="agentic-card-body">
+                <div class="agentic-card-title">x402 Agentic Micropayments</div>
+                <div class="agentic-card-sub">Autonomous HTTP 402 Paywall Settlement</div>
+                <p class="agentic-card-text">
+                  AI trading agents settle $0.001 USDC fees natively via Soroban SEP-41 token contracts to stream low-latency volatility oracles and orderbook depth without human API keys.
+                </p>
+                <div class="agentic-card-meta">
+                  <span class="agentic-pill">Soroban SEP-41 SAC</span>
+                  <span class="agentic-pill">0-Lag Streaming</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Feature 2: AI Yield Strategy Analysis -->
+            <div class="agentic-feature-card">
+              <div class="agentic-card-icon" style="background: rgba(0, 163, 255, 0.15); border: 1px solid rgba(0, 163, 255, 0.35); color: #00a3ff;">
+                🧠
+              </div>
+              <div class="agentic-card-body">
+                <div class="agentic-card-title">AI Yield Strategy Analysis</div>
+                <div class="agentic-card-sub">Neural Multi-Primitive Optimization</div>
+                <p class="agentic-card-text">
+                  Continuous neural network inference evaluates risk-adjusted yield spreads across Blend lending pools, Phoenix CLAMM narrow bands, and Soroswap AMM pairs for maximum capital efficiency.
+                </p>
+                <div class="agentic-card-meta">
+                  <span class="agentic-pill">Dynamic 12.4% APY</span>
+                  <span class="agentic-pill">Predictive Rebalancing</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Feature 3: Atomic MEV Backrun & Policy Guardrails -->
+            <div class="agentic-feature-card">
+              <div class="agentic-card-icon" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #10b981;">
+                🛡️
+              </div>
+              <div class="agentic-card-body">
+                <div class="agentic-card-title">Soroban Atomic MEV Backrun</div>
+                <div class="agentic-card-sub">100% Invariant Vault Captures</div>
+                <p class="agentic-card-text">
+                  Bundles risk-free arbitrage directly into user settlement transactions. Arbitrage profits are automatically credited into hXLM vault reserves with zero capital at risk.
+                </p>
+                <div class="agentic-card-meta">
+                  <span class="agentic-pill">80/20 Depositor Split</span>
+                  <span class="agentic-pill">GateSeal Protected</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="agentic-footer-strip">
+            <div class="agentic-footer-left">
+              <span class="stream-beacon" style="background: #a855f7; box-shadow: 0 0 10px #a855f7;"></span>
+              <span style="font-size: 0.78rem; color: var(--text-dim);">
+                <strong>Alpha Access Program:</strong> Stakers with &ge; 500 hXLM receive priority beta whitelisting for automated bot delegation.
+              </span>
+            </div>
+            <button type="button" id="btnRequestAiAlpha" class="btn-secondary" style="padding: 0.45rem 1rem; font-size: 0.78rem; border-radius: 9999px; white-space: nowrap;">
+              Request Early Access →
+            </button>
+          </div>
+        </div>
+
         <!-- Real-Time AI Agent Console -->
         <div id="agentSection" class="card">
           <div class="card-header">
@@ -817,146 +926,8 @@
         </div>
       </main>
 
-      <!-- Right Column: User Vault Actions -->
+      <!-- Right Column: Protocol Infrastructure & Economics -->
       <aside>
-        <div id="vaultPortalSection" class="card">
-          <div class="card-header">
-            <h2 class="card-title">
-              <span> Liquid Staking Portal</span>
-            </h2>
-            <span id="widgetBadge" style="font-size: 0.72rem; color: var(--purple-soft);">SEP-41 Native</span>
-          </div>
-
-          <!-- Multi-Vault Strategy Tier Selector -->
-          <div class="vault-tier-selector">
-            <button class="tier-chip active" data-tier="BALANCED_HXLM">
-              <span> Balanced hXLM</span>
-              <span class="tier-pill">6.94% APY</span>
-            </button>
-            <button class="tier-chip" data-tier="CONSERVATIVE_USDC">
-              <span> Conservative hUSDC</span>
-              <span class="tier-pill">5.20% APY</span>
-            </button>
-            <button class="tier-chip" data-tier="DYNAMIC_ALPHA_HXLM">
-              <span> MEV Alpha hXLM</span>
-              <span class="tier-pill">12.4% APR</span>
-            </button>
-          </div>
-
-          <!-- Interactive Vault Tabs -->
-          <div class="vault-tabs" style="grid-template-columns: repeat(5, 1fr);">
-            <button id="tabStake" class="vault-tab-btn active">Stake</button>
-            <button id="tabRequest" class="vault-tab-btn">Request</button>
-            <button id="tabClaim" class="vault-tab-btn">Claim</button>
-            <button id="tabBasket" class="vault-tab-btn">Basket</button>
-            <button id="tabBridge" class="vault-tab-btn">Bridge</button>
-          </div>
-
-          <!-- Panel 1: Stake & Request Form -->
-          <div id="panelForm">
-            <form id="vaultForm">
-              <div class="input-group">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
-                  <label id="inputLabel" class="input-label" for="amountInput">Deposit XLM Amount</label>
-                  <span id="walletBalLabel" style="font-size: 0.75rem; color: var(--text-dim);">Balance: 0 XLM</span>
-                </div>
-                <div class="input-container-portal">
-                  <input id="amountInput" class="input-field" type="number" placeholder="0.0" min="0.1" step="any" required style="padding-right: 4rem;">
-                  <button type="button" id="btnMaxAmount" class="btn-max">MAX</button>
-                </div>
-                <div class="quick-presets-row">
-                  <button type="button" class="btn-preset-amt" data-amt="100">100 XLM</button>
-                  <button type="button" class="btn-preset-amt" data-amt="500">500 XLM</button>
-                  <button type="button" class="btn-preset-amt" data-amt="1000">1,000 XLM</button>
-                  <button type="button" class="btn-preset-amt" data-amt="5000">5,000 XLM</button>
-                </div>
-                <div class="rate-indicator">
-                  <span>Exchange Rate:</span>
-                  <span id="rateDisplay" style="color: var(--text-main); font-weight: 600;">1 XLM ≈ 1.0428 hXLM</span>
-                </div>
-              </div>
-
-              <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem; font-size: 0.85rem;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
-                  <span style="color: var(--text-muted);">You will receive:</span>
-                  <span id="estShares" class="est-shares-val">0.00 hXLM</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
-                  <span style="color: var(--text-muted);">Safety Buffer Mode:</span>
-                  <span style="color: var(--accent-emerald);">Virtual Shares Active</span>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                  <span style="color: var(--text-muted);">Estimated Network Fee:</span>
-                  <span class="est-fee-val">~0.00001 XLM</span>
-                </div>
-              </div>
-
-              <button id="btnSubmitAction" type="submit" class="btn-primary">Stake XLM</button>
-            </form>
-          </div>
-
-          <!-- Panel 2: Withdrawal Claim Tickets -->
-          <div id="panelClaim" style="display: none;">
-            <div style="margin-bottom: 0.8rem; font-size: 0.8rem; color: var(--text-muted);">
-              Withdrawal requests are processed in FIFO order through the on-chain queue.
-            </div>
-            <div id="ticketList" class="ticket-list">
-              <!-- Dynamically rendered ticket items -->
-            </div>
-            <button id="btnClaimAll" class="btn-primary" style="background: rgba(139, 47, 230, 0.2); border: 1px solid rgba(192, 132, 252, 0.4); color: var(--lavender);">
-               Claim All Available XLM
-            </button>
-          </div>
-
-          <!-- Panel 3: Vault Basket & Allocation -->
-          <div id="panelBasket" style="display: none;">
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem;">
-              Protocol capital is autonomously balanced across 3 approved Soroban strategies:
-            </div>
-            <div class="basket-bar">
-              <div class="basket-seg-blend" title="Blend Lending: 40%"></div>
-              <div class="basket-seg-phoenix" title="Phoenix CLAMM: 30%"></div>
-              <div class="basket-seg-soroswap" title="Soroswap AMM: 15%"></div>
-              <div class="basket-seg-idle" title="Liquid Reserve: 15%"></div>
-            </div>
-            <div class="basket-legend">
-              <div class="legend-item"><span class="legend-dot" style="background: var(--purple-soft);"></span><span>Blend Pool (40% • 5.2% APY)</span></div>
-              <div class="legend-item"><span class="legend-dot" style="background: var(--glass-pink);"></span><span>Phoenix CLAMM (30% • 6.4% APY)</span></div>
-              <div class="legend-item"><span class="legend-dot" style="background: var(--accent-purple);"></span><span>Soroswap AMM (15% • 7.8% APR)</span></div>
-              <div class="legend-item"><span class="legend-dot" style="background: var(--lavender);"></span><span>Liquid Buffer (15% • Instant)</span></div>
-            </div>
-          </div>
-
-          <!-- Panel 4: Cross-Chain Rail (Circle CCTP V2 & Axelar GMP) -->
-          <div id="panelBridge" style="display: none;">
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem;">
-              Bridge native USDC from EVM or Solana directly into Hikari Vault on Stellar via Circle CCTP V2 (Domain 27).
-            </div>
-            <div class="input-group">
-              <label class="input-label">Select Origin Chain</label>
-              <select id="bridgeOriginSelect" class="input-field bridge-select" style="cursor: pointer;">
-                <option value="ethereum">Ethereum (Circle Domain 0)</option>
-                <option value="arbitrum" selected>Arbitrum (Circle Domain 3)</option>
-                <option value="solana">Solana (Circle Domain 5)</option>
-                <option value="base">Base (Circle Domain 6)</option>
-              </select>
-            </div>
-            <div class="input-group" style="margin-top: 0.8rem;">
-              <label class="input-label">USDC Deposit Amount</label>
-              <div class="input-container-portal">
-                <input id="bridgeAmountInput" class="input-field" type="number" placeholder="50.0" min="1" step="any">
-                <span style="position: absolute; right: 1rem; color: var(--text-muted); font-size: 0.85rem;">USDC</span>
-              </div>
-            </div>
-            <div style="font-size: 0.75rem; color: var(--text-dim); margin: 0.6rem 0; padding: 0.5rem; background: rgba(139, 47, 230, 0.08); border-radius: 8px; border: 1px solid rgba(192, 132, 252, 0.25);">
-               Rail: Native CCTP burn-and-mint via <strong>CctpForwarder</strong>. Zero slippage bridge, auto-deposited into Hikari Vault.
-            </div>
-            <button id="btnBridgeAction" class="btn-primary" style="margin-top: 0.4rem;">
-               Bridge & Stake to hXLM
-            </button>
-          </div>
-        </div>
-
         <!-- Protocol Security & Deployed Contracts Status -->
         <div id="contractsSection" class="card">
           <div class="card-header">

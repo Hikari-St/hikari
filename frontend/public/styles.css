@@ -1,4 +1,48 @@
-:root, [data-theme="dark"] {
+:root, [data-theme="light"] {
+  --bg-primary: #f8f6fc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f5f0fc;
+  --bg-glass: rgba(139, 47, 230, 0.04);
+  --border-subtle: #e5def5;
+  --border-glow: rgba(139, 47, 230, 0.35);
+
+  --accent-copper: #8b2fe6;
+  --accent-copper-light: #c084fc;
+  --accent-gradient: linear-gradient(135deg, #8b2fe6 0%, #c084fc 50%, #ec4cff 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #7c24d1 0%, #a855f7 50%, #e879f9 100%);
+
+  --accent-cyan: #7c24d1;
+  --accent-purple: #8b2fe6;
+  --accent-emerald: #10b981;
+  --accent-amber: #d97706;
+  --accent-rose: #e11d48;
+
+  --text-main: #140d24;
+  --text-muted: #5e5470;
+  --text-dim: #7c7295;
+
+  --gain: #8b2fe6;
+  --loss: #c76b6b;
+
+  --bg: #f8f6fc;
+  --bg-2: #ffffff;
+  --ink: #140d24;
+  --muted: #5e5470;
+  --line: #e5def5;
+  --purple: #8b2fe6;
+  --purple-deep: #581c87;
+  --purple-soft: #7c24d1;
+  --lavender: #6c1dc4;
+  --glass-pink: #ec4cff;
+  --chip-bg: #ffffff;
+  --chip-border: #e5def5;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Inter', system-ui, sans-serif;
+}
+
+[data-theme="dark"] {
   --bg-primary: #070314;
   --bg-secondary: #04020c;
   --bg-card: rgba(18, 9, 36, 0.78);
@@ -37,50 +81,6 @@
   --glass-pink: #ec4cff;
   --chip-bg: rgba(139, 47, 230, 0.12);
   --chip-border: rgba(192, 132, 252, 0.3);
-
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Inter', system-ui, sans-serif;
-}
-
-[data-theme="light"] {
-  --bg-primary: #f8f6fc;
-  --bg-secondary: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.95);
-  --bg-card-hover: #f3eefc;
-  --bg-glass: rgba(139, 47, 230, 0.03);
-  --border-subtle: #e5def5;
-  --border-glow: rgba(139, 47, 230, 0.4);
-
-  --accent-copper: #8b2fe6;
-  --accent-copper-light: #c084fc;
-  --accent-gradient: linear-gradient(135deg, #8b2fe6 0%, #c084fc 50%, #ec4cff 100%);
-  --accent-gradient-hover: linear-gradient(135deg, #7c24d1 0%, #a855f7 50%, #e879f9 100%);
-
-  --accent-cyan: #8b2fe6;
-  --accent-purple: #8b2fe6;
-  --accent-emerald: #8b2fe6;
-  --accent-amber: #7c24d1;
-  --accent-rose: #e11d48;
-
-  --text-main: #140d24;
-  --text-muted: #5e5470;
-  --text-dim: #8b80a0;
-
-  --gain: #8b2fe6;
-  --loss: #c76b6b;
-
-  --bg: #f8f6fc;
-  --bg-2: #ffffff;
-  --ink: #140d24;
-  --muted: #5e5470;
-  --line: rgba(139, 47, 230, 0.12);
-  --purple: #8b2fe6;
-  --purple-deep: #581c87;
-  --purple-soft: #8b2fe6;
-  --lavender: #4c1d95;
-  --glass-pink: #ec4cff;
-  --chip-bg: rgba(139, 47, 230, 0.08);
-  --chip-border: rgba(139, 47, 230, 0.25);
 }
 
 /* =========================================================
@@ -120,17 +120,23 @@
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
-[data-theme="dark"] .icon-sun { display: none; }
-[data-theme="dark"] .icon-moon { display: flex; color: #c084fc; }
+[data-theme="dark"] .icon-sun { display: flex; color: #f59e0b; }
+[data-theme="dark"] .icon-moon { display: none; }
 
-[data-theme="light"] .icon-moon { display: none; }
-[data-theme="light"] .icon-sun { display: flex; color: #8b2fe6; }
+[data-theme="light"] .icon-moon { display: flex; color: #8b2fe6; }
+[data-theme="light"] .icon-sun { display: none; }
 
 [data-theme="light"] .theme-toggle-pill {
   background: #ffffff;
   border-color: rgba(139, 47, 230, 0.25);
   color: #140d24;
   box-shadow: 0 2px 8px rgba(139, 47, 230, 0.1);
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
 }
 
 * {
@@ -147,6 +153,18 @@ body {
   line-height: 1.5;
   transition: background-color 0.3s ease, color 0.3s ease;
   background-image: 
+    radial-gradient(circle at 50% 0%, rgba(139, 47, 230, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 25%, rgba(192, 132, 252, 0.06) 0%, transparent 40%),
+    linear-gradient(rgba(139, 47, 230, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 47, 230, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 64px 64px, 64px 64px;
+  background-attachment: fixed;
+}
+
+[data-theme="dark"] body {
+  background-color: #070314;
+  color: #ffffff;
+  background-image: 
     radial-gradient(circle at 50% 0%, rgba(139, 47, 230, 0.22) 0%, transparent 45%),
     radial-gradient(circle at 80% 25%, rgba(192, 132, 252, 0.12) 0%, transparent 40%),
     radial-gradient(circle at 15% 65%, rgba(139, 47, 230, 0.14) 0%, transparent 45%),
@@ -157,15 +175,6 @@ body {
   background-attachment: fixed;
 }
 
-[data-theme="light"] body {
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(139, 47, 230, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 25%, rgba(192, 132, 252, 0.06) 0%, transparent 40%),
-    linear-gradient(rgba(139, 47, 230, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139, 47, 230, 0.03) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 64px 64px, 64px 64px;
-  background-attachment: fixed;
-}
 
 .container {
   max-width: 1300px;
@@ -5011,17 +5020,17 @@ footer {
     gap: 0.75rem;
   }
   .app-topbar-left {
-    flex: 1;
+    flex: 0 0 auto;
     justify-content: flex-start;
   }
   .app-topbar-right {
-    flex: 1;
+    flex: 0 0 auto;
     justify-content: flex-end;
   }
   .app-topbar-center {
     order: 3;
     width: 100%;
-    overflow-x: auto;
+    overflow-x: visible;
     justify-content: center;
     padding-top: 0.25rem;
   }
@@ -8389,4 +8398,864 @@ footer {
   grid-template-columns: repeat(2, 1fr) !important;
   gap: 0.75rem !important;
 }
+
+/* ==========================================================================
+   COMPREHENSIVE MOBILE RESPONSIVENESS OVERHAUL (max-width: 768px & 480px)
+   Addresses all viewport overflows, header truncation, tab clipping, 
+   card formatting, floating widgets, and footers.
+   ========================================================================== */
+
+/* 1. Global Viewport & Container Containment */
+html, body {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  position: relative !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  /* 1. Global Page Width & Overflow Guard */
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+
+  /* 2. Landing Page Header (index.html) */
+  .topnav {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.65rem 1rem !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    background: var(--bg-surface) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+  }
+  .topnav__logo {
+    order: 1 !important;
+    font-size: 1.15rem !important;
+    gap: 0.45rem !important;
+    flex-shrink: 0 !important;
+  }
+  .brand-subtext {
+    display: none !important;
+  }
+  .topnav__actions {
+    order: 2 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    flex-shrink: 0 !important;
+  }
+  .topnav__actions .network-badge,
+  .topnav__actions .btn-shards-pill {
+    display: none !important;
+  }
+  .topnav__login {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 0.42rem 0.85rem !important;
+    font-size: 0.8rem !important;
+    gap: 0.35rem !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    border-radius: 999px !important;
+    background: linear-gradient(135deg, #8b2fe6 0%, #c084fc 100%) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+  }
+  .topnav__login-arrow {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .nav-slider-trigger {
+    order: 3 !important;
+    width: 100% !important;
+    margin-top: 0.25rem !important;
+    padding: 0.42rem 0.85rem !important;
+    justify-content: center !important;
+    font-size: 0.82rem !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 3. Hero Section (index.html) */
+  .hero-ambient {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow: hidden !important;
+  }
+  .hero-ambient__glow {
+    width: 90vw !important;
+    height: 90vw !important;
+    max-width: 90vw !important;
+    filter: blur(35px) !important;
+  }
+  .hero {
+    grid-template-columns: 1fr !important;
+    padding: 1.5rem 1rem 3rem !important;
+    gap: 2rem !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+  .hero__left {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-top: 0.5rem !important;
+  }
+  .hero__title {
+    font-size: clamp(1.75rem, 6.8vw, 2.75rem) !important;
+    line-height: 1.2 !important;
+    word-break: break-word !important;
+  }
+  .hero__line {
+    white-space: normal !important;
+  }
+  .hero__desc {
+    font-size: 0.95rem !important;
+    line-height: 1.55 !important;
+  }
+  .hero__graphic-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .hero__yield-card {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 1.4rem 1.15rem !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  .yield-card__glow {
+    display: none !important;
+  }
+  .yield-card__main-stat {
+    margin-bottom: 1rem !important;
+  }
+  .yield-card__apy-num {
+    font-size: 2.4rem !important;
+  }
+  .alloc-legend-row {
+    font-size: 0.62rem !important;
+  }
+  .scene__platform, .scene__orb, .hero-scene {
+    max-width: 100vw !important;
+    overflow: hidden !important;
+  }
+
+  /* 4. DApp Topbar & Mobile 2-Tier Header (app.html) */
+  body.app-page-body {
+    padding-bottom: 24px !important;
+  }
+  .app-layout-container {
+    padding: 0.65rem 0.85rem 24px !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  /* Topbar contains Logo and Connect Wallet on row 1, and 5 Tabs UNDER on row 2 */
+  .app-topbar {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.65rem 0.85rem !important;
+    border-radius: 18px !important;
+    margin-bottom: 1.25rem !important;
+    gap: 0.5rem 0.75rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    position: sticky !important;
+    top: 0.5rem !important;
+    z-index: 100 !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+  }
+  .app-topbar-left {
+    order: 1 !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  .app-topbar-right {
+    order: 2 !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+  }
+  .btn-connect-wallet {
+    padding: 0.42rem 0.75rem !important;
+    font-size: 0.78rem !important;
+    gap: 0.35rem !important;
+    white-space: nowrap !important;
+  }
+  #themeToggleBtn {
+    width: 34px !important;
+    height: 34px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* 5 Navigation Tabs placed cleanly UNDER the top row, spanning 100% width */
+  .app-topbar-center {
+    order: 3 !important;
+    position: static !important;
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    margin: 0.25rem 0 0 !important;
+    padding: 0 !important;
+    padding-top: 0.25rem !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+  .btn-connect-wallet {
+    padding: 0.35rem 0.65rem !important;
+    font-size: 0.75rem !important;
+    gap: 0.25rem !important;
+  }
+  .btn-connect-wallet .arrow-glyph {
+    display: none !important;
+  }
+  .app-tabs-nav {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    width: 100% !important;
+    gap: 3px !important;
+    padding: 3px !important;
+    background: rgba(139, 47, 230, 0.08) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+  }
+  .app-tab-btn {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    padding: 0.38rem 0.1rem !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    color: var(--text-muted) !important;
+    border: none !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    transition: all 0.15s ease !important;
+  }
+  .app-tab-btn span {
+    font-size: 0.62rem !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.01em !important;
+  }
+  .app-tab-btn svg {
+    width: 15px !important;
+    height: 15px !important;
+    flex-shrink: 0 !important;
+  }
+  .app-tab-btn.active {
+    background: rgba(139, 47, 230, 0.22) !important;
+    color: var(--purple-soft) !important;
+    box-shadow: 0 2px 6px rgba(139, 47, 230, 0.18) !important;
+  }
+  .tab-separator {
+    display: none !important;
+  }
+  .tab-badge-new {
+    font-size: 0.5rem !important;
+    padding: 1px 3px !important;
+    border-radius: 3px !important;
+    margin-left: 1px !important;
+  }
+
+  /* 5. Floating Social AI Hub - Docked cleanly at bottom corner without obstructing */
+  .hikari-vertical-social-dock {
+    position: fixed !important;
+    right: 14px !important;
+    bottom: 24px !important;
+    top: auto !important;
+    transform: none !important;
+    z-index: 9995 !important;
+    flex-direction: column-reverse !important;
+    border-radius: 9999px !important;
+    padding: 6px !important;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.35) !important;
+  }
+  .hikari-vertical-social-dock:not(.dock-expanded) .hikari-dock-channels {
+    display: none !important;
+  }
+  .hikari-vertical-social-dock.dock-expanded .hikari-dock-channels {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    gap: 8px !important;
+    margin-bottom: 8px !important;
+  }
+  .hikari-dock-btn {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  /* 6. Approved Strategy Adapters: 2x2 Grid Keeping Active Badge INSIDE */
+  .strategy-item {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    gap: 0.6rem 0.75rem !important;
+    padding: 0.9rem !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+  }
+  .strategy-item > div:first-child {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+  }
+  .strategy-item > div:nth-child(4) {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+    align-self: start !important;
+  }
+  .strategy-item > div:nth-child(2) {
+    grid-column: 1 / 2 !important;
+    grid-row: 2 / 3 !important;
+  }
+  .strategy-item > div:nth-child(3) {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    text-align: right !important;
+  }
+  .strategy-status {
+    padding: 0.2rem 0.65rem !important;
+    font-size: 0.72rem !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+  }
+
+  /* 7. Pro Analytics, Risk & Telemetry UI Scaling for Mobile */
+  .vault-context-banner {
+    padding: 1.15rem !important;
+    border-radius: 16px !important;
+    gap: 1rem !important;
+  }
+  .vault-context-title {
+    font-size: 1.25rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 0.4rem !important;
+  }
+  .vault-context-sub {
+    font-size: 0.8rem !important;
+    line-height: 1.45 !important;
+  }
+  .vault-context-stats {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+  .vault-stat-item {
+    padding: 0.5rem !important;
+  }
+  .vstat-lbl {
+    font-size: 0.68rem !important;
+  }
+  .vstat-val {
+    font-size: 0.95rem !important;
+  }
+  .pro-futures-card {
+    padding: 1.15rem !important;
+    border-radius: 18px !important;
+  }
+  .pro-futures-title {
+    font-size: 1.2rem !important;
+    line-height: 1.25 !important;
+    margin: 0.4rem 0 !important;
+  }
+  .pro-futures-desc {
+    font-size: 0.8rem !important;
+    line-height: 1.45 !important;
+  }
+  .futures-meter-container {
+    gap: 0.85rem !important;
+  }
+  .futures-meter-box, .meter-box-up, .meter-box-down {
+    padding: 0.85rem !important;
+    border-radius: 14px !important;
+  }
+  .meter-label {
+    font-size: 0.76rem !important;
+  }
+  .meter-pct {
+    font-size: 1.1rem !important;
+  }
+  .meter-evidence-list li {
+    font-size: 0.74rem !important;
+    line-height: 1.4 !important;
+    margin-bottom: 0.35rem !important;
+  }
+  .futures-targets-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+  .target-card-item {
+    padding: 0.65rem 0.75rem !important;
+  }
+  .target-lbl {
+    font-size: 0.68rem !important;
+  }
+  .target-val {
+    font-size: 0.88rem !important;
+  }
+  .futures-stream-bar {
+    padding: 0.65rem 0.85rem !important;
+    font-size: 0.75rem !important;
+    line-height: 1.45 !important;
+  }
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.6rem !important;
+  }
+  .metric-card {
+    padding: 0.85rem !important;
+    border-radius: 14px !important;
+  }
+  .metric-label {
+    font-size: 0.7rem !important;
+  }
+  .metric-value {
+    font-size: 1.25rem !important;
+  }
+  .metric-sub {
+    font-size: 0.68rem !important;
+  }
+  .card-header .card-title {
+    font-size: 1.1rem !important;
+  }
+
+  /* 8. Cards & Input Sections */
+  .hakiru-app-wrapper, .hikari-app-wrapper {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0.5rem 0 1.5rem !important;
+  }
+  .hikari-card, .hakiru-card {
+    padding: 1.5rem 1.15rem !important;
+    border-radius: 20px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .hikari-input-container, .hakiru-input-container {
+    padding: 0.85rem 1rem !important;
+    border-radius: 14px !important;
+  }
+  .hikari-input-header, .hakiru-input-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 0.6rem !important;
+  }
+  .hikari-input-label, .hakiru-input-label {
+    color: var(--text-main) !important;
+    font-weight: 600 !important;
+    font-size: 0.84rem !important;
+  }
+  .hikari-input-balance, .hakiru-input-balance {
+    color: var(--text-muted) !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+  }
+  .hikari-earn-input-amount, .hakiru-earn-input-amount {
+    font-size: 1.35rem !important;
+  }
+  .hikari-primary-btn, .hakiru-primary-btn {
+    padding: 0.85rem 1.25rem !important;
+    font-size: 0.95rem !important;
+    border-radius: 14px !important;
+  }
+
+  /* 7. Footer Responsive Grid */
+  .footer-content {
+    padding: 2.5rem 1rem 1.5rem !important;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+  .rich-footer {
+    padding: 3rem 1rem 2rem !important;
+  }
+  .footer-bottom-row {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 1rem !important;
+    padding-top: 1.5rem !important;
+  }
+  .footer-brand-meta {
+    flex-direction: column !important;
+    gap: 0.4rem !important;
+    align-items: center !important;
+  }
+  .footer-legal-links {
+    flex-direction: column !important;
+    gap: 0.4rem !important;
+    align-items: center !important;
+  }
+  .footer-sep {
+    display: none !important;
+  }
+
+  /* 8. Showcase & "Secure and battle-tested" Responsiveness */
+  .hx-showcase-section {
+    margin: 3.5rem 0 2rem !important;
+    padding: 0 1rem !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  .hx-showcase-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.75rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .hx-col-left {
+    width: 100% !important;
+    position: static !important;
+  }
+  .hx-sticky-box {
+    position: static !important;
+  }
+  .hx-giant-title {
+    font-size: 2.6rem !important;
+    line-height: 1 !important;
+    margin-bottom: 0.5rem !important;
+    word-break: break-word !important;
+  }
+  .hx-hero-sub {
+    font-size: 0.95rem !important;
+    line-height: 1.55 !important;
+    max-width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
+  .hx-timeline-track {
+    display: none !important;
+  }
+  .hx-col-right {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.75rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  .hx-feature-block {
+    position: relative !important;
+    padding-left: 1.85rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .hx-node-icon {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0.25rem !important;
+    width: 14px !important;
+    height: 14px !important;
+    border-radius: 50% !important;
+    background: var(--purple-soft) !important;
+    border: 2px solid var(--bg-main) !important;
+    box-shadow: 0 0 8px rgba(192, 132, 252, 0.6) !important;
+  }
+  .hx-feature-title {
+    font-size: 1.25rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 0.35rem !important;
+    word-break: break-word !important;
+    color: var(--text-main) !important;
+  }
+  .hx-feature-desc {
+    font-size: 0.88rem !important;
+    line-height: 1.5 !important;
+    color: var(--text-muted) !important;
+    max-width: 100% !important;
+  }
+  .hx-ecosystem-badges {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.4rem !important;
+    margin-top: 0.6rem !important;
+  }
+  .eco-icon-badge {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  /* 9. Security Section Overflow Fix (Uncompromised SECURITY) */
+  .sec-container {
+    padding: 0 1rem !important;
+    max-width: 100vw !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+  .sec-header-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .sec-giant-title {
+    font-size: 1.85rem !important;
+    line-height: 1.1 !important;
+  }
+  .sec-giant-word {
+    font-size: 2.5rem !important;
+    word-break: break-word !important;
+  }
+  .sec-shield-svg {
+    width: 140px !important;
+    height: 130px !important;
+    margin: 1rem auto !important;
+  }
+
+  /* 10. Pro Deck in-tab responsiveness */
+  .pro-deck-wrapper .vault-context-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.6rem !important;
+  }
+  .pro-deck-wrapper .futures-targets-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 11. Modals & Overlays */
+  .hikari-wallet-modal-content, .hakiru-wallet-modal-content, .solvency-modal-content {
+    max-width: min(92vw, 460px) !important;
+    width: 92vw !important;
+    margin: 1rem auto !important;
+    padding: 1.4rem 1.15rem !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 12. Agentic AI Trading Hub Mobile Responsiveness */
+  .agentic-features-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+  .agentic-footer-strip {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+  .agentic-footer-strip button {
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero .cta-big, .hero .btn-secondary {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+  .pro-deck-wrapper .vault-context-stats {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ==========================================================================
+   LIGHT THEME MODAL & FLOATING DOCK ENHANCEMENTS
+   ========================================================================== */
+[data-theme="light"] .modal-overlay {
+  background: rgba(14, 8, 28, 0.45);
+  backdrop-filter: blur(8px);
+}
+[data-theme="light"] .hikari-wallet-modal-content,
+[data-theme="light"] .hakiru-wallet-modal-content,
+[data-theme="light"] .solvency-modal-content,
+[data-theme="light"] .shards-modal-card {
+  background: #ffffff !important;
+  border-color: #e5def5 !important;
+  box-shadow: 0 20px 50px rgba(139, 47, 230, 0.15) !important;
+  color: #140d24 !important;
+}
+[data-theme="light"] .modal-overlay h3,
+[data-theme="light"] .modal-overlay h2,
+[data-theme="light"] .modal-overlay h4 {
+  color: #140d24 !important;
+}
+[data-theme="light"] .hikari-wallet-btn {
+  background: #f8f6fc !important;
+  border-color: #e5def5 !important;
+  color: #140d24 !important;
+}
+[data-theme="light"] .hikari-wallet-btn:hover {
+  background: #f1ebfa !important;
+  border-color: #8b2fe6 !important;
+}
+[data-theme="light"] .wallet-btn-title {
+  color: #140d24 !important;
+}
+[data-theme="light"] .hikari-wallet-terms {
+  background: #f8f6fc !important;
+  border-color: #e5def5 !important;
+}
+[data-theme="light"] .hikari-wallet-terms span {
+  color: #4b3e65 !important;
+}
+[data-theme="light"] .modal-close-btn {
+  color: #5e5470 !important;
+}
+[data-theme="light"] .modal-close-btn:hover {
+  color: #140d24 !important;
+  background: #f3eefc !important;
+}
+[data-theme="light"] .hikari-vertical-social-dock {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(139, 47, 230, 0.25);
+  box-shadow: 0 10px 30px rgba(139, 47, 230, 0.15);
+}
+
+/* ==========================================================================
+   AGENTIC AI TRADING HUB (COMING SOON) MODULE
+   ========================================================================== */
+.agentic-ai-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(192, 132, 252, 0.28) !important;
+  background: linear-gradient(135deg, rgba(20, 10, 40, 0.7) 0%, rgba(10, 5, 24, 0.85) 100%) !important;
+  box-shadow: 0 8px 32px rgba(139, 47, 230, 0.12) !important;
+}
+
+[data-theme="light"] .agentic-ai-card {
+  background: linear-gradient(135deg, rgba(248, 244, 255, 0.95) 0%, rgba(255, 255, 255, 0.98) 100%) !important;
+  border-color: rgba(139, 47, 230, 0.22) !important;
+  box-shadow: 0 10px 30px rgba(139, 47, 230, 0.08) !important;
+}
+
+.agentic-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.agentic-feature-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+[data-theme="light"] .agentic-feature-card {
+  background: #ffffff;
+  border-color: #e5def5;
+  box-shadow: 0 4px 14px rgba(139, 47, 230, 0.04);
+}
+
+.agentic-feature-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(192, 132, 252, 0.5);
+}
+
+.agentic-card-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  margin-bottom: 0.85rem;
+}
+
+.agentic-card-title {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--text-main);
+  margin-bottom: 0.2rem;
+}
+
+.agentic-card-sub {
+  font-size: 0.74rem;
+  color: var(--purple-soft);
+  font-weight: 600;
+  margin-bottom: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.agentic-card-text {
+  font-size: 0.8rem;
+  line-height: 1.48;
+  color: var(--text-muted);
+  margin: 0 0 0.85rem 0;
+  flex: 1;
+}
+
+.agentic-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.agentic-pill {
+  font-size: 0.68rem;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: rgba(139, 47, 230, 0.1);
+  border: 1px solid rgba(192, 132, 252, 0.25);
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .agentic-pill {
+  background: #f1ebfa;
+  border-color: #d8c7f2;
+  color: #59427b;
+}
+
+.agentic-footer-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.15rem;
+  border-radius: 12px;
+  background: rgba(139, 47, 230, 0.06);
+  border: 1px solid rgba(192, 132, 252, 0.22);
+  gap: 1rem;
+}
+
+[data-theme="light"] .agentic-footer-strip {
+  background: #f8f5fc;
+  border-color: #e5def5;
+}
+
+.agentic-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
 

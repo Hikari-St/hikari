@@ -1087,15 +1087,15 @@ function initThemeSystem() {
     localStorage.setItem("theme", theme);
     themeSwitch.setAttribute("data-theme-state", theme);
 
-    // Update moon/sun icon visibility on app.html if present
+    // Update moon/sun icon visibility on index.html and app.html if present
     const iconSun = themeSwitch.querySelector(".icon-sun");
     const iconMoon = themeSwitch.querySelector(".icon-moon");
     if (iconSun && iconMoon) {
       if (theme === "light") {
         iconSun.style.display = "none";
-        iconMoon.style.display = "block";
+        iconMoon.style.display = "flex";
       } else {
-        iconSun.style.display = "block";
+        iconSun.style.display = "flex";
         iconMoon.style.display = "none";
       }
     }
@@ -1105,17 +1105,35 @@ function initThemeSystem() {
     }
   }
 
-  const savedTheme = localStorage.getItem("theme") || "dark";
+  const savedTheme = localStorage.getItem("theme") || "light";
   applyTheme(savedTheme);
 
   themeSwitch.addEventListener("click", () => {
-    const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+    const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
     const nextTheme = currentTheme === "dark" ? "light" : "dark";
     applyTheme(nextTheme);
   });
 }
 
 initThemeSystem();
+
+// Expandable Floating Social AI Hub for Mobile & Desktop
+function initSocialDockToggle() {
+  const btn = document.getElementById("btnToggleSocialDock");
+  const dock = document.getElementById("hikariSocialDock");
+  if (btn && dock) {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dock.classList.toggle("dock-expanded");
+    });
+    document.addEventListener("click", (e) => {
+      if (!dock.contains(e.target) && dock.classList.contains("dock-expanded")) {
+        dock.classList.remove("dock-expanded");
+      }
+    });
+  }
+}
+initSocialDockToggle();
 
 // =========================================================
 // IMMERSIVE SCENE ENGINE: LOADER, CURSOR, GLOW, HERO, 3D SCENE
@@ -2379,6 +2397,9 @@ function initHakiru5TabApp() {
       switchTab("earn");
     });
   }
+
+  // Mobile Navigation Placement handled cleanly via CSS flexbox (Tier 1: Logo + Wallet; Tier 2: Tabs UNDER)
+
 
   document.querySelectorAll(".btn-deposit-vault").forEach((b) => {
     b.addEventListener("click", () => {

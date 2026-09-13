@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('theme') || 'dark';
+      const savedTheme = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
       const p = new URLSearchParams(window.location.search);
       if (p.get('skipLoader') === 'true') {
@@ -290,7 +290,7 @@
         <h1 class="hero__title">
           <span class="hero__line" data-title-line>Next-Generation</span>
           <span class="hero__line" data-title-line><em>Autonomous AI Yield.</em></span>
-          <span class="hero__line" data-title-line>Compounding at 12.4% APY.</span>
+          <span class="hero__line" data-title-line>Compounding at <span style="white-space: nowrap;">12.4% APY.</span></span>
         </h1>
 
         <p class="hero__desc" data-fade>
@@ -376,8 +376,8 @@
             </div>
           </div>
 
-          <a href="#vaultPortalSection" class="yield-card__action-btn" id="btnHeroCardStake">
-            <span>Stake in Portal</span>
+          <a href="app.html?vault=xlm" class="yield-card__action-btn" id="btnHeroCardStake">
+            <span>Stake XLM in DApp →</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>

@@ -12,6 +12,7 @@ const PRIMARY_PORT = parseInt(process.env.PORT || "3000", 10);
 const BACKUP_PORTS = [8080, 3001, 80];
 const PUBLIC_DIR = path.join(__dirname, "public");
 const CONTRACTS_FILE = path.join(__dirname, "..", "deployed_contracts.json");
+const DATA_FILE = path.join(__dirname, "telemetry_data.json");
 
 let dbClientInstance = null;
 let authServiceInstance = null;
