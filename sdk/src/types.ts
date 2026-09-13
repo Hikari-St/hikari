@@ -14,6 +14,10 @@ export interface HikariContractsConfig {
   sentinelId?: string;
   blendAdapterId?: string;
   phoenixAdapterId?: string;
+  oracleId?: string;
+  governanceId?: string;
+  soroswapAdapterId?: string;
+  feeControllerId?: string;
 }
 
 export interface SdkConfig {

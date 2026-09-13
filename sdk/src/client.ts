@@ -22,6 +22,10 @@ export const TESTNET_DEFAULT_CONFIG: SdkConfig = {
     gateSealId: "CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ",
     blendAdapterId: "CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL",
     phoenixAdapterId: "CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5",
+    oracleId: "CAEPCI2TEPENZZBGSMSQEL3W6IW7TYBXRKGXU25J56LQUC33NXJXF6S6",
+    governanceId: "CA2MDYX7IIDD32KQGXIN6SRERI4ABVO3N37BLH7HKNFGTAI252VE7QID",
+    soroswapAdapterId: "CDPZLNOKPV4KMJ5RNT24RKK46BFEIJGTKRDZGVKOMZFSIKZQ6H5G5KJ3",
+    feeControllerId: "CDD6XCT7TD3AWEYMQM7XDFPFDQUZUFUTRVUY3MDNCHPV4SUU4R3OA473",
   },
 };
 
@@ -157,6 +161,59 @@ export class HikariClient {
       {
         user: userAddress,
         ticket_ids: ticketIds.map((id) => id.toString()),
+      }
+    );
+  }
+
+  /**
+   * Constructs transaction payload for voting on an on-chain DAO proposal.
+   */
+  public buildVoteTx(proposalId: number, voter: string, voteType: number) {
+    return this.buildInvocationPayload(
+      this.config.contracts.governanceId || "CA2MDYX7IIDD32KQGXIN6SRERI4ABVO3N37BLH7HKNFGTAI252VE7QID",
+      "cast_vote",
+      {
+        proposal_id: proposalId,
+        voter,
+        vote_type: voteType,
+      }
+    );
+  }
+
+  /**
+   * Constructs transaction payload for triggering a 33.4% staker veto.
+   */
+  public buildStakerVetoTx(proposalId: number, voter: string) {
+    return this.buildInvocationPayload(
+      this.config.contracts.governanceId || "CA2MDYX7IIDD32KQGXIN6SRERI4ABVO3N37BLH7HKNFGTAI252VE7QID",
+      "cast_staker_veto",
+      {
+        proposal_id: proposalId,
+        voter,
+      }
+    );
+  }
+
+  /**
+   * Constructs transaction payload for creating a new DAO proposal.
+   */
+  public buildCreateProposalTx(
+    creator: string,
+    title: string,
+    targetContract: string,
+    actionId: number,
+    paramValue: bigint
+  ) {
+    return this.buildInvocationPayload(
+      this.config.contracts.governanceId || "CA2MDYX7IIDD32KQGXIN6SRERI4ABVO3N37BLH7HKNFGTAI252VE7QID",
+      "create_proposal",
+      {
+        creator,
+        title,
+        description_hash: "0000000000000000000000000000000000000000000000000000000000000000",
+        target_contract: targetContract,
+        action_id: actionId,
+        param_value: paramValue.toString(),
       }
     );
   }

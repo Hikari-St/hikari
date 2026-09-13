@@ -2,8 +2,8 @@
 
 [![License: MIT](https://img.shields.io/github/license/ibochivincent-lang/hikari?style=flat-square)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/ibochivincent-lang/hikari/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/ibochivincent-lang/hikari/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-unknown-lightgrey?style=flat-square)](https://github.com/ibochivincent-lang/hikari)
-[![npm (@hikari/sdk)](https://img.shields.io/npm/v/@hikari/sdk?style=flat-square&label=%40hikari%2Fsdk)](https://www.npmjs.com/package/@hikari/sdk)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square)](https://github.com/ibochivincent-lang/hikari)
+[![SDK](https://img.shields.io/badge/%40hikari%2Fsdk-v0.1.0-blue?style=flat-square&logo=typescript)](sdk)
 [![Deployed on Vercel](https://img.shields.io/badge/deploy-vercel-000?style=flat-square&logo=vercel)](https://hikari-protocol.vercel.app)
 [![Conventional Commits](https://img.shields.io/badge/commits-conventional-fe5196?style=flat-square&logo=conventionalcommits)](https://www.conventionalcommits.org)
 
