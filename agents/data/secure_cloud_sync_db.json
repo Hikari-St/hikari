@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-09-13T17:47:52.391Z",
+  "updatedAt": "2026-09-13T21:39:08.998Z",
   "mode": "ENCRYPTED_RESILIENT_STORAGE",
   "users": [
     {
       "id": "a2e65722-f100-496f-8546-e4b6d2dec006",
       "stellarAddress": "GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN",
       "createdAt": "2026-09-12T19:27:37.916Z",
-      "lastActiveAt": "2026-09-13T17:47:52.387Z",
+      "lastActiveAt": "2026-09-13T21:39:08.991Z",
       "riskProfile": "BALANCED",
       "preferences": {
         "theme": "light",
@@ -21,7 +21,7 @@
       "id": "67e87a26-d509-4df4-9c3c-5c6546eb7f97",
       "stellarAddress": "GAQZQABZADRIHXJSNS75OLEKNE65ZFU273PBSA6H23IHILQVFK3VQ5L2",
       "createdAt": "2026-09-12T19:27:37.932Z",
-      "lastActiveAt": "2026-09-13T17:47:52.386Z",
+      "lastActiveAt": "2026-09-13T21:39:08.989Z",
       "riskProfile": "BALANCED",
       "preferences": {
         "theme": "dark",
@@ -38,14 +38,26 @@
       "id": "ff3a3df8-f52a-447a-bd79-e21388c87a2b",
       "userAddress": "GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN",
       "vaultType": "EARN_XLM",
-      "depositedStroops": "17500000000",
-      "hSharesBalance": "17500000000",
-      "costBasisStroops": "17500000000",
+      "depositedStroops": "20000000000",
+      "hSharesBalance": "20000000000",
+      "costBasisStroops": "20000000000",
       "yieldEarnedStroops": "0",
-      "updatedAt": "2026-09-13T17:47:52.390Z"
+      "updatedAt": "2026-09-13T21:39:08.997Z"
     }
   ],
   "transactions": [
+    {
+      "id": "301e9c03-cfef-4612-9707-674ab8cc0f9a",
+      "userAddress": "GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN",
+      "txHash": "0xc5146caf1ad2c053a7a9a75beb910ce4824ea2c63a9603e4881d62cdfc393ae7",
+      "action": "DEPOSIT",
+      "vaultType": "EARN_XLM",
+      "amountStroops": "2500000000",
+      "sharesDelta": "+2500000000",
+      "status": "CONFIRMED",
+      "ledgerSequence": 345290,
+      "timestamp": "2026-09-13T21:39:08.997Z"
+    },
     {
       "id": "e4adca84-5555-4e08-9725-15e47013e016",
       "userAddress": "GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN",

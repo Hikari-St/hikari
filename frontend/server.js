@@ -89,7 +89,7 @@ function handleRequest(req, res) {
 
   // 2. API Endpoints
   // Healthcheck endpoints for container monitoring and orchestrators
-  if (pathname === "/api/health" || pathname === "/api/v1/db/health") {
+  if (pathname === "/api/health") {
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     return res.end(JSON.stringify({ status: "HEALTHY", timestamp: new Date().toISOString(), database: "ONLINE", protocol: "HIKARI" }));
   }

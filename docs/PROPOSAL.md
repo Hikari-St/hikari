@@ -50,7 +50,7 @@ However, Stellar lacks a native Proof-of-Stake consensus layer: native XLM token
 ## 2. The problem we are solving
 
 ### 2.1 The Idle Capital Conundrum on Stellar
-On proof-of-stake networks like Ethereum and Solana, 60–75% of circulating supply is deployed into liquid staking (Lido, Jito) to earn 3–8% APY. On Stellar, native consensus is governed by the Stellar Consensus Protocol (SCP), meaning **XLM has zero native proof-of-stake yield**. XLM holders must either:
+On proof-of-stake networks like Ethereum and Solana, 60–75% of circulating supply is deployed into liquid staking protocols to earn 3–8% APY. On Stellar, native consensus is governed by the Stellar Consensus Protocol (SCP), meaning **XLM has zero native proof-of-stake yield**. XLM holders must either:
 - Leave their capital entirely idle, losing purchasing power against inflation.
 - Manually deposit into individual money markets (Blend) or AMM pools (Phoenix, Soroswap), incurring manual rebalancing costs, slippage, and liquidation risk.
 
