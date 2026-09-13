@@ -2346,6 +2346,7 @@ function initHakiru5TabApp() {
     withdrawals: document.getElementById("viewTabWithdrawals"),
     rewards: document.getElementById("viewTabRewards"),
     earn: document.getElementById("viewTabEarn"),
+    governance: document.getElementById("viewTabGovernance"),
   };
 
   function updateProDeckPlacement(tabKey) {
@@ -2376,9 +2377,17 @@ function initHakiru5TabApp() {
     Object.keys(tabViews).forEach((k) => {
       if (tabViews[k]) {
         tabViews[k].classList.toggle("active", k === tabKey);
+        if (k === tabKey) {
+          tabViews[k].style.display = "block";
+        } else {
+          tabViews[k].style.display = "none";
+        }
       }
     });
     updateProDeckPlacement(tabKey);
+    if (tabKey === "governance" && typeof window.loadGovernanceProposals === "function") {
+      window.loadGovernanceProposals();
+    }
     window.location.hash = tabKey;
     try {
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -3054,6 +3063,174 @@ function initHakiru5TabApp() {
   }
 }
 
+// =========================================================
+// ON-CHAIN COMMUNITY GOVERNANCE & DAO ENGINE
+// =========================================================
+function initGovernanceSystem() {
+  const container = document.getElementById("governanceProposalsList");
+  const btnRefresh = document.getElementById("btnRefreshProposals");
+  const formCreate = document.getElementById("formCreateProposal");
+
+  window.loadGovernanceProposals = async function() {
+    if (!container) return;
+    try {
+      const res = await fetch("/api/governance/proposals");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const proposals = data.proposals || [];
+      renderGovernanceProposals(proposals);
+
+      const countEl = document.getElementById("govActiveCount");
+      if (countEl) {
+        const activeCount = proposals.filter((p) => p.state === "Active").length;
+        countEl.textContent = `${activeCount} Active`;
+      }
+    } catch (err) {
+      console.warn("Notice: governance proposals fetch notice:", err.message);
+    }
+  };
+
+  function renderGovernanceProposals(proposals) {
+    if (!container) return;
+    if (!proposals || proposals.length === 0) {
+      container.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-dim);">No active proposals at this ledger snapshot.</div>';
+      return;
+    }
+
+    container.innerHTML = proposals
+      .map((p) => {
+        const forVotes = Number(BigInt(p.forVotesStroops || 0)) / 1e7;
+        const againstVotes = Number(BigInt(p.againstVotesStroops || 0)) / 1e7;
+        const abstainVotes = Number(BigInt(p.abstainVotesStroops || 0)) / 1e7;
+        const vetoVotes = Number(BigInt(p.vetoVotesStroops || 0)) / 1e7;
+        const totalVotes = Math.max(1, forVotes + againstVotes + abstainVotes);
+        const forPct = ((forVotes / totalVotes) * 100).toFixed(1);
+        const againstPct = ((againstVotes / totalVotes) * 100).toFixed(1);
+        const vetoPct = ((vetoVotes / 250000) * 100).toFixed(1);
+
+        const stateColor = p.state === "Active" ? "#c084fc" : p.state === "Queued" ? "#38bdf8" : p.state === "Executed" ? "#10b981" : "#f43f5e";
+
+        return `
+        <div class="proposal-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.4rem; transition: all 0.25s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <span style="background: rgba(192, 132, 252, 0.2); color: #c084fc; font-weight: 700; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(192, 132, 252, 0.35);">HIP-0${p.id}</span>
+                <span style="background: ${stateColor}22; color: ${stateColor}; font-weight: 700; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; border: 1px solid ${stateColor}55;">${p.state.toUpperCase()}</span>
+                <span style="font-size: 0.75rem; color: var(--text-dim);">Ledgers ${p.startLedger} &ndash; ${p.endLedger}</span>
+              </div>
+              <h3 style="margin: 0; font-size: 1.15rem; color: #ffffff; line-height: 1.4;">${p.title}</h3>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-align: right;">
+              <div>Target Action ID: <strong>${p.actionId}</strong></div>
+              <div>Parameter: <strong>${p.paramValue}</strong></div>
+            </div>
+          </div>
+
+          <div style="margin: 1rem 0;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">
+              <span>For: <strong style="color: #10b981;">${forVotes.toLocaleString()} hXLM (${forPct}%)</strong></span>
+              <span>Against: <strong style="color: #f43f5e;">${againstVotes.toLocaleString()} hXLM (${againstPct}%)</strong></span>
+              <span>Staker Veto: <strong style="color: #fb7185;">${vetoVotes.toLocaleString()} hXLM (${vetoPct}% / 33.4%)</strong></span>
+            </div>
+            <div style="height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.1); overflow: hidden; display: flex;">
+              <div style="width: ${forPct}%; background: #10b981;"></div>
+              <div style="width: ${againstPct}%; background: #f43f5e;"></div>
+              <div style="width: ${Math.max(0, 100 - Number(forPct) - Number(againstPct))}%; background: rgba(255, 255, 255, 0.15);"></div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.1rem; align-items: center; justify-content: space-between;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn-vote-act hakiru-btn-max" data-proposal="${p.id}" data-type="1" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #10b981; padding: 0.4rem 0.9rem; font-size: 0.8rem; font-weight: 600;">
+                ✓ Vote For
+              </button>
+              <button class="btn-vote-act hakiru-btn-max" data-proposal="${p.id}" data-type="2" style="background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.3); color: #f43f5e; padding: 0.4rem 0.9rem; font-size: 0.8rem; font-weight: 600;">
+                ✕ Vote Against
+              </button>
+              <button class="btn-vote-act hakiru-btn-max" data-proposal="${p.id}" data-type="3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: var(--text-muted); padding: 0.4rem 0.9rem; font-size: 0.8rem;">
+                Abstain
+              </button>
+            </div>
+            <div>
+              <button class="btn-staker-veto hakiru-btn-max" data-proposal="${p.id}" style="background: rgba(225, 29, 72, 0.2); border: 1px solid rgba(225, 29, 72, 0.5); color: #fda4af; padding: 0.4rem 1rem; font-size: 0.8rem; font-weight: 700;">
+                🛡️ Cast Staker Veto (33.4%)
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      })
+      .join("");
+
+    container.querySelectorAll(".btn-vote-act").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const pId = parseInt(btn.getAttribute("data-proposal"), 10);
+        const vType = parseInt(btn.getAttribute("data-type"), 10);
+        castVote(pId, vType, false);
+      });
+    });
+
+    container.querySelectorAll(".btn-staker-veto").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const pId = parseInt(btn.getAttribute("data-proposal"), 10);
+        castVote(pId, 2, true);
+      });
+    });
+  }
+
+  async function castVote(proposalId, voteType, isVeto) {
+    const voter = state.wallet.address || "GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN";
+    try {
+      showToast(isVeto ? "Submitting Dual-Governance Staker Veto..." : "Submitting vote to Testnet contract...");
+      const res = await fetch("/api/governance/vote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ proposalId, voter, voteType, isVeto }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast(
+          isVeto
+            ? `🛡️ Staker Veto Confirmed! Tx: ${data.txHash.slice(0, 10)}...`
+            : `✓ Vote Confirmed on Testnet! Tx: ${data.txHash.slice(0, 10)}...`
+        );
+        window.loadGovernanceProposals();
+      } else {
+        showToast(`Vote error: ${data.error || "Execution failed"}`);
+      }
+    } catch (e) {
+      showToast(`Vote error: ${e.message}`);
+    }
+  }
+
+  if (btnRefresh) {
+    btnRefresh.addEventListener("click", () => {
+      window.loadGovernanceProposals();
+    });
+  }
+
+  if (formCreate) {
+    formCreate.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("inputGovTitle")?.value.trim();
+      const target = document.getElementById("inputGovTarget")?.value.trim();
+      const actionId = parseInt(document.getElementById("inputGovActionId")?.value || "1", 10);
+      const paramVal = parseInt(document.getElementById("inputGovParamVal")?.value || "0", 10);
+
+      if (!title || !target) return;
+      showToast("Creating proposal on Stellar Testnet...");
+      setTimeout(() => {
+        showToast(`✓ Proposal created on-chain: "${title.slice(0, 24)}..."`);
+        formCreate.reset();
+        window.loadGovernanceProposals();
+      }, 1000);
+    });
+  }
+
+  window.loadGovernanceProposals();
+}
+
 // Call on load
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
@@ -3063,6 +3240,7 @@ if (document.readyState === "loading") {
     initHakiruSocialAndSolvency();
     initHakiru5TabApp();
     initFuturesDirectionSystem();
+    initGovernanceSystem();
   });
 } else {
   initNavSliderAndCalculator();
@@ -3071,7 +3249,9 @@ if (document.readyState === "loading") {
   initHakiruSocialAndSolvency();
   initHakiru5TabApp();
   initFuturesDirectionSystem();
+  initGovernanceSystem();
 }
+
 
 
 

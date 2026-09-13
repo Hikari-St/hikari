@@ -1,0 +1,16 @@
+[package]
+name = "hikari-governance"
+version = "0.1.0"
+authors = ["ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>"]
+edition = "2021"
+license = "MIT"
+
+[lib]
+crate-type = ["lib"]
+
+[dependencies]
+soroban-sdk = { workspace = true }
+hikari-interfaces = { path = "../interfaces" }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }

@@ -62,6 +62,10 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
             <span>Earn</span> <span class="tab-badge-new">NEW</span>
           </button>
+          <button class="app-tab-btn" data-tab="governance" id="btnNavGovernance">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <span>Governance</span> <span class="tab-badge-new" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: rgba(16, 185, 129, 0.4);">DAO</span>
+          </button>
         </nav>
 
         <!-- Legacy Vault Switcher Deck for test compatibility -->
@@ -1649,7 +1653,110 @@
         </section>
       </section>
 
-    </div>
+      <!-- TAB 6: ON-CHAIN COMMUNITY GOVERNANCE & DAO ENGINE -->
+      <section id="viewTabGovernance" class="hikari-tab-view hakiru-tab-view" style="display: none;">
+        <div class="hikari-card hakiru-card" style="max-width: 980px; margin: 0 auto 2rem; width: 100%;">
+          <div class="hikari-card-header hakiru-card-header" style="text-align: left; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <div class="hikari-token-icon-wrap" style="width: 38px; height: 38px;">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                  </svg>
+                </div>
+                <div>
+                  <h1 class="hikari-card-title hakiru-card-title" style="margin: 0; font-size: 1.6rem;">Community Governance &amp; DAO</h1>
+                  <p class="hikari-card-subtitle hakiru-card-subtitle" style="margin: 0; font-size: 0.85rem;">
+                    Decentralized Soroban Snapshot Voting &bull; Dual-Governance 33.4% Staker Veto &bull; Timelocked Execution
+                  </p>
+                </div>
+              </div>
+              <a href="https://stellar.expert/explorer/testnet/contract/CA2MDYX7IIDD32KQGXIN6SRERI4ABVO3N37BLH7HKNFGTAI252VE7QID" target="_blank" rel="noopener" class="hikari-badge hakiru-badge" style="background: rgba(139, 47, 230, 0.15); border: 1px solid rgba(192, 132, 252, 0.4); color: var(--purple-soft); font-size: 0.75rem; text-decoration: none; padding: 0.4rem 0.8rem; border-radius: 999px;">
+                Contract: CA2MDYX...7QID ↗
+              </a>
+            </div>
+          </div>
+
+          <!-- Governance Metrics Overview Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Governance Power</div>
+              <div style="font-size: 1.4rem; font-weight: 700; color: #ffffff; margin: 0.35rem 0;" id="govTotalPower">250,000 hXLM</div>
+              <div style="font-size: 0.72rem; color: #10b981;">100% On-Chain SEP-41 Snapshot</div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Active Proposals</div>
+              <div style="font-size: 1.4rem; font-weight: 700; color: #c084fc; margin: 0.35rem 0;" id="govActiveCount">3 Active</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Quorum: 4.00% Required</div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Staker Veto Threshold</div>
+              <div style="font-size: 1.4rem; font-weight: 700; color: #f43f5e; margin: 0.35rem 0;">33.40%</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Dual-Governance Safeguard</div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Timelock Delay</div>
+              <div style="font-size: 1.4rem; font-weight: 700; color: #38bdf8; margin: 0.35rem 0;">8,640 Ledgers</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">~12 Hours Execution Queue</div>
+            </div>
+          </div>
+
+          <!-- Dual-Governance Explainer Banner -->
+          <div style="background: rgba(139, 47, 230, 0.08); border: 1px solid rgba(192, 132, 252, 0.3); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="font-size: 1.6rem; flex-shrink: 0;">🛡️</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+              <strong style="color: #ffffff;">Dual-Governance Staker Protection Active:</strong>
+              Hikari empowers liquid stakers with sovereign veto authority. Even if governance or rogue admin proposals pass a vote, hXLM stakers who disagree can trigger a collective Staker Veto (&ge; 33.4% of shares). Once vetoed, the contract cancels the queued transaction and prevents any unauthorized protocol alteration.
+            </div>
+          </div>
+
+          <!-- Active Proposals Section -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2 style="font-size: 1.2rem; font-weight: 700; color: #ffffff; margin: 0;">Active On-Chain Proposals</h2>
+            <button id="btnRefreshProposals" class="hikari-btn-max hakiru-btn-max" style="padding: 0.35rem 0.8rem; font-size: 0.78rem;">
+              ↻ Refresh
+            </button>
+          </div>
+
+          <!-- Dynamic Proposals List Container -->
+          <div id="governanceProposalsList" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <!-- Rendered dynamically by app.js -->
+            <div style="text-align: center; padding: 2rem; color: var(--text-dim);">Loading active governance proposals from Testnet...</div>
+          </div>
+
+          <!-- Submit New Proposal Form (Collapsible) -->
+          <div style="margin-top: 2.5rem; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <div>
+                <h3 style="margin: 0; font-size: 1.05rem; color: #ffffff;">Create Governance Proposal (HIP)</h3>
+                <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.2rem;">Requires 10,000 hXLM proposal threshold or admin authority</div>
+              </div>
+            </div>
+            <form id="formCreateProposal" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div style="grid-column: span 2;">
+                <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Proposal Title</label>
+                <input type="text" id="inputGovTitle" class="hikari-number-input hakiru-number-input" placeholder="e.g. HIP-04: Adjust Phoenix CLAMM Target Fee to 25 bps" required style="width: 100%; box-sizing: border-box; text-align: left; padding: 0.6rem 0.9rem; font-size: 0.88rem;">
+              </div>
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Target Contract Address</label>
+                <input type="text" id="inputGovTarget" class="hikari-number-input hakiru-number-input" placeholder="Contract ID (e.g. CCR6NFK...)" required style="width: 100%; box-sizing: border-box; text-align: left; padding: 0.6rem 0.9rem; font-size: 0.85rem; font-family: monospace;">
+              </div>
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Action ID &amp; Parameter Value</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="number" id="inputGovActionId" class="hikari-number-input hakiru-number-input" placeholder="Action (1-5)" min="1" max="10" value="1" required style="width: 35%; box-sizing: border-box; text-align: center; padding: 0.6rem 0.5rem; font-size: 0.85rem;">
+                  <input type="number" id="inputGovParamVal" class="hikari-number-input hakiru-number-input" placeholder="Param (e.g. 1500)" value="1500" required style="width: 65%; box-sizing: border-box; text-align: left; padding: 0.6rem 0.5rem; font-size: 0.85rem;">
+                </div>
+              </div>
+              <div style="grid-column: span 2; display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+                <button type="submit" id="btnSubmitProposal" class="hikari-btn-primary hakiru-btn-primary" style="width: auto; padding: 0.6rem 1.8rem; font-size: 0.88rem; margin: 0;">
+                  Submit Proposal to Testnet
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
 
     
 

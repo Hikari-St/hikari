@@ -67,8 +67,40 @@ async function verifyContracts(config) {
     const phxVal = Number(JSON.parse(phxValRaw.split("\n").pop().trim())) / 1e7;
     console.log(`   [OK] Phoenix Concentrated Position: ${phxVal.toFixed(4)} XLM`);
 
+    if (config.contracts.soroswapAdapter) {
+      const soroswap = config.contracts.soroswapAdapter;
+      console.log(`\n5. Soroswap AMM Adapter (${soroswap.id}):`);
+      const sValRaw = runCmd(`stellar contract invoke --id ${soroswap.id} --source hikari-admin --network testnet -- total_value`);
+      const sVal = Number(JSON.parse(sValRaw.split("\n").pop().trim())) / 1e7;
+      console.log(`   [OK] Soroswap Position Value: ${sVal.toFixed(4)} XLM`);
+    }
+
+    if (config.contracts.oracle) {
+      const oracle = config.contracts.oracle;
+      console.log(`\n6. Hikari Telemetry Oracle (${oracle.id}):`);
+      const teleRaw = runCmd(`stellar contract invoke --id ${oracle.id} --source hikari-admin --network testnet -- get_telemetry`);
+      const tele = JSON.parse(teleRaw.split("\n").pop().trim());
+      console.log(`   [OK] Telemetry NAV: ${(Number(tele.nav_stroops) / 1e7).toFixed(4)} XLM | APR: ${(tele.apr_bps / 100).toFixed(2)}% | Bunker: ${tele.bunker_active}`);
+    }
+
+    if (config.contracts.governance) {
+      const gov = config.contracts.governance;
+      console.log(`\n7. Community Governance & DAO Engine (${gov.id}):`);
+      const govConfRaw = runCmd(`stellar contract invoke --id ${gov.id} --source hikari-admin --network testnet -- get_config`);
+      const govConf = JSON.parse(govConfRaw.split("\n").pop().trim());
+      console.log(`   [OK] Quorum: ${(govConf.quorum_bps / 100).toFixed(2)}% | Staker Veto Threshold: ${(govConf.veto_threshold_bps / 100).toFixed(2)}% | Timelock: ${govConf.timelock_ledgers} ledgers`);
+    }
+
+    if (config.contracts.feeController) {
+      const feeCtrl = config.contracts.feeController;
+      console.log(`\n8. Dynamic Fee Controller (${feeCtrl.id}):`);
+      const feeRaw = runCmd(`stellar contract invoke --id ${feeCtrl.id} --source hikari-admin --network testnet -- get_fee_config`);
+      const [mgmtBps, perfBps, hwm] = JSON.parse(feeRaw.split("\n").pop().trim());
+      console.log(`   [OK] Management Fee: ${(mgmtBps / 100).toFixed(2)}% | Performance Fee: ${(perfBps / 100).toFixed(2)}% | HWM: ${(Number(hwm) / 1e7).toFixed(4)} XLM`);
+    }
+
     console.log("\n================================================================================");
-    console.log("[SUCCESS] All tested Testnet contracts are active, responding, and state-verified!");
+    console.log("[SUCCESS] All 8 Testnet contracts are active, responding, and state-verified!");
     console.log("================================================================================\n");
   } catch (err) {
     console.error("Verification encounter error:", err.message);

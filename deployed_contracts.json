@@ -50,6 +50,26 @@
     "underlyingNativeXlmSac": {
       "id": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
       "explorer": "https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"
+    },
+    "oracle": {
+      "id": "CAEPCI2TEPENZZBGSMSQEL3W6IW7TYBXRKGXU25J56LQUC33NXJXF6S6",
+      "explorer": "https://stellar.expert/explorer/testnet/contract/CAEPCI2TEPENZZBGSMSQEL3W6IW7TYBXRKGXU25J56LQUC33NXJXF6S6"
+    },
+    "governance": {
+      "id": "CA2MDYX7IIDD32KQGXIN6SRERI4ABVO3N37BLH7HKNFGTAI252VE7QID",
+      "explorer": "https://stellar.expert/explorer/testnet/contract/CA2MDYX7IIDD32KQGXIN6SRERI4ABVO3N37BLH7HKNFGTAI252VE7QID"
+    },
+    "soroswapAdapter": {
+      "id": "CDPZLNOKPV4KMJ5RNT24RKK46BFEIJGTKRDZGVKOMZFSIKZQ6H5G5KJ3",
+      "riskTier": 2,
+      "feeAprBps": 1200,
+      "explorer": "https://stellar.expert/explorer/testnet/contract/CDPZLNOKPV4KMJ5RNT24RKK46BFEIJGTKRDZGVKOMZFSIKZQ6H5G5KJ3"
+    },
+    "feeController": {
+      "id": "CDD6XCT7TD3AWEYMQM7XDFPFDQUZUFUTRVUY3MDNCHPV4SUU4R3OA473",
+      "managementFeeBps": 150,
+      "performanceFeeBps": 1000,
+      "explorer": "https://stellar.expert/explorer/testnet/contract/CDD6XCT7TD3AWEYMQM7XDFPFDQUZUFUTRVUY3MDNCHPV4SUU4R3OA473"
     }
   },
   "identities": {

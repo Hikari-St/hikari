@@ -25,6 +25,11 @@ pub enum Error {
     AlreadyFinalized = 18,
     ThresholdExceeded = 19,
     InvalidWasmHash = 20,
+    ProposalNotFound = 21,
+    VotingClosed = 22,
+    QuorumNotMet = 23,
+    TimelockNotExpired = 24,
+    ProposalVetoed = 25,
 }
 
 #[contracttype]
@@ -209,5 +214,104 @@ pub trait HikariOracleTrait {
     ) -> Result<(), Error>;
     fn set_publisher(env: Env, caller: Address, new_publisher: Address) -> Result<(), Error>;
 }
+
+#[contracttype]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[repr(u32)]
+pub enum ProposalState {
+    Pending = 0,
+    Active = 1,
+    Defeated = 2,
+    Succeeded = 3,
+    Queued = 4,
+    Executed = 5,
+    Vetoed = 6,
+    Expired = 7,
+}
+
+#[contracttype]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[repr(u32)]
+pub enum VoteType {
+    Against = 0,
+    For = 1,
+    Abstain = 2,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Proposal {
+    pub id: u32,
+    pub creator: Address,
+    pub title: String,
+    pub description_hash: BytesN<32>,
+    pub target_contract: Address,
+    pub action_id: u32,
+    pub param_value: i128,
+    pub start_ledger: u32,
+    pub end_ledger: u32,
+    pub eta_ledger: u32,
+    pub for_votes: i128,
+    pub against_votes: i128,
+    pub abstain_votes: i128,
+    pub veto_votes: i128,
+    pub state: ProposalState,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct GovernanceConfig {
+    pub admin: Address,
+    pub hxlm_token: Address,
+    pub voting_period_ledgers: u32,
+    pub timelock_ledgers: u32,
+    pub quorum_bps: u32,
+    pub veto_threshold_bps: u32,
+}
+
+#[contractclient(name = "HikariGovernanceClient")]
+pub trait HikariGovernanceTrait {
+    fn initialize(
+        env: Env,
+        admin: Address,
+        hxlm_token: Address,
+        voting_period_ledgers: u32,
+        timelock_ledgers: u32,
+        quorum_bps: u32,
+        veto_threshold_bps: u32,
+    ) -> Result<(), Error>;
+
+    fn create_proposal(
+        env: Env,
+        creator: Address,
+        title: String,
+        description_hash: BytesN<32>,
+        target_contract: Address,
+        action_id: u32,
+        param_value: i128,
+    ) -> Result<u32, Error>;
+
+    fn cast_vote(
+        env: Env,
+        voter: Address,
+        proposal_id: u32,
+        vote_type: VoteType,
+        voting_power: i128,
+    ) -> Result<(), Error>;
+
+    fn cast_veto(
+        env: Env,
+        staker: Address,
+        proposal_id: u32,
+        staker_power: i128,
+    ) -> Result<(), Error>;
+
+    fn queue_proposal(env: Env, proposal_id: u32) -> Result<(), Error>;
+    fn execute_proposal(env: Env, proposal_id: u32) -> Result<(), Error>;
+    fn get_proposal(env: Env, proposal_id: u32) -> Proposal;
+    fn get_proposal_count(env: Env) -> u32;
+    fn get_config(env: Env) -> GovernanceConfig;
+}
+
 
 

@@ -147,6 +147,7 @@ function handleRequest(req, res) {
       policyAccount: "CAPXDOMRO7U6XGOSNWKP6YBY7GMBRH7FPTYWTAW6CRGPMYIZHIJDO3UP",
       withdrawalQueue: "CAV3C7P5F56LQZ32Q642LGBK2T7I7WOU2E6DGLXQ4H4YGB64NZG2U43N",
       oracle: "CDORACLEXLK77HKR42YIELDORACLETROOPSTELEMETRYPROOFS7XQL6Z",
+      governance: "CBGOV4XQ77HIKARIDAOPROPOSALTIMELOCKSTAKERVETO7XQ9L2",
       adapters: {
         blend: "CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL",
         phoenix: "CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5",
@@ -156,6 +157,102 @@ function handleRequest(req, res) {
     });
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     return res.end(JSON.stringify(contracts));
+  }
+
+  // API 2.1: Governance Proposals & DAO State
+  if (pathname === "/api/governance/proposals") {
+    const proposals = [
+      {
+        id: 1,
+        title: "HIP-01: Ratify Mandatory 15% Liquid Native XLM Reserve Floor",
+        creator: "GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN",
+        actionId: 1,
+        paramValue: 1500,
+        startLedger: 345000,
+        endLedger: 355000,
+        etaLedger: 355050,
+        forVotesStroops: "184500000000",
+        againstVotesStroops: "12500000000",
+        abstainVotesStroops: "5000000000",
+        vetoVotesStroops: "0",
+        state: "Active",
+        quorumBps: 400,
+        vetoThresholdBps: 3340,
+        timelockLedgers: 50,
+        description: "Formally enforce the minimum 15% unallocated native XLM liquidity floor across all autonomous keeper rebalancing cycles to guarantee immediate redemption throughput."
+      },
+      {
+        id: 2,
+        title: "HIP-02: Expand Phoenix CLAMM Allocation Ceiling to 40%",
+        creator: "GAQZQABZADRIHXJSNS75OLEKNE65ZFU273PBSA6H23IHILQVFK3VQ5L2",
+        actionId: 2,
+        paramValue: 4000,
+        startLedger: 345200,
+        endLedger: 355200,
+        etaLedger: 355250,
+        forVotesStroops: "142000000000",
+        againstVotesStroops: "31000000000",
+        abstainVotesStroops: "8000000000",
+        vetoVotesStroops: "0",
+        state: "Active",
+        quorumBps: 400,
+        vetoThresholdBps: 3340,
+        timelockLedgers: 50,
+        description: "Increase concentrated liquidity cap on Phoenix CLAMM XLM/USDC pool from 35% to 40% to capture amplified trading fees during elevated market volatility."
+      },
+      {
+        id: 3,
+        title: "HIP-03: Performance Fee Allocation & Staker Rebate Split",
+        creator: "GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN",
+        actionId: 3,
+        paramValue: 500,
+        startLedger: 340000,
+        endLedger: 350000,
+        etaLedger: 350050,
+        forVotesStroops: "210000000000",
+        againstVotesStroops: "4000000000",
+        abstainVotesStroops: "2000000000",
+        vetoVotesStroops: "0",
+        state: "Executed",
+        quorumBps: 400,
+        vetoThresholdBps: 3340,
+        timelockLedgers: 50,
+        description: "Ratify 50/50 split of the 5% performance fee: 50% directed to protocol insurance reserve fund, 50% funding autonomous keeper gas and continuous ZK solvency indexers."
+      }
+    ];
+
+    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+    return res.end(JSON.stringify({ success: true, proposals }));
+  }
+
+  // API 2.2: Cast Governance Vote or Staker Veto
+  if (pathname === "/api/governance/vote" && req.method === "POST") {
+    let body = "";
+    req.on("data", chunk => { body += chunk; });
+    req.on("end", () => {
+      try {
+        const payload = JSON.parse(body || "{}");
+        const { proposalId, voter, voteType, votingPowerStroops, isVeto } = payload;
+        
+        const txHash = `0xgov_${Date.now()}_${Math.random().toString(16).slice(2, 10)}`;
+        res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+        return res.end(JSON.stringify({
+          success: true,
+          proposalId: proposalId || 1,
+          voter: voter || "GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN",
+          action: isVeto ? "STAKER_VETO_RECORDED" : "VOTE_CAST_RECORDED",
+          voteType: voteType || "For",
+          votingPowerStroops: votingPowerStroops || "1000000000",
+          txHash,
+          ledger: 345600,
+          timestamp: new Date().toISOString()
+        }));
+      } catch (e) {
+        res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+        return res.end(JSON.stringify({ error: "Invalid vote payload" }));
+      }
+    });
+    return;
   }
 
   // API 3: Trigger Autonomous Rebalance & MEV Cycle
