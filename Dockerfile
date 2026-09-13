@@ -37,6 +37,7 @@ COPY docs/ ./docs/
 
 # Build TypeScript packages
 RUN npm run build --prefix engine
+RUN npm install --prefix agents
 RUN npm run build --prefix agents
 RUN npm run build --prefix sdk
 RUN npm run build --prefix services/x402-gateway

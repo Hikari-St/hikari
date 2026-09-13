@@ -10,7 +10,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "declaration": true
+    "declaration": true,
+    "baseUrl": ".",
+    "paths": {
+      "hikari-engine": ["../engine/dist/index.d.ts"]
+    }
   },
   "include": ["src/**/*"]
 }

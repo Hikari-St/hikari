@@ -2,8 +2,6 @@
 # Author: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 # Complete container orchestration for Hikari / Hakiru Protocol
 
-version: "3.8"
-
 services:
   # 1. Primary Web Dashboard, DApp Workspace & API Gateway
   dashboard:
@@ -20,14 +18,14 @@ services:
       - STELLAR_NETWORK=testnet
       - RPC_URL=https://soroban-testnet.stellar.org
       - HORIZON_URL=https://horizon-testnet.stellar.org
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/hikari?sslmode=disable}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgrespassword@postgres:5432/hikari?sslmode=disable}
       - SUPABASE_URL=${SUPABASE_URL:-}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
       - JWT_SECRET=${JWT_SECRET:-hikari-protocol-master-secret-key-2026-ibochivincent-lang}
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/v1/db/health"]
-      interval: 30s
-      timeout: 10s
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/api/v1/db/health"]
+      interval: 15s
+      timeout: 5s
       retries: 3
     depends_on:
       - postgres
@@ -115,7 +113,7 @@ services:
       POSTGRES_PASSWORD: postgrespassword
       POSTGRES_DB: hikari
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -126,9 +124,26 @@ services:
     networks:
       - hikari-net
 
+  # 7. Autonomous Keeper Bot & Soroban Oracle Dispatcher
+  keeper-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hikari-keeper-bot
+    restart: unless-stopped
+    command: ["node", "engine/dist/keeper_daemon.js"]
+    environment:
+      - NODE_ENV=production
+      - INTERVAL_MS=60000
+    depends_on:
+      - dashboard
+    networks:
+      - hikari-net
+
 networks:
   hikari-net:
     driver: bridge
 
 volumes:
   postgres-data:
+

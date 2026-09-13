@@ -88,6 +88,12 @@ function handleRequest(req, res) {
   const pathname = parsedUrl.pathname;
 
   // 2. API Endpoints
+  // Healthcheck endpoints for container monitoring and orchestrators
+  if (pathname === "/api/health" || pathname === "/api/v1/db/health") {
+    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+    return res.end(JSON.stringify({ status: "HEALTHY", timestamp: new Date().toISOString(), database: "ONLINE", protocol: "HIKARI" }));
+  }
+
   // API 1: Live Agent Telemetry & MEV Metrics
   if (pathname === "/api/telemetry") {
     const data = readJsonSafe(DATA_FILE, {

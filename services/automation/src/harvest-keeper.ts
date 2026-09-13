@@ -125,6 +125,11 @@ export class HakiruHarvestKeeper {
 
 if (require.main === module) {
   const keeper = new HakiruHarvestKeeper();
-  console.log("Starting single evaluation cycle...");
+  console.log("[Harvest Keeper] Initialized autonomous compounding daemon.");
   keeper.executeHarvestCycle();
+
+  const interval = parseInt(process.env.HARVEST_INTERVAL_MS || "60000", 10);
+  setInterval(() => {
+    keeper.executeHarvestCycle();
+  }, interval);
 }

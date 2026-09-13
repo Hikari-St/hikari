@@ -66,3 +66,18 @@ export class HakiruTelemetryIndexer {
     if (this.history.length > 500) this.history.shift();
   }
 }
+
+if (require.main === module) {
+  const indexer = new HakiruTelemetryIndexer();
+  console.log("[Telemetry Indexer] Initialized 24/7 APY & Solvency Indexer daemon.");
+  const snapshot = indexer.getLatestSnapshot();
+  console.log(`[Telemetry Indexer] Initial Snapshot: TVL ${snapshot.tvlXlm} XLM, APY: ${snapshot.netApyXlm}%, Utilization: ${snapshot.capitalUtilizationRateBps / 100}%`);
+
+  const interval = parseInt(process.env.INDEX_INTERVAL_MS || "60000", 10);
+  setInterval(() => {
+    indexer.recordEvent("HEARTBEAT", {});
+    const latest = indexer.getLatestSnapshot();
+    console.log(`[Telemetry Indexer] [Ledger #${latest.ledger}] TVL: ${latest.tvlXlm} XLM | APY: ${latest.netApyXlm}% | Depositors: ${latest.activeDepositors}`);
+  }, interval);
+}
+

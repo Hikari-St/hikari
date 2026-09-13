@@ -96,3 +96,12 @@ export class X402Client {
     return res.json();
   }
 }
+
+if (typeof require !== "undefined" && require.main === module) {
+  const port = parseInt(process.env.PORT || "3402", 10);
+  const server = new PaidTelemetryServer(port);
+  server.listen().then(() => {
+    console.log(`[x402 Gateway] HTTP 402 Micropayment Server listening on port ${port}`);
+  });
+}
+
