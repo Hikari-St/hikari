@@ -1,0 +1,89 @@
+name: 🌱 Good first issue (maintainer-authored)
+description: Use this to publish a well-scoped task newcomers can pick up. Restricted to maintainers.
+title: '[GOOD-FIRST-ISSUE] [SCOPE] <short task>'
+labels:
+  - good-first-issue
+  - help-wanted
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **For maintainers only.** This template drafts a good-first-issue
+        that a new contributor can pick up without asking questions.
+        The goal is that someone can go from `git clone` to open PR in
+        under an afternoon, with nothing hidden.
+
+        A well-shaped good-first-issue has five properties:
+        1. **Small.** One file, one function, or one component.
+        2. **Unblocked.** No dependencies on in-flight work.
+        3. **Reviewer-ready.** Acceptance criteria are unambiguous.
+        4. **Educational.** The contributor learns a concept they'll use again.
+        5. **Discardable.** If it stalls, we can re-assign without context loss.
+
+  - type: textarea
+    id: one-liner
+    attributes:
+      label: One-line task
+      description: The full task, in a single sentence.
+      placeholder: Add unbonding ticket cooldown formatting in @hikari/sdk.
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is this a good first issue?
+      description: Context a newcomer needs. Why does the codebase look the way it does here?
+      placeholder: |
+        The SDK calculates remaining epoch seconds for unbonding tickets, but lacks a human-readable
+        formatter (e.g. "1 day 4 hours"). Adding this helper is self-contained and teaches the SDK structure.
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Files to change
+      description: Every file the contributor will touch.
+      placeholder: |
+        - `sdk/src/client.ts` — add helper function
+        - `sdk/src/test.ts` — add unit tests
+        - `CHANGELOG.md` — document addition
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Bulleted, testable criteria.
+      placeholder: |
+        - Formats seconds into clean "X days Y hours" strings.
+        - Handles zero and negative values gracefully.
+        - `npm run test:sdk` passes cleanly.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: estimate
+    attributes:
+      label: Estimated time
+      options:
+        - '< 1 hour'
+        - '1–3 hours'
+        - '3–6 hours'
+        - 'half day'
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: prereqs
+    attributes:
+      label: Pre-requisites / skills
+      options:
+        - label: TypeScript basics (types, async/await)
+        - label: Stellar SDK familiarity
+        - label: Soroban / Rust familiarity
+        - label: Vanilla CSS / DOM manipulation
+        - label: None — reading documentation is enough

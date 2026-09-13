@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions — questions, architecture, ideas
+    url: https://github.com/ibochivincent-lang/hikari/discussions
+    about: Ask a question, discuss yield strategies, or propose architectural improvements.
+  - name: 🔐 Security vulnerability — private disclosure
+    url: https://github.com/ibochivincent-lang/hikari/security/advisories/new
+    about: Do NOT open a public issue for a security vulnerability. Use a private advisory or email vincentibochi@gmail.com.
+  - name: ⚡ New Yield Strategy Adapter
+    url: https://github.com/ibochivincent-lang/hikari/issues/new?template=strategy-adapter.yml
+    about: Propose and integrate a new Soroban yield strategy adapter (e.g. money markets, DEX LPs).
+  - name: 📖 Documentation gap
+    url: https://github.com/ibochivincent-lang/hikari/issues/new?template=docs.yml
+    about: Something in the docs is wrong, missing, or out of date.

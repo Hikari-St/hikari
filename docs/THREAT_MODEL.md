@@ -1,51 +1,45 @@
-# Hikari Threat Model & Security Specifications
+# Hikari Protocol — Threat Model & Security Analysis
 
-Author: ibochivincent-lang
-Project: Hikari (Stellar AI Liquid-Yield & Agentic Finance Protocol)
+> **Threat Model, Attack Vectors, and Cryptographic Mitigations for Soroban Protocol 27**
+> Scope: Soroban smart contracts, off-chain keepers, risk policy engine, database isolation, and MCP agent surface.
 
 ---
 
 ## 1. System Overview & Trust Boundaries
 
-The Hikari protocol manages user deposits and allocates capital across approved DeFi strategies. The system decomposes into distinct trust boundaries:
+Hikari manages user capital across approved Soroban DeFi venues. The system decomposes into distinct trust boundaries:
 
-1. **User Funds & Vault State (High Trust / Critical)**: Guarded by Soroban smart contracts. Keys and fund movements are governed by mathematical share accounting and explicit authentication (`require_auth`).
-2. **AI Agents (Zero Trust / Untrusted)**: LLMs and automated heuristic agents are untrusted entities. They cannot hold signing keys to user vaults and cannot initiate fund transfers directly.
+1. **User Funds & Vault State (High Trust / Critical)**: Guarded by Soroban smart contracts (`hikari_core`). Asset transfers require explicit user signatures (`require_auth`) and satisfy mathematical share accounting.
+2. **AI Agents & MCP Clients (Zero Trust / Untrusted)**: LLMs and automated heuristic agents are untrusted entities. They cannot hold signing keys to user vaults and cannot initiate fund transfers directly.
 3. **Deterministic Policy Engine (Medium-High Trust)**: A deterministic verification boundary evaluating agent proposals against immutable boundaries before transaction construction.
-4. **On-chain Policy Account (High Trust)**: Custom smart account enforcing per-transaction caps and destination allowlists on-chain via `__check_auth`.
+4. **On-chain Policy Account (High Trust)**: Custom smart account enforcing per-transaction caps and destination allowlists on-chain.
 5. **External Data Sources & Oracles (Low Trust)**: Prices, strategy APYs, and indexer state are treated as potentially malicious or stale.
 
 ---
 
-## 2. Threat Vectors & Mitigations
+## 2. Threat Vector Matrix
 
-### 2.1 First-Depositor Inflation Attack
-* **Threat**: An attacker deposits 1 stroop, receives 1 share, then donates a large balance (e.g. 10,000 XLM) directly to the vault. Subsequent depositors depositing standard amounts get rounded down to 0 shares, forfeiting their capital.
-* **Mitigation**: The vault implements virtual shares and virtual assets:
-  $$\text{shares\_to\_mint} = \frac{\text{deposit\_amount} \times (\text{total\_shares} + 10^3)}{\text{total\_assets} + 1}$$
-  Virtual shares ($10^3$) are mathematically locked at deployment, making inflation manipulation cost-prohibitive.
+| Threat | Vector | Severity | Cryptographic & Architectural Mitigation |
+| ------ | ------ | -------- | ---------------------------------------- |
+| **First-Depositor Inflation Attack** | Attacker mints 1 share and donates large balance to dilute next depositor | High | Virtual share offset ($10^3$ virtual shares locked at deployment); standard ERC-4626 inflation defense. |
+| **LLM Hallucination / Prompt Injection** | External market news prompts malicious agent to propose unvetted rebalance | High | LLMs emit strictly structured JSON proposals evaluated by deterministic `PolicyVerifier`; unverified contracts dropped instantly. |
+| **Flash-Loan Sandwich Harvest** | Attacker deposits right before yield distribution and redeems immediately | Medium | FIFO Unbonding Queue with 1–3 day cooldown; continuous NAV compounding eliminates lumpy distribution windows. |
+| **Soroban State Archival (TTL Expiration)** | Inactive user balances or strategy records are archived by ledger rent | High | Automated `extend_ttl` on every deposit, withdrawal, and keeper rebalance; separation into Instance and Persistent keys. |
+| **Rogue Strategy Insolvency** | Underlying DeFi protocol (e.g. Blend/Phoenix) suffers exploit or bad debt | High | 40% maximum allocation cap per protocol; 15% mandatory liquid cash floor; automated Bunker Mode trips on >5% NAV drop. |
+| **Intent Replay Attack** | Malicious node attempts to re-submit signed intent to double-stake | Medium | Intent hashes recorded permanently in on-chain replay registry; signed timestamps verified against current ledger. |
+| **Cross-Session Address Mixup** | Concurrently connecting users receive cross-contaminated portfolio state | Medium | Multi-tenant database schema enforced by unique public key isolation; cryptographic nonces verified prior to session issuance. |
+| **Denial of Service on APIs** | Heavy traffic floods `/api/vault` or simulation endpoints | Low | In-memory token bucket rate limiting (100 req/min per IP); static asset caching on edge CDN. |
 
-### 2.2 LLM Hallucination or Prompt Injection
-* **Threat**: Malicious input from external market news or sentiment data tricks the LLM into proposing a rebalance to an attacker's address or dumping liquidity into an unvetted pool.
-* **Mitigation**:
-  - LLMs only emit structured JSON rebalance proposals.
-  - The deterministic Policy Engine checks the proposal against an on-chain `StrategyRegistry` allowlist.
-  - Any proposal exceeding predefined deviation thresholds or touching unverified contracts is immediately dropped.
+---
 
-### 2.3 Flash-Harvest & Sandwich Exploits
-* **Threat**: A trader observes a pending strategy yield harvest, deposits capital right before harvest, and redeems immediately after, stealing yield from long-term depositors.
-* **Mitigation**:
-  - Withdrawal Queue with an anti-sandwich cooldown period (minimum ledger delay before redemption claims can be finalized).
-  - Continuous NAV compounding rather than lumpy unannounced distributions.
+## 3. Review Cadence & Audit Status
 
-### 2.4 Soroban State Archival (TTL Expiration)
-* **Threat**: Inactive user balances or strategy records are archived by Soroban rent mechanics, failing contract calls.
-* **Mitigation**:
-  - Auto-extension of storage TTL on every user deposit, withdrawal, and strategy rebalance (`extend_ttl`).
-  - Separation into Instance, Persistent, and Temporary storage keys according to lifecycle requirements.
+This threat model is reviewed prior to every minor release and verified against property-based invariant fuzzing suites (`scripts/run_fuzz_tests.js`). Third-party formal verification and external auditing are scheduled under Roadmap Wave 1.1.
 
-### 2.5 Rogue or Compromised Strategy Adapter
-* **Threat**: An underlying DeFi protocol suffers an exploit or bad debt.
-* **Mitigation**:
-  - An `EmergencyGuardian` can instantly pause a strategy, prevent new deposits, and call `emergency_exit` to pull capital back into the core vault.
-  - Per-strategy TVL caps prevent single-protocol insolvency from draining the entire vault.
+---
+
+## 4. Related Documents
+
+- [`docs/SECURITY.md`](SECURITY.md) — Security policy and vulnerability reporting
+- [`docs/NON_CUSTODY.md`](NON_CUSTODY.md) — Non-custodial architectural proof
+- [`docs/INVARIANT_SPECIFICATION.md`](INVARIANT_SPECIFICATION.md) — Formal mathematical proofs

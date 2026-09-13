@@ -1,0 +1,71 @@
+name: 🐛 Bug report
+description: Something that is supposed to work does not. Prefer this over Discussions when you can reproduce.
+title: '[BUG] [SCOPE] <short description>'
+labels:
+  - bug
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug on Hikari Protocol.
+        Please fill in every section below with specific reproduction details.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe what you observed. Lead with the symptom, not the theory.
+      placeholder: |
+        When staking 100 XLM, the estimated hXLM receipt calculation failed to update.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      description: The behaviour that would have been correct.
+      placeholder: |
+        The UI should show receipt of ~98.2 hXLM based on the current pool exchange rate.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Exact clicks, inputs, and environment.
+      value: |
+        1. Open <https://hikari-protocol.vercel.app/app>
+        2. Select Stake tab
+        3. Enter amount `100`
+        4. Observe: ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - 'critical — fund loss, smart contract exploit, or blocked transaction'
+        - 'high — major feature broken with no workaround'
+        - 'medium — feature broken with workaround'
+        - 'low — UI layout or cosmetic defect'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected Area
+      options:
+        - 'contracts (Soroban Rust)'
+        - 'sdk (@hikari/sdk)'
+        - 'frontend (UI / DApp workspace)'
+        - 'backend (API / database)'
+        - 'engine (yield policy / keepers)'
+        - 'x402 (micropayments)'
+    validations:
+      required: true

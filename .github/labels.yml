@@ -1,0 +1,80 @@
+# Hikari Protocol — canonical label taxonomy.
+# Single source of truth; synced to GitHub by .github/workflows/label-sync.yml.
+
+# ─── Type ─────────────────────────────────────────────────────────────────────
+- name: bug
+  color: 'd73a4a'
+  description: Something is broken. A user-visible defect or a broken invariant.
+- name: feature
+  color: '0e8a16'
+  description: New capability. Expands what the protocol or app can do.
+- name: enhancement
+  color: 'a2eeef'
+  description: Improvement to an existing capability (not a bug fix, not new scope).
+- name: docs
+  color: '0075ca'
+  description: Documentation change — README, /docs, inline, or templates.
+- name: refactor
+  color: 'c2e0c6'
+  description: Code structure change with no behaviour change.
+- name: test
+  color: 'bfd4f2'
+  description: Adds or changes tests. No production behaviour change.
+- name: chore
+  color: 'ededed'
+  description: Build, tooling, deps, repo meta. Not a user-visible change.
+- name: question
+  color: 'd876e3'
+  description: Triage question — needs a decision or clarification.
+
+# ─── State ────────────────────────────────────────────────────────────────────
+- name: blocked
+  color: 'b60205'
+  description: Cannot progress — waiting on another issue, external dependency, or review.
+- name: help-wanted
+  color: '008672'
+  description: Actively looking for a contributor to own this.
+- name: good-first-issue
+  color: '7057ff'
+  description: Scoped, unblocked, reviewer-ready. Safe for a first-time contributor.
+- name: design-review
+  color: 'fbca04'
+  description: Needs UX / product review before implementation starts.
+- name: needs-triage
+  color: 'e99695'
+  description: New issue that a maintainer has not yet categorised.
+- name: duplicate
+  color: 'cfd3d7'
+  description: Already tracked by another issue. Link and close.
+- name: wontfix
+  color: 'ffffff'
+  description: Out of scope or intentionally not addressed. Document why and close.
+- name: stale
+  color: 'bfbfbf'
+  description: Auto-applied after 30 days of inactivity by the stale action.
+
+# ─── Area / Module ────────────────────────────────────────────────────────────
+- name: area/contracts
+  color: '5319e7'
+  description: Soroban smart contracts in Rust (hikari_core, strategies, safety_sentinel).
+- name: area/sdk
+  color: '1d76db'
+  description: TypeScript client SDK (@hikari/sdk).
+- name: area/engine
+  color: '006b75'
+  description: Yield calculation, rebalancing policy, and risk engine.
+- name: area/frontend
+  color: 'c5def5'
+  description: Web app interface, DApp workspace, charts, responsive styling.
+- name: area/backend
+  color: '0366d6'
+  description: Backend server, API routes, database, and wallet authentication.
+- name: area/security
+  color: 'b60205'
+  description: Audit readiness, invariant verification, rate limits, anti-mixup isolation.
+- name: area/x402
+  color: 'e99695'
+  description: x402 AI micropayment protocol and HTTP 402 payment channels.
+- name: area/mcp
+  color: 'fef2c0'
+  description: Model Context Protocol tools and AI agent integration.

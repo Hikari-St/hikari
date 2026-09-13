@@ -1,0 +1,44 @@
+name: ✨ Feature request
+description: Suggest an idea or new capability for Hikari Protocol.
+title: '[FEAT] [SCOPE] <short title>'
+labels:
+  - feature
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the proposed feature and why it should be built on Stellar Protocol 27.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? Please describe.
+      placeholder: Currently, stakers cannot view historical APY charts beyond 30 days...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: A clear and concise description of what you want to happen.
+      placeholder: Add an extended 90-day and 1-year historical APY timeline fetched from archive RPC nodes...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Target Area
+      options:
+        - 'contracts (Soroban Rust)'
+        - 'sdk (@hikari/sdk)'
+        - 'frontend (UI / DApp workspace)'
+        - 'backend (API / database)'
+        - 'engine (yield policy / keepers)'
+        - 'x402 (micropayments)'
+        - 'mcp (agent integration)'
+    validations:
+      required: true
