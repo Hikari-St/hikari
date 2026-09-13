@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# Hikari Protocol — pre-commit hook.
+# Runs quick sanity check prior to commit.
+
+node scripts/verify_ui.js

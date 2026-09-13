@@ -1,0 +1,37 @@
+name: ⚡ New Yield Strategy Adapter
+description: Propose onboarding a new Soroban yield source (Lending pool, CLAMM, AMM, or Liquid Restaking).
+title: '[STRATEGY] <protocol name / pool>'
+labels:
+  - feature
+  - area/contracts
+  - help-wanted
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to propose a new yield strategy adapter for Hikari Protocol on Stellar.
+
+  - type: textarea
+    id: protocol-info
+    attributes:
+      label: Target Protocol Details
+      description: Name, Soroban contract addresses, TVL, and audit history of the underlying protocol.
+      placeholder: Blend Money Market XLM-USDC pool, audited by OpenZeppelin...
+    validations:
+      required: true
+
+  - type: textarea
+    id: risk-assessment
+    attributes:
+      label: Risk & Liquidity Analysis
+      description: Smart contract risk, oracle dependency, liquidation mechanics, and historical drawdown.
+    validations:
+      required: true
+
+  - type: textarea
+    id: allocation-plan
+    attributes:
+      label: Proposed Max Allocation & Circuit Breakers
+      description: Target portfolio weight (e.g. 15% max), maximum slippage, and emergency exit triggers.
+    validations:
+      required: true

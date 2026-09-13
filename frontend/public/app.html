@@ -558,7 +558,6 @@
                 </div>
               </div>
             </div>
-            </div>
 
             <div class="bot-actions-row">
               <button id="btnSimulateBotTrade" class="btn-primary" style="width: auto; padding: 0.5rem 1.25rem; font-size: 0.8rem;">
@@ -1302,6 +1301,49 @@
             </div>
           </div>
         </div>
+
+        <!-- Dedicated Withdrawals FAQ Accordion (Card on TOP -> FAQ UNDER) -->
+        <section class="hikari-faq-section hakiru-faq-section">
+          <h2 class="hikari-faq-heading hakiru-faq-heading">Withdrawal FAQs</h2>
+          <div class="hikari-faq-list hakiru-faq-list">
+            <div class="hikari-faq-item hakiru-faq-item active">
+              <button class="hikari-faq-question hakiru-faq-question">
+                <span>How does the Hikari unbonding queue work?</span>
+                <span class="hikari-faq-chevron hakiru-faq-chevron">▼</span>
+              </button>
+              <div class="hikari-faq-answer hakiru-faq-answer">
+                When requesting a native withdrawal through Hikari Protocol, your hXLM shares are queued for redemption directly against underlying strategy reserves. Unbonding takes approximately 1 to 3 days to allow orderly settlement across Blend and Phoenix pools with zero exit fees.
+              </div>
+            </div>
+            <div class="hikari-faq-item hakiru-faq-item">
+              <button class="hikari-faq-question hakiru-faq-question">
+                <span>Can I withdraw instantly without waiting?</span>
+                <span class="hikari-faq-chevron hakiru-faq-chevron">▼</span>
+              </button>
+              <div class="hikari-faq-answer hakiru-faq-answer">
+                Yes! Choose the "Use DEX Instant Swap" option in the withdrawal card. This executes an atomic swap on Soroban AMMs (Soroswap and Phoenix CLAMM) to convert your hXLM back to native XLM in ~10 seconds with minimal market slippage.
+              </div>
+            </div>
+            <div class="hikari-faq-item hakiru-faq-item">
+              <button class="hikari-faq-question hakiru-faq-question">
+                <span>How does "Direct to Bank" fiat off-ramp work?</span>
+                <span class="hikari-faq-chevron hakiru-faq-chevron">▼</span>
+              </button>
+              <div class="hikari-faq-answer hakiru-faq-answer">
+                Direct to Bank leverages Stellar's anchor rails (SEP-24 and SEP-6). Hikari liquidates your hXLM or XLM into your destination local fiat (USD, EUR, NGN, GBP, BRL) and wires the payout directly into your commercial bank account within 2 to 5 minutes.
+              </div>
+            </div>
+            <div class="hikari-faq-item hakiru-faq-item">
+              <button class="hikari-faq-question hakiru-faq-question">
+                <span>How do I claim my unbonded XLM once ready?</span>
+                <span class="hikari-faq-chevron hakiru-faq-chevron">▼</span>
+              </button>
+              <div class="hikari-faq-answer hakiru-faq-answer">
+                Switch to the "Claim" sub-tab in the Withdrawals card. Once your unbonding ticket reaches maturity (after the 1-3 day epoch), click "Claim XLM" to sign a single non-custodial transaction that transfers native XLM directly into your Stellar wallet.
+              </div>
+            </div>
+          </div>
+        </section>
       </section>
 
       <!-- TAB 4: REWARDS -->
@@ -1359,6 +1401,49 @@
             </div>
           </div>
         </div>
+
+        <!-- Dedicated Rewards FAQ Accordion (Card on TOP -> FAQ UNDER) -->
+        <section class="hikari-faq-section hakiru-faq-section">
+          <h2 class="hikari-faq-heading hakiru-faq-heading">Rewards &amp; Yield FAQs</h2>
+          <div class="hikari-faq-list hakiru-faq-list">
+            <div class="hikari-faq-item hakiru-faq-item active">
+              <button class="hikari-faq-question hakiru-faq-question">
+                <span>How are staking rewards earned and distributed?</span>
+                <span class="hikari-faq-chevron hakiru-faq-chevron">▼</span>
+              </button>
+              <div class="hikari-faq-answer hakiru-faq-answer">
+                Hikari autonomously routes pooled assets into top-tier Soroban yield sources: Blend Money Market lending, Phoenix CLAMM concentrated LP fees, and SDEX atomic MEV backrunning. Yield is continuously harvested and auto-compounded into the pool every epoch.
+              </div>
+            </div>
+            <div class="hikari-faq-item hakiru-faq-item">
+              <button class="hikari-faq-question hakiru-faq-question">
+                <span>Why doesn't my hXLM balance increase daily?</span>
+                <span class="hikari-faq-chevron hakiru-faq-chevron">▼</span>
+              </button>
+              <div class="hikari-faq-answer hakiru-faq-answer">
+                hXLM is an appreciating receipt token (value-accruing model). Rather than inflating token count, 1 hXLM becomes worth progressively more native XLM over time. When you unstake, you receive more XLM than you originally deposited.
+              </div>
+            </div>
+            <div class="hikari-faq-item hakiru-faq-item">
+              <button class="hikari-faq-question hakiru-faq-question">
+                <span>What fees are deducted from rewards?</span>
+                <span class="hikari-faq-chevron hakiru-faq-chevron">▼</span>
+              </button>
+              <div class="hikari-faq-answer hakiru-faq-answer">
+                Hikari charges a transparent 5% performance fee exclusively on generated yield—never on principal. 50% of this fee funds continuous keeper rebalancing gas and autonomous AI telemetry, while 50% strengthens the protocol insurance reserve fund.
+              </div>
+            </div>
+            <div class="hikari-faq-item hakiru-faq-item">
+              <button class="hikari-faq-question hakiru-faq-question">
+                <span>Can I track rewards for any Stellar address?</span>
+                <span class="hikari-faq-chevron hakiru-faq-chevron">▼</span>
+              </button>
+              <div class="hikari-faq-answer hakiru-faq-answer">
+                Yes. Enter any valid Stellar public key (G...) in the address input field above and click "Check". The tracker will query on-chain Soroban events to calculate historical distributions, current balance, and cumulative earned XLM.
+              </div>
+            </div>
+          </div>
+        </section>
       </section>
 
       <!-- TAB 5: EARN (NEW) (MATCHING VIDEO 00:10 - 00:23 + VOICE SPEC: CROSS-CHAIN) -->

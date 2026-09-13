@@ -1960,16 +1960,15 @@ function initMarketingInteractions() {
     if (!t) {
       t = document.createElement("div");
       t.id = "hikariToast";
-      t.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:" + bg + ";color:#fff;padding:0.75rem 1.4rem;border-radius:9999px;font-size:0.85rem;font-weight:600;z-index:99999;box-shadow:0 10px 25px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.2);transition:all 0.3s cubic-bezier(0.16,1,0.3,1);";
+      t.className = "hikari-landing-toast";
       document.body.appendChild(t);
     }
     t.style.background = bg;
     t.innerHTML = msg;
-    t.style.opacity = "1";
-    t.style.transform = "translateX(-50%) translateY(0)";
-    setTimeout(() => {
-      t.style.opacity = "0";
-      t.style.transform = "translateX(-50%) translateY(10px)";
+    t.classList.add("show");
+    if (window._hikariToastTimeout) clearTimeout(window._hikariToastTimeout);
+    window._hikariToastTimeout = setTimeout(() => {
+      t.classList.remove("show");
     }, 4500);
   }
 
@@ -2372,6 +2371,11 @@ function initHakiru5TabApp() {
     });
     updateProDeckPlacement(tabKey);
     window.location.hash = tabKey;
+    try {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    } catch (_) {
+      window.scrollTo(0, 0);
+    }
   }
 
   navTabs.forEach((btn) => {

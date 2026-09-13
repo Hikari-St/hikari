@@ -1,0 +1,43 @@
+version: 2
+
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '06:00'
+      timezone: 'Etc/UTC'
+    open-pull-requests-limit: 8
+    versioning-strategy: 'increase-if-necessary'
+    labels:
+      - 'dependencies'
+      - 'area/deps'
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+      include: 'scope'
+    groups:
+      stellar:
+        patterns:
+          - '@stellar/*'
+          - 'stellar-sdk'
+      tooling:
+        patterns:
+          - 'typescript'
+          - '@types/*'
+          - 'commitlint'
+          - '@commitlint/*'
+          - 'husky'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'area/ci'
+    commit-message:
+      prefix: 'ci(deps)'

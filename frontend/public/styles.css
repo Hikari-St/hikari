@@ -7673,7 +7673,43 @@ footer {
 @media (max-width: 860px) {
   .connect-sim-banner {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1.25rem 1rem;
+    gap: 1.25rem;
+  }
+  .sim-banner-left {
+    width: 100%;
+    text-align: center;
+  }
+  .sim-badge {
+    display: inline-block;
+    margin-bottom: 0.4rem;
+  }
+  .sim-title {
+    font-size: 1.05rem;
+    line-height: 1.35;
+    margin-bottom: 0.35rem;
+  }
+  .sim-sub {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+  .sim-banner-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .btn-sim-alert {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 12px;
+    white-space: normal;
   }
 }
 .sim-badge {
@@ -7718,6 +7754,38 @@ footer {
   border-color: rgba(192, 132, 252, 0.8);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(139, 47, 230, 0.35);
+}
+
+/* Landing Alert Toast (Mobile Responsive) */
+.hikari-landing-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  width: calc(100% - 32px);
+  max-width: 460px;
+  box-sizing: border-box;
+  color: #fff;
+  padding: 0.85rem 1.25rem;
+  border-radius: 14px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  line-height: 1.45;
+  text-align: center;
+  z-index: 999999;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  word-break: break-word;
+}
+.hikari-landing-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
 }
 
 /* =========================================================

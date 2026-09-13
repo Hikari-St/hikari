@@ -1,0 +1,24 @@
+name: 📖 Documentation improvement
+description: Report a typo, broken link, or documentation gap.
+title: '[DOCS] <short description>'
+labels:
+  - docs
+  - triage
+body:
+  - type: textarea
+    id: issue
+    attributes:
+      label: Location & Problem
+      description: Which doc file is affected, and what needs fixing?
+      placeholder: docs/ARCHITECTURE.md — the sequence diagram for unbonding tickets needs clarification...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Change
+      description: How should the documentation be updated?
+      placeholder: Add a dedicated step-by-step section explaining the 1-3 day epoch unbonding queue...
+    validations:
+      required: true

@@ -1,121 +1,220 @@
-# Hikari (光) - Stellar AI Liquid-Yield & Agentic Finance Protocol
+# Hikari Protocol (光)
 
-Hikari is an autonomous, agentic liquid-yield protocol architected natively for the Stellar network and Soroban smart contracts.
+[![License: MIT](https://img.shields.io/github/license/ibochivincent-lang/hikari?style=flat-square)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/ibochivincent-lang/hikari/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/ibochivincent-lang/hikari/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-unknown-lightgrey?style=flat-square)](https://github.com/ibochivincent-lang/hikari)
+[![npm (@hikari/sdk)](https://img.shields.io/npm/v/@hikari/sdk?style=flat-square&label=%40hikari%2Fsdk)](https://www.npmjs.com/package/@hikari/sdk)
+[![Deployed on Vercel](https://img.shields.io/badge/deploy-vercel-000?style=flat-square&logo=vercel)](https://hikari-protocol.vercel.app)
+[![Conventional Commits](https://img.shields.io/badge/commits-conventional-fe5196?style=flat-square&logo=conventionalcommits)](https://www.conventionalcommits.org)
 
----
+**Autonomous Liquid Staking, Multi-Strategy Yield Routing & Agentic Execution on Stellar Protocol 27 (Soroban).**
 
-## 🌟 Core Architecture
+Hikari is an autonomous yield aggregation and liquid staking protocol built natively for the Stellar network. It tokenizes staked assets into an appreciating receipt token (`hXLM`), actively manages allocations across Blend Money Markets and Phoenix CLAMM concentrated liquidity pools, captures atomic MEV arbitrage across the Stellar Decentralized Exchange (SDEX), and exposes an autonomous agent execution layer via the Model Context Protocol (MCP) and x402 micropayments.
 
-1. **Soroban Vault & Liquid Position Token**
-   - Single-asset & multi-strategy yield vault with ERC-4626 style virtual share/asset offset to prevent first-depositor inflation attacks.
-   - SEP-41 compliant liquid position token representing fungible shares of the vault.
-   - Storage TTL auto-extension to safeguard against ledger archival.
-   - Dynamic emergency pause, revocation, and protocol fee mechanics.
-
-2. **Deterministic Risk & Policy Engine**
-   - Independent verification layer enforcing transactional, daily, and monthly spend caps.
-   - Strict contract and destination address allowlists.
-   - Maximum slippage, minimum liquidity reserve requirements, and human approval gates.
-
-3. **Multi-Agent Orchestration Layer**
-   - **Market Agent**: Monitors DEX/lending pools, spreads, and liquidity.
-   - **Yield Agent**: Evaluates, scores, and ranks approved yield strategies.
-   - **Risk Agent**: Computes drawdown, exposure metrics, and vault health.
-   - **Execution Agent**: Builds structured Soroban transaction proposals.
-   - **Payment Agent**: Manages micropayment budgets for auxiliary data.
-
-4. **x402 / MPP Machine Payments**
-   - Built-in HTTP 402 and Machine Payments Protocol (MPP) integration.
-   - Facilitates fee-sponsored, automated payments for machine telemetry and premium data feeds using Stellar testnet USDC.
-
-5. **Web Interface & Governance Dashboard**
-   - Next.js and TypeScript frontend providing real-time NAV tracking, strategy performance metrics, and human-in-the-loop rebalance approval.
+<p align="center">
+  <em>Live demo → <a href="https://hikari-protocol.vercel.app">hikari-protocol.vercel.app</a></em>
+</p>
 
 ---
 
-## 📂 Repository Structure
+## Table of contents
 
-```
-Hikari/
-├── contracts/             # Soroban Smart Contracts (Rust)
-│   ├── Cargo.toml
-│   ├── interfaces/        # Shared contract traits & error types
-│   ├── vault/             # Main Vault & Share accounting
-│   ├── token/             # SEP-41 Liquid Position Token
-│   ├── strategy_registry/ # Strategy allowlists & risk limits
-│   ├── withdrawal_queue/  # Asynchronous withdrawal queue
-│   ├── policy_account/    # On-chain smart account authorization
-│   └── mock_strategy/     # Mock yield adapter for testing
-├── engine/                # Deterministic Policy & Risk Engine (TypeScript)
-├── agents/                # Autonomous AI Agent Orchestration Pipeline
-├── services/              # x402 / MPP Telemetry & Paid Services
-├── frontend/              # Interactive Web Dashboard
-└── docs/                  # Threat model, economic model, runbooks
-```
+- [Why this exists](#why-this-exists)
+- [Why Stellar Protocol 27](#why-stellar-protocol-27)
+- [The four load-bearing primitives](#the-four-load-bearing-primitives)
+- [Tech stack](#tech-stack)
+- [Getting started](#getting-started)
+- [Environment variables](#environment-variables)
+- [Documentation](#documentation)
+- [Live Stellar Testnet Deployments](#live-stellar-testnet-deployments)
+- [Contributing](#contributing)
+- [Contributors](#contributors)
+- [License](#license)
 
 ---
 
-## 🌐 Live Stellar Testnet Deployments
+## Why this exists
 
-| Contract | Address / ID | Explorer |
-|---|---|---|
-| **Hikari Vault** | `CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5` | [Stellar.Expert](https://stellar.expert/explorer/testnet/contract/CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5) |
-| **hXLM Share Token (SEP-41)** | `CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH` | [Stellar.Expert](https://stellar.expert/explorer/testnet/contract/CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH) |
-| **Strategy Registry** | `CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ` | [Stellar.Expert](https://stellar.expert/explorer/testnet/contract/CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ) |
-| **Withdrawal Queue** | `CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ` | [Stellar.Expert](https://stellar.expert/explorer/testnet/contract/CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ) |
-| **Policy Account** | `CAPXDOMRO7U6XGOSNWKP6YBY7GMBRH7FPTYWTAW6CRGPMYIZHIJDO3UP` | [Stellar.Expert](https://stellar.expert/explorer/testnet/contract/CAPXDOMRO7U6XGOSNWKP6YBY7GMBRH7FPTYWTAW6CRGPMYIZHIJDO3UP) |
-| **Blend Protocol Adapter** | `CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL` | [Stellar.Expert](https://stellar.expert/explorer/testnet/contract/CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL) |
-| **Phoenix CLAMM Adapter** | `CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5` | [Stellar.Expert](https://stellar.expert/explorer/testnet/contract/CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5) |
-| **GateSeal Circuit Breaker** | `CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ` | [Stellar.Expert](https://stellar.expert/explorer/testnet/contract/CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ) |
-| **Native XLM SAC** | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` | [Stellar.Expert](https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC) |
+Stellar is the world's most battle-tested public blockchain for cross-border remittances and real-world asset issuance. With the rollout of Soroban smart contracts, Stellar gained high-performance, Turing-complete execution. Yet, Stellar's financial ecosystem faces four critical structural bottlenecks:
+
+1. **The Idle Capital Problem**: Native XLM uses the Stellar Consensus Protocol (SCP) rather than Proof-of-Stake consensus. Because there is no base network inflation staking, over **$3 Billion in circulating XLM sits completely idle** in passive wallets without earning yield.
+2. **DeFi Yield Fragmentation**: Stellar’s premier yield sources—Blend Money Markets, Phoenix CLAMM concentrated liquidity, and Soroswap AMMs—operate in silos. Retail users face high cognitive friction, manual rebalancing costs, and liquidation risks trying to optimize yields across them.
+3. **Predatory MEV Value Extraction**: Price dislocations between the Stellar Decentralized Exchange (SDEX) orderbook and Soroban AMMs are continuously extracted by off-chain predatory arbitrageurs. That economic value leaks out of Stellar instead of compounding back into staker returns.
+4. **The Missing AI Agent Execution Layer**: AI agents and automated algorithmic keepers require frictionless, sub-cent payments and standardized tooling to interact with smart contracts without browser wallet popups.
+
+**Hikari solves all four issues.** It turns idle XLM into an auto-compounding liquid asset (`hXLM`), dynamically routes capital across audited Soroban strategies, captures atomic MEV arbitrage backruns and recycles 100% of profits to stakers, and provides an x402 agent payment surface.
 
 ---
 
-## ⚡ Protocol Highlights
+## Why Stellar Protocol 27
 
-- **Enterprise-Grade Liquid Staking & Withdrawal Queue**:
-  - **4-Tab Portal**: Stake, Request, Claim Tickets, and Vault Basket.
-  - **Turbo Mode**: Instant queue throughput and standard cooldowns under normal market conditions.
-  - **Bunker Mode**: Activates during market shocks or depeg events to apply emergency haircuts and prevent bank-runs on idle liquid reserves.
-  - **GateSeal Circuit Breaker**: One-time panic button contract (`CAS5XIH...ZYDJ`) freezing allocations for 120,960 ledgers with automatic self-unseal.
-- **Soroban Atomic MEV Backrun Capture**:
-  - Cross-DEX arbitrage backrun engine between **Phoenix CLAMM** and **Soroswap AMM**.
-  - 80% of net arbitrage profit is automatically streamed into the Hikari Vault to boost `hXLM` APY.
-- **x402 Micropayments**:
-  - HTTP 402 paid data feeds sponsoring machine-to-machine AI risk and volatility telemetry.
+Hikari is purpose-built for Stellar and could not exist with the same guarantees on another chain:
+- **Sub-Second Finality & Sub-Cent Fees**: Deterministic ledger closes (~5 seconds) with gas fees under $0.00002 enable frequent autonomous rebalancing and MEV capture that would be cost-prohibitive on Ethereum or Solana.
+- **Native SEP-41 & Stellar Asset Contract (SAC)**: Zero-friction wrapping between classic Stellar accounts and Soroban smart contract environments.
+- **Stellar Anchor Rails (SEP-24 & SEP-6)**: Enables direct-to-bank fiat off-ramps (USD, EUR, NGN, GBP, BRL) directly from the DApp withdrawal interface.
 
 ---
 
-## 🚀 Quickstart & Commands
+## The four load-bearing primitives
+
+1. **hXLM / whXLM Liquid Staking Core**:
+   - SEP-41 compliant receipt token whose Net Asset Value (NAV) appreciates monotonically against XLM.
+   - Dual-exit liquidity: 0% protocol fee queue unbonding (1–3 days) or instant DEX swap (~10s).
+   - `whXLM` static wrapper for external money market collateral (Blend).
+2. **Autonomous Rebalancing & Atomic MEV Backrunning**:
+   - Algorithmic keeper robots monitor SDEX and Soroban AMMs every ledger close.
+   - Captures price dislocations atomically and routes 100% of arbitrage profit into staker NAV.
+3. **Formal Invariant & Safety Sentinel Engine**:
+   - Enforces the mathematical solvency invariant $R_t \ge S_t \times P_t$.
+   - Mandatory 15% liquid native XLM reserve floor to ensure instant liquidity.
+   - Automated Bunker Mode and GateSeal circuit breakers during market anomalies.
+4. **Agentic Surface & x402 Micropayments**:
+   - Model Context Protocol (MCP) server providing structured tools for AI agents.
+   - HTTP 402 payment facilitation allowing agents to execute actions via sub-cent micropayments ($0.001 USDC).
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+| ----- | ---------- |
+| **Smart Contracts** | Soroban Rust (`wasm32-unknown-unknown`), Stellar Protocol 27 |
+| **Client SDK** | `@hikari/sdk` (TypeScript, `@stellar/stellar-sdk` v13+) |
+| **Frontend** | Vanilla CSS Design System, HTML5, Reactive JavaScript |
+| **Backend & DB** | Node.js, Express, Anti-Mixup Resilient Multi-Tenant Storage |
+| **Agent Protocols** | Model Context Protocol (MCP), HTTP 402 (x402) CAIP-2 Micropayments |
+| **CI / CD** | GitHub Actions, CodeQL, Commitlint, Vercel |
+
+---
+
+## Getting started
+
+**Prerequisites:** Node.js 20+, Rust toolchain with `wasm32-unknown-unknown` target.
 
 ```bash
-# 1. Run all Soroban smart contract tests (18 tests)
-npm run test:contracts
+# Clone the repository
+git clone https://github.com/ibochivincent-lang/hikari.git
+cd hikari
 
-# 2. Run deterministic risk & policy engine tests (8 tests)
+# Install dependencies across all packages
+npm install
+npm install --prefix sdk
+npm install --prefix engine
+
+# Run verification suite (38 UI assertions)
+node scripts/verify_ui.js
+
+# Run SDK unit tests
+npm run test:sdk
+
+# Run Policy & Risk Engine tests
 npm run test:engine
 
-# 3. Run x402 paid machine telemetry service tests
-npm run test:x402
-
-# 4. Audit live contracts and NAV directly on Stellar Testnet
-npm run verify:testnet
-
-# 5. Run live on-chain deposit and rebalance cycle against Testnet
-npm run test:testnet
-
-# 6. Run autonomous agent daemon (continuous loop or on-demand)
-npm run daemon
-
-# 7. Launch web dashboard with live telemetry and GSAP animations
-npm run dashboard
+# Start the local development server
+npm run dev
 ```
+
+The web dashboard and DApp workspace will be available at `http://localhost:3000`.
 
 ---
 
-## 👤 Author & Maintainer
+## Environment variables
 
-- **Author**: `ibochivincent-lang`
-- **Email**: `ibochivincent-lang@users.noreply.github.com`
-- **Repository**: [https://github.com/ibochivincent-lang/hikari](https://github.com/ibochivincent-lang/hikari)
+Copy `.env.example` to `.env` and configure:
 
+| Variable | Required | Default | Description |
+| -------- | -------- | ------- | ----------- |
+| `STELLAR_NETWORK` | Yes | `testnet` | Target network (`testnet` or `mainnet`). |
+| `HORIZON_URL` | Yes | `https://horizon-testnet.stellar.org` | Stellar Horizon REST endpoint. |
+| `SOROBAN_RPC_URL` | Yes | `https://soroban-testnet.stellar.org` | Soroban JSON-RPC node URL. |
+| `VAULT_CONTRACT_ID` | Yes | `CCR6NFKICAK4KW...` | Address of deployed `hikari_core` contract. |
+| `HXLM_TOKEN_ID` | Yes | `CA36LWOMIDPXFM...` | Address of deployed `hXLM` SEP-41 token. |
+| `PORT` | No | `3000` | Local HTTP server port. |
+
+---
+
+## Documentation
+
+The complete architectural and governance suite lives under [`docs/`](docs/):
+
+| Document | Scope |
+| -------- | ----- |
+| [docs/PROPOSAL.md](docs/PROPOSAL.md) | Official Stellar Community Fund grant proposal, problem statement, thesis & ask. |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Complete Soroban smart contract blueprint, keeper pipeline, and sequence diagrams. |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Multi-phase roadmap (v1 Executable → v5 Institutional) with tickable milestones. |
+| [docs/INTENT_API.md](docs/INTENT_API.md) | Intent schemas, signing rules, replay protection, and cURL / TS snippets. |
+| [docs/ORACLE_SPEC.md](docs/ORACLE_SPEC.md) | Soroban yield and NAV oracle contract interface and consumer guides. |
+| [docs/STRATEGY_RISK_REPUTATION.md](docs/STRATEGY_RISK_REPUTATION.md) | Quantitative strategy health scoring and allocation rebalancing rules. |
+| [docs/SECURITY.md](docs/SECURITY.md) | Non-custodial security policy, key handling, and vulnerability disclosure. |
+| [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) | STRIDE threat matrix, attack vectors, and cryptographic mitigations. |
+| [docs/NON_CUSTODY.md](docs/NON_CUSTODY.md) | Architectural proof of non-custodial operations and user signature constraints. |
+| [docs/SEP_COMPLIANCE.md](docs/SEP_COMPLIANCE.md) | Stellar Ecosystem Proposals compliance matrix (SEP-41, SEP-10, SEP-24, SEP-6). |
+| [docs/CONTRIBUTOR_LADDER.md](docs/CONTRIBUTOR_LADDER.md) | Contributor progression rungs and governance guidelines. |
+| [docs/COOKBOOK.md](docs/COOKBOOK.md) | Developer integration recipes for staking, unbonding, and agent queries. |
+| [docs/FAQ.md](docs/FAQ.md) | Comprehensive questions on liquid staking, fees, unbonding, and risks. |
+| [docs/BENCHMARKS.md](docs/BENCHMARKS.md) | Empirical CPU instruction counts, gas consumption, and transaction latencies. |
+| [docs/MCP.md](docs/MCP.md) | Model Context Protocol integration guide for AI agents (Claude, ChatGPT, AGY). |
+| [docs/SDK.md](docs/SDK.md) | Complete `@hikari/sdk` reference, client methods, and error types. |
+| [docs/CANONICAL_JSON.md](docs/CANONICAL_JSON.md) | Deterministic JSON hashing specification (RFC-8785) for intent verification. |
+| [docs/JURISDICTIONAL.md](docs/JURISDICTIONAL.md) | Jurisdictional memo on non-custodial software classification. |
+| [docs/STRICT_LINTING.md](docs/STRICT_LINTING.md) | Code quality standards, TypeScript strict flags, and CI verification gates. |
+
+---
+
+## Live Stellar Testnet Deployments
+
+| Contract | Address / ID | Explorer |
+| -------- | ------------ | -------- |
+| **Hikari Core Vault** | `CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5) |
+| **hXLM Share Token (SEP-41)** | `CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH) |
+| **Strategy Registry** | `CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ) |
+| **Withdrawal Queue** | `CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ) |
+| **Blend Protocol Adapter** | `CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL) |
+| **Phoenix CLAMM Adapter** | `CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5) |
+| **GateSeal Circuit Breaker** | `CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ) |
+| **Native XLM SAC** | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC) |
+
+---
+
+## Contributing
+
+Contributions are warmly welcomed. Please review [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before opening a pull request.
+
+Good places to start:
+- Issues tagged [`good-first-issue`](https://github.com/ibochivincent-lang/hikari/labels/good-first-issue) — scoped, unblocked, and reviewer-ready.
+- Issues tagged [`help-wanted`](https://github.com/ibochivincent-lang/hikari/labels/help-wanted) — larger tickets actively seeking contributors.
+- Propose a new yield strategy adapter via [strategy-adapter template](https://github.com/ibochivincent-lang/hikari/issues/new?template=strategy-adapter.yml).
+
+---
+
+## Contributors
+
+Thanks to everyone who has shipped code, documentation, designs, and security reviews for Hikari Protocol.
+
+<table>
+  <tr>
+    <td align="center" width="140">
+      <a href="https://github.com/ibochivincent-lang">
+        <img src="https://github.com/ibochivincent-lang.png?size=100" width="80" height="80" alt="Vincent Ibochi" /><br />
+        <sub><b>Vincent Ibochi</b></sub>
+      </a><br />
+      <sub>Creator &amp; Maintainer</sub><br />
+      <sub>💻 📖 🏗️ 🚧</sub>
+    </td>
+    <td align="center" width="140">
+      <a href="https://github.com/ibochivincent-lang/hikari/blob/main/CONTRIBUTING.md">
+        <img src="https://avatars.githubusercontent.com/u/0?v=4&size=100" width="80" height="80" alt="Open a PR" style="opacity:0.5" /><br />
+        <sub><b>Your name here</b></sub>
+      </a><br />
+      <sub>Open a PR →</sub>
+    </td>
+  </tr>
+</table>
+
+Emoji key follows the [all-contributors](https://allcontributors.org/docs/en/emoji-key) spec: 💻 code · 📖 docs · 🎨 design · 🏗️ infrastructure · 🚧 maintenance.
+
+---
+
+## License
+
+[MIT](LICENSE) © 2026 Vincent Ibochi
