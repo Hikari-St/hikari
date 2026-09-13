@@ -1,10 +1,10 @@
-// Hakiru Protocol: Social Bot & Telemetry Module Entrypoint
+// Hikari Protocol: Social Bot & Telemetry Module Entrypoint
 // Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 
-import { HakiruTelegramBot } from "./bot-telegram";
-import { HakiruDiscordPublisher } from "./bot-discord";
-import { HakiruXBroadcaster } from "./bot-x-broadcaster";
-import { HakiruSocialGateway } from "./social-gateway";
+import { HikariTelegramBot } from "./bot-telegram";
+import { HikariDiscordPublisher } from "./bot-discord";
+import { HikariXBroadcaster } from "./bot-x-broadcaster";
+import { HikariSocialGateway } from "./social-gateway";
 
 export * from "./types";
 export * from "./bot-telegram";
@@ -14,12 +14,12 @@ export * from "./social-gateway";
 
 if (require.main === module) {
   console.log("=================================================");
-  console.log("🌟 HAKIRU PROTOCOL SOCIAL TELEMETRY & BOT SUITE 🌟");
+  console.log("🌟 HIKARI PROTOCOL SOCIAL TELEMETRY & BOT SUITE 🌟");
   console.log("Maintainer: ibochivincent-lang");
   console.log("Target: Stellar / Soroban Protocol 27");
   console.log("=================================================");
 
-  const gateway = new HakiruSocialGateway();
+  const gateway = new HikariSocialGateway();
   const telegram = gateway.getTelegramBot();
   const discord = gateway.getDiscordPublisher();
   const xBroadcaster = gateway.getXBroadcaster();

@@ -112,14 +112,14 @@ All components are live in the repository on branch `main` under the MIT License
 
 | Area                     | Shipped Capability                                                                    | Status & Evidence                                       |
 | ------------------------ | ------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| **Soroban Contracts**    | `hikari_core`, `strategy_blend`, `strategy_phoenix`, `strategy_soroswap`, `sentinel` | Rust contracts compiling to wasm, full unit tests      |
+| **Soroban Contracts**    | Dual Vaults (`hXLM` & `hUSDC`), Linear Streamer (`hikari_streamer`), Sentinel, Factory, Strategy Adapters | Rust contracts compiling to wasm, 30/30 unit tests pass |
 | **5-Tab DApp Workspace** | Dedicated responsive views for Stake, Wrap, Withdrawals, Rewards, and Earn            | `frontend/public/app.html`, verified on desktop & mobile|
 | **UI Verification**      | 38 automated test assertions covering decoupling, routing, and card hierarchies       | `scripts/verify_ui.js` (38/38 passing)                  |
-| **TypeScript SDK**       | `@hikari/sdk` with NAV estimators, deposit builders, and ticket status formatters    | `sdk/src/client.ts`, 5/5 unit tests passing             |
-| **Policy & Risk Engine** | 8 mathematical invariant validations, Bunker Mode simulation, GateSeal triggers      | `engine/src/`, 8/8 tests passing                        |
+| **TypeScript SDK**       | `@hikari/sdk` with NAV estimators, deposit builders, and ticket status formatters    | `sdk/src/client.ts`, 10/10 unit tests passing (100% cov)|
+| **Policy & Risk Engine** | Deterministic Policy Engine (15% velocity delta, 50 bps slippage, 10% buffer floor)   | `engine/src/policy_engine.ts`, 19/19 tests passing      |
+| **Agentic & x402 Suite** | HTTP 402 Micropayment Client (`x402_client.ts`), Blend & DeFindex Agent Providers     | `agents/src/`, `services/x402-gateway/`, passing tests  |
 | **Backend & Isolation**  | Resilient database with anti-mixup address isolation and tamper-evident audit stream  | `scripts/verify_backend_security.js` (7/7 passing)      |
 | **CI / CD Pipeline**     | 11 GitHub workflows (CI, CodeQL, Commitlint, Vercel Deploy, Release, Stale)          | `.github/workflows/`                                   |
-| **Agentic AI Module**    | Coming Soon AI Trading Hub detailing x402 micropayments and neural rebalancing        | Embedded in DApp workspace & landing telemetry          |
 
 ---
 

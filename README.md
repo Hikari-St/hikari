@@ -140,6 +140,8 @@ The complete architectural and governance suite lives under [`docs/`](docs/):
 | Document | Scope |
 | -------- | ----- |
 | [docs/PROPOSAL.md](docs/PROPOSAL.md) | Official Stellar Community Fund grant proposal, problem statement, thesis & ask. |
+| [docs/HIKARI_SPECIFICATION.md](docs/HIKARI_SPECIFICATION.md) | Core system components, architecture blueprint, and live social integration spec. |
+| [docs/AUDIT_DOSSIER.md](docs/AUDIT_DOSSIER.md) | Mathematical invariant proofs, fuzzing results, and audit readiness dossier. |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Complete Soroban smart contract blueprint, keeper pipeline, and sequence diagrams. |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Multi-phase roadmap (v1 Executable → v5 Institutional) with tickable milestones. |
 | [docs/INTENT_API.md](docs/INTENT_API.md) | Intent schemas, signing rules, replay protection, and cURL / TS snippets. |
@@ -165,7 +167,9 @@ The complete architectural and governance suite lives under [`docs/`](docs/):
 
 | Contract | Address / ID | Explorer |
 | -------- | ------------ | -------- |
-| **Hikari Core Vault** | `CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5) |
+| **Hikari Core Vault (XLM)** | `CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5) |
+| **Hikari Core Vault (USDC)** | `CBXUSDCVAULT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CBXUSDCVAULT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC) |
+| **Linear Yield Streamer** | `CASTREAMER7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC001` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CASTREAMER7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC001) |
 | **hXLM Share Token (SEP-41)** | `CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH) |
 | **Strategy Registry** | `CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ) |
 | **Withdrawal Queue** | `CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ) |

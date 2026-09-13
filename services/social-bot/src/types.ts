@@ -1,4 +1,4 @@
-// Hakiru Protocol: Social Bot & Telemetry Types
+// Hikari Protocol: Social Bot & Telemetry Types
 // Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 
 export interface ProtocolMetrics {

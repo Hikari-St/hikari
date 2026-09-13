@@ -1,4 +1,4 @@
-// Hakiru Protocol: Real-Time Telemetry & APY Indexer
+// Hikari Protocol: Real-Time Telemetry & APY Indexer
 // Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 
 export interface TelemetrySnapshot {
@@ -15,7 +15,7 @@ export interface TelemetrySnapshot {
   twentyFourHourVolumeXlm: number;
 }
 
-export class HakiruTelemetryIndexer {
+export class HikariTelemetryIndexer {
   private history: TelemetrySnapshot[] = [];
 
   constructor() {
@@ -67,8 +67,12 @@ export class HakiruTelemetryIndexer {
   }
 }
 
+// Backwards-compatibility alias
+export const HakiruTelemetryIndexer = HikariTelemetryIndexer;
+export type HakiruTelemetryIndexer = HikariTelemetryIndexer;
+
 if (require.main === module) {
-  const indexer = new HakiruTelemetryIndexer();
+  const indexer = new HikariTelemetryIndexer();
   console.log("[Telemetry Indexer] Initialized 24/7 APY & Solvency Indexer daemon.");
   const snapshot = indexer.getLatestSnapshot();
   console.log(`[Telemetry Indexer] Initial Snapshot: TVL ${snapshot.tvlXlm} XLM, APY: ${snapshot.netApyXlm}%, Utilization: ${snapshot.capitalUtilizationRateBps / 100}%`);
@@ -80,4 +84,5 @@ if (require.main === module) {
     console.log(`[Telemetry Indexer] [Ledger #${latest.ledger}] TVL: ${latest.tvlXlm} XLM | APY: ${latest.netApyXlm}% | Depositors: ${latest.activeDepositors}`);
   }, interval);
 }
+
 

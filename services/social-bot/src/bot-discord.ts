@@ -1,4 +1,4 @@
-// Hakiru Protocol: Discord Rich Embed Telemetry & Milestone Publisher
+// Hikari Protocol: Discord Rich Embed Telemetry & Milestone Publisher
 // Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 
 import { HarvestEvent, RebalanceEvent, SolvencyEvent, SentinelAlertEvent } from "./types";
@@ -12,7 +12,7 @@ export interface DiscordEmbed {
   timestamp?: string;
 }
 
-export class HakiruDiscordPublisher {
+export class HikariDiscordPublisher {
   private webhookUrl: string | undefined;
 
   constructor(webhookUrl?: string) {
@@ -29,7 +29,7 @@ export class HakiruDiscordPublisher {
         { name: "New Dynamic APY", value: `🔥 ${harvest.newApy}`, inline: true },
         { name: "Stellar Tx Hash", value: `\`${harvest.txHash.slice(0, 16)}...\``, inline: false },
       ],
-      footer: { text: "Hakiru Protocol • Autonomous Yield Engine" },
+      footer: { text: "Hikari Protocol • Autonomous Yield Engine" },
       timestamp: harvest.timestamp || new Date().toISOString(),
     };
   }
@@ -47,7 +47,7 @@ export class HakiruDiscordPublisher {
         { name: "New Allocation Weights", value: weightsFormatted, inline: false },
         { name: "Transaction Hash", value: `\`${rebalance.txHash.slice(0, 16)}...\``, inline: false },
       ],
-      footer: { text: "Hakiru Autonomous Multi-Agent Orchestrator" },
+      footer: { text: "Hikari Autonomous Multi-Agent Orchestrator" },
       timestamp: rebalance.timestamp || new Date().toISOString(),
     };
   }
@@ -63,7 +63,7 @@ export class HakiruDiscordPublisher {
         { name: "Total Reserves Backing", value: solvency.totalReserves, inline: false },
         { name: "Merkle Root Hash", value: `\`${solvency.merkleRoot}\``, inline: false },
       ],
-      footer: { text: "Hakiru Protocol • Zero-Knowledge Solvency Verification" },
+      footer: { text: "Hikari Protocol • Zero-Knowledge Solvency Verification" },
       timestamp: solvency.timestamp || new Date().toISOString(),
     };
   }
@@ -77,7 +77,7 @@ export class HakiruDiscordPublisher {
         { name: "Circuit Breaker", value: "GateSeal Engaged", inline: true },
         { name: "Fund Safety", value: "100% Capital Preserved", inline: true },
       ],
-      footer: { text: "Hakiru Autonomous Circuit Breaker Sentinel" },
+      footer: { text: "Hikari Autonomous Circuit Breaker Sentinel" },
       timestamp: alert.timestamp || new Date().toISOString(),
     };
   }
@@ -92,13 +92,16 @@ export class HakiruDiscordPublisher {
         });
         return { success: res.ok, simulated: false };
       } catch (e) {
-        console.error("[Discord Publisher] Failed to dispatch webhook:", e);
+        console.error("[Discord Publisher] Webhook delivery failed:", e);
         return { success: false, simulated: false };
       }
     } else {
-      console.log("[Discord Publisher] [SANDBOX MODE] Simulated Webhook Dispatch:");
-      console.log(JSON.stringify(embed, null, 2));
+      console.log("[Discord Publisher] [SANDBOX MODE] Simulated Embed:", JSON.stringify(embed, null, 2));
       return { success: true, simulated: true };
     }
   }
 }
+
+// Backwards-compatibility alias
+export const HakiruDiscordPublisher = HikariDiscordPublisher;
+export type HakiruDiscordPublisher = HikariDiscordPublisher;

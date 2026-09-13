@@ -1,7 +1,7 @@
 {
-  "name": "@hakiru/automation",
+  "name": "@hikari/automation",
   "version": "0.1.0",
-  "description": "Hakiru Protocol: Autonomous Harvest Keepers, Telemetry Indexers & ZK Solvency Engine",
+  "description": "Hikari Protocol: Autonomous Harvest Keepers, Telemetry Indexers & ZK Solvency Engine",
   "author": "ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>",
   "license": "MIT",
   "main": "dist/index.js",

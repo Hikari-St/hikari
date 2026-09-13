@@ -1,4 +1,4 @@
-# Dockerfile for Hikari / Hakiru Protocol Production Services
+# Dockerfile for Hikari Protocol Production Services
 # Author: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 
 FROM node:20-alpine AS base

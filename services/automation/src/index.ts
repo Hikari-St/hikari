@@ -1,4 +1,4 @@
-// Hakiru Protocol: Automation Daemons & Indexers Entrypoint
+// Hikari Protocol: Automation Daemons & Indexers Entrypoint
 // Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 
 export * from "./harvest-keeper";

@@ -1,16 +1,16 @@
-// Hakiru Protocol: Social Gateway REST Server & Feed Handler
+// Hikari Protocol: Social Gateway REST Server & Feed Handler
 // Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 
 import http from "http";
-import { HakiruTelegramBot } from "./bot-telegram";
-import { HakiruDiscordPublisher } from "./bot-discord";
-import { HakiruXBroadcaster } from "./bot-x-broadcaster";
+import { HikariTelegramBot } from "./bot-telegram";
+import { HikariDiscordPublisher } from "./bot-discord";
+import { HikariXBroadcaster } from "./bot-x-broadcaster";
 import { SocialBroadcastMessage, LeaderboardEntry } from "./types";
 
-export class HakiruSocialGateway {
-  private telegramBot: HakiruTelegramBot;
-  private discordPublisher: HakiruDiscordPublisher;
-  private xBroadcaster: HakiruXBroadcaster;
+export class HikariSocialGateway {
+  private telegramBot: HikariTelegramBot;
+  private discordPublisher: HikariDiscordPublisher;
+  private xBroadcaster: HikariXBroadcaster;
   private feed: SocialBroadcastMessage[] = [];
   private leaderboard: LeaderboardEntry[] = [
     { rank: 1, address: "GAKN...7F4E", shares: "142,500 hXLM", valueUsd: 17812, loyaltyMultiplier: "3.5x", badge: "Legendary Pioneer" },
@@ -21,9 +21,9 @@ export class HakiruSocialGateway {
   ];
 
   constructor() {
-    this.telegramBot = new HakiruTelegramBot();
-    this.discordPublisher = new HakiruDiscordPublisher();
-    this.xBroadcaster = new HakiruXBroadcaster();
+    this.telegramBot = new HikariTelegramBot();
+    this.discordPublisher = new HikariDiscordPublisher();
+    this.xBroadcaster = new HikariXBroadcaster();
     this.seedInitialFeed();
   }
 
@@ -66,7 +66,7 @@ export class HakiruSocialGateway {
 
   public getStatus() {
     return {
-      service: "Hakiru Social Gateway & Telemetry Broadcaster",
+      service: "Hikari Social Gateway & Telemetry Broadcaster",
       version: "0.1.0",
       maintainer: "ibochivincent-lang",
       status: "ONLINE",
@@ -118,15 +118,20 @@ export class HakiruSocialGateway {
     }
   }
 
-  public getTelegramBot(): HakiruTelegramBot {
+  public getTelegramBot(): HikariTelegramBot {
     return this.telegramBot;
   }
 
-  public getDiscordPublisher(): HakiruDiscordPublisher {
+  public getDiscordPublisher(): HikariDiscordPublisher {
     return this.discordPublisher;
   }
 
-  public getXBroadcaster(): HakiruXBroadcaster {
+  public getXBroadcaster(): HikariXBroadcaster {
     return this.xBroadcaster;
   }
 }
+
+// Backwards-compatibility alias
+export const HakiruSocialGateway = HikariSocialGateway;
+export type HakiruSocialGateway = HikariSocialGateway;
+

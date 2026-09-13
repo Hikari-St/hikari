@@ -1,4 +1,4 @@
-// Hakiru Protocol: Cryptographic Merkle Proof of Solvency Engine
+// Hikari Protocol: Cryptographic Merkle Proof of Solvency Engine
 // Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 
 import crypto from "crypto";
@@ -31,7 +31,7 @@ export interface SolvencyInclusionProof {
   isVerified: boolean;
 }
 
-export class HakiruSolvencyEngine {
+export class HikariSolvencyEngine {
   private depositors: DepositorLiability[] = [];
   private auditedReservesXlm: number = 508280.0; // 104.8% of 485,000 XLM liabilities
   private verifiedLedger: number = 341890;
@@ -162,8 +162,12 @@ export class HakiruSolvencyEngine {
   }
 }
 
+// Backwards-compatibility alias
+export const HakiruSolvencyEngine = HikariSolvencyEngine;
+export type HakiruSolvencyEngine = HikariSolvencyEngine;
+
 if (require.main === module) {
-  const engine = new HakiruSolvencyEngine();
+  const engine = new HikariSolvencyEngine();
   const report = engine.generateSolvencyReport();
   console.log("--- SOLVENCY REPORT ---");
   console.log(report);
@@ -172,3 +176,4 @@ if (require.main === module) {
   console.log("\n--- INCLUSION PROOF FOR GIBO... ---");
   console.log(proof);
 }
+

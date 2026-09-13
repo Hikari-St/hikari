@@ -1,4 +1,4 @@
-# Hakiru / Hikari Protocol: External Smart Contract Audit Dossier
+# Hikari Protocol: External Smart Contract Audit Dossier
 
 **Author & Maintainer**: `ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>`  
 **Target Auditors**: Zellic, Trail of Bits, OtterSec  

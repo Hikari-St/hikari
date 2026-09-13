@@ -1,5 +1,5 @@
 #![no_std]
-// Hakiru Protocol: Safety Sentinel & Autonomous Circuit Breaker Contract
+// Hikari Protocol: Safety Sentinel & Autonomous Circuit Breaker Contract
 // Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 
 use interfaces::{Error, SentinelTrait, VaultClient};
@@ -13,10 +13,12 @@ const KEY_MAX_DRAWDOWN: Symbol = symbol_short!("MAX_DD");
 const KEY_PAUSED: Symbol = symbol_short!("PAUSED");
 
 #[contract]
-pub struct HakiruSentinel;
+pub struct HikariSentinel;
+
+pub type HakiruSentinel = HikariSentinel;
 
 #[contractimpl]
-impl SentinelTrait for HakiruSentinel {
+impl SentinelTrait for HikariSentinel {
     fn initialize(env: Env, admin: Address, max_drawdown_bps: u32) -> Result<(), Error> {
         if env.storage().instance().has(&KEY_ADMIN) {
             return Err(Error::AlreadyInitialized);

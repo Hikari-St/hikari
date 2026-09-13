@@ -42,7 +42,7 @@ function makeRequest(path, method = "GET", payload = null) {
 
 async function runSecurityVerification() {
   console.log("================================================================================");
-  console.log("🔒 [HAKIRU / HIKARI] Backend Security & Anti-Mixup Database Verification Suite");
+  console.log("🔒 [HIKARI] Backend Security & Anti-Mixup Database Verification Suite");
   console.log("Author & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>");
   console.log("Target Server:", BASE_URL);
   console.log("================================================================================\n");
@@ -69,7 +69,7 @@ async function runSecurityVerification() {
   assert.ok(challengeRes.data.challenge.challengeId, "Must have challengeId");
   assert.strictEqual(challengeRes.data.challenge.stellarAddress, userAlice);
   assert.ok(challengeRes.data.challenge.nonce.length >= 64, "Nonce must be 32 bytes hex (64 chars)");
-  assert.ok(challengeRes.data.challenge.message.includes("HAKIRU PROTOCOL WALLET AUTHENTICATION"));
+  assert.ok(challengeRes.data.challenge.message.includes("HIKARI PROTOCOL WALLET AUTHENTICATION") || challengeRes.data.challenge.message.includes("HAKIRU PROTOCOL WALLET AUTHENTICATION"));
   results.challengeGeneration = true;
   console.log(`   ✓ Challenge ID generated: ${challengeRes.data.challenge.challengeId}`);
   console.log(`   ✓ Cryptographic Nonce: ${challengeRes.data.challenge.nonce.slice(0, 16)}...`);

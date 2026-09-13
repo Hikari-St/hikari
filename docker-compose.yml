@@ -1,6 +1,6 @@
 # docker-compose.yml
 # Author: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
-# Complete container orchestration for Hikari / Hakiru Protocol
+# Complete container orchestration for Hikari Protocol
 
 services:
   # 1. Primary Web Dashboard, DApp Workspace & API Gateway

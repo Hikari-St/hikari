@@ -1,5 +1,5 @@
 #![no_std]
-// Hakiru Protocol: Deterministic Vault Factory & Registry Contract
+// Hikari Protocol: Deterministic Vault Factory & Registry Contract
 // Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 
 use interfaces::{Error, FactoryTrait, VaultDeploymentConfig, VaultRecord};
@@ -15,10 +15,12 @@ const KEY_VAULTS: Symbol = symbol_short!("VAULTS");
 const KEY_WASMS: Symbol = symbol_short!("WASMS");
 
 #[contract]
-pub struct HakiruFactory;
+pub struct HikariFactory;
+
+pub type HakiruFactory = HikariFactory;
 
 #[contractimpl]
-impl FactoryTrait for HakiruFactory {
+impl FactoryTrait for HikariFactory {
     fn initialize(env: Env, admin: Address, treasury: Address, sentinel: Address) -> Result<(), Error> {
         if env.storage().instance().has(&KEY_ADMIN) {
             return Err(Error::AlreadyInitialized);

@@ -3,20 +3,19 @@
 > **PROPRIETARY & CONFIDENTIAL**  
 > **Lead Architect & Maintainer**: `ibochivincent-lang`  
 > **Target Network**: Stellar / Soroban  
-> **Canonical Specification**: See [HIKARI_SPECIFICATION.md](file:///C:/Users/User/.gemini/antigravity-ide/scratch/Hikari/docs/HIKARI_SPECIFICATION.md)  
 > **Document Status**: Complete Implementation Blueprint  
 
 ---
 
 ## 1. Executive Summary
 
-The **Hikari Protocol** (formerly referenced during initial ideation as Hakiru) is a next-generation, autonomous asset management, multi-strategy yield routing, and liquidity orchestration engine built natively for the Soroban smart contract runtime. Hikari combines tokenized yield-bearing dual vaults (`hXLM` and `hUSDC`), linear yield streaming, dynamic rebalancing keepers, AI-assisted telemetry, seamless agent toolsets, and live social media broadcasting bots into an integrated, institutional-grade decentralized finance ecosystem.
+The **Hikari Protocol** (光 - "Light") is a next-generation, autonomous asset management, multi-strategy yield routing, and liquidity orchestration engine built natively for the Soroban smart contract runtime. Hikari combines tokenized yield-bearing dual vaults (`hXLM` and `hUSDC`), linear yield streaming contracts, dynamic rebalancing policy guardrails, AI-assisted telemetry, seamless agent toolsets, and live social media broadcasting bots into an integrated, institutional-grade decentralized finance ecosystem.
 
 ---
 
 ## 2. Core Architecture Blueprint
 
-Hakiru decomposes asset aggregation and automated yield strategies into decoupled, trust-minimized layers:
+Hikari decomposes asset aggregation and automated yield strategies into decoupled, trust-minimized layers:
 
 ```
                       +------------------------------------------+
@@ -25,7 +24,7 @@ Hakiru decomposes asset aggregation and automated yield strategies into decouple
                       +--------------------+---------------------+
                                            |
 +--------------------+                     v                     +--------------------+
-|  Client Web SDK    | <-----> [ Hakiru Gateway & API ] <----->  | AI Agent Toolset   |
+|  Client Web SDK    | <-----> [ Hikari Gateway & API ] <----->  | AI Agent Toolset   |
 |  & TypeScript Kit  |                     |                     |  (Autonomous Ops)  |
 +--------------------+                     v                     +--------------------+
                                 [ Event & Keeper Daemon ]
@@ -50,16 +49,17 @@ Hakiru decomposes asset aggregation and automated yield strategies into decouple
 
 ## 3. Extracted Core System Components
 
-The following table details the native architecture elements, underlying mathematical models, and operational roles of the Hakiru core infrastructure:
+The following table details the native architecture elements, underlying mathematical models, and operational roles of the Hikari core infrastructure:
 
 | Component Category | Native Architecture Element | Technical Mechanism & Design Pattern | Implementation Role & Scope |
 | :--- | :--- | :--- | :--- |
-| **Asset Custody & Accounting** | Multi-Strategy Dynamic Vault | Tokenized ERC-4626-aligned share-accounting model calculating precise Net Asset Value (NAV). Incorporates initial dead-share minting to neutralize first-depositor inflation and rounding exploits. | Primary Soroban smart contract handling multi-account deposits, redemptions, and share allocations. |
-| **Factory & Registry** | Protocol Factory & Registry Contract | Deterministic deployment engine with versioned WASM registries, parameter initialization, role enforcement (Sentinel, Rebalance Officer, Treasury), and protocol fee routing. | Manages the on-chain lifecycle, deployment authorization, and global configuration of all Hakiru vaults. |
+| **Asset Custody & Accounting** | Multi-Strategy Dynamic Vault | Tokenized ERC-4626-aligned share-accounting model calculating precise Net Asset Value (NAV). Incorporates initial dead-share minting ($10^3$ virtual shares) to neutralize first-depositor inflation and rounding exploits. | Primary Soroban smart contract handling multi-account deposits, redemptions, and share allocations (`hXLM` and `hUSDC`). |
+| **Linear Yield Streamer** | Linear Streamer Contract | Second-by-second linear vesting and distribution of harvested protocol yields, preventing flash-deposit sandwich attacks and yield dilution. | Dedicated Soroban WASM contract managing continuous yield flow to active depositors. |
+| **Factory & Registry** | Protocol Factory & Registry Contract | Deterministic deployment engine with versioned WASM registries, parameter initialization, role enforcement (Sentinel, Rebalance Officer, Treasury), and protocol fee routing. | Manages the on-chain lifecycle, deployment authorization, and global configuration of all Hikari vaults. |
 | **Strategy Adapters** | Modular Strategy Adapter Interfaces | Pluggable interface isolating external liquidity and lending protocols. Handles collateral supply, interest-bearing token receipt custody, and liquidity withdrawal. | Specialized smart contract modules executing dedicated yield-generating pathways. |
 | **Yield Compounding** | Autonomous Harvest & Auto-Compound Engine | Threshold-triggered execution daemon that aggregates yield tokens, executes swaps into primary reserve tokens via DEX routing, and re-deposits principal. | Automated operational pipeline maintaining maximum APY compounding without user gas expense. |
 | **Autonomous Agent Kit** | Agent Operations Toolkit (Agent Skill) | Standardized JSON-RPC/REST agent interface allowing AI agents to query vault metrics, calculate slippage, and execute structured yield operations. | Programmatic and natural-language interaction layer for automated on-chain agents. |
-| **Universal Client SDK** | Type-Safe Hakiru TypeScript SDK | End-to-end client wrapper providing contract simulation, XDR assembly, transaction signing via passkey/secret key, and real-time APY calculation. | Universal interface for web applications, automation scripts, and server-side services. |
+| **Universal Client SDK** | Type-Safe Hikari TypeScript SDK | End-to-end client wrapper providing contract simulation, XDR assembly, transaction signing via passkey/secret key, and real-time APY calculation. | Universal interface for web applications, automation scripts, and server-side services. |
 | **Signer Infrastructure** | Headless Delegated Signer Gateway | Server-side non-custodial delegated signing engine permitting autonomous keepers and agents to execute rebalance operations without interactive popups. | Automated transaction execution and scheduling infrastructure. |
 | **Telemetry & Indexing** | Real-Time Telemetry & APY Indexer | Event listener processing on-chain contract events to compute historical APR, TVL growth, capital utilization, and drawdown curves. | Data aggregation engine feeding client interfaces, public dashboards, and social broadcasting bots. |
 
@@ -67,7 +67,7 @@ The following table details the native architecture elements, underlying mathema
 
 ## 4. Advanced Innovations & Social Media Live Progress Integration
 
-To elevate Hakiru beyond conventional vaults, the protocol incorporates real-time social telemetry, predictive algorithms, and cryptographic solvency verification:
+To elevate Hikari beyond conventional vaults, the protocol incorporates real-time social telemetry, predictive algorithms, and cryptographic solvency verification:
 
 | Advancement Area | Native Innovation & Technical Mechanism | Social Media & Live Progress Feature | What AI Writes (Code / Implementation) | What You Personally Provide / Configure |
 | :--- | :--- | :--- | :--- | :--- |
@@ -83,14 +83,15 @@ To elevate Hakiru beyond conventional vaults, the protocol incorporates real-tim
 
 ## 5. Division of Responsibilities: AI Generation vs. Personal Configuration
 
-To facilitate seamless delivery, tasks are segregated between what will be coded directly and what requires your environment configuration:
+Tasks are segregated between what is coded directly in the repository and what requires third-party API / credential setup:
 
 ### What AI Writes (Fully Automated Codebase Delivery):
 1. **Soroban Smart Contracts (`Rust`)**:
-   - `hakiru-factory`: Deterministic deployment and protocol parameters.
-   - `hakiru-vault`: Share math, deposit/withdraw, dead-share bootstrap, fee extraction.
-   - `hakiru-strategy-core`: Base trait and modular strategy adapters.
-   - `hakiru-sentinel`: Emergency pausing and price deviation triggers.
+   - `hikari-factory`: Deterministic deployment and protocol parameters.
+   - `hikari-vault`: Share math, deposit/withdraw, dead-share bootstrap, fee extraction (`hXLM` and `hUSDC`).
+   - `hikari-streamer`: Second-by-second linear yield streaming engine.
+   - `hikari-sentinel`: Emergency pausing and price deviation triggers.
+   - Modular adapters for Blend, Phoenix, Soroswap.
 
 2. **Social Integration & Bots (`TypeScript / Node.js`)**:
    - `bot-telegram.ts`: Interactive Telegram bot (`/tvl`, `/apy`, `/vaults`, `/deposit`).
@@ -100,22 +101,25 @@ To facilitate seamless delivery, tasks are segregated between what will be coded
 3. **Automation Daemons & Indexers (`TypeScript / Python`)**:
    - `harvest-keeper.ts`: Automated harvest monitor executing compound transactions.
    - `telemetry-indexer.ts`: Continuous on-chain event indexer calculating APY and volume.
-   - `predictive-allocator.py`: Yield optimization and allocation scoring model.
+   - `merkle-solvency.ts`: Merkle accumulator and inclusion proof generator.
+   - `predictive_allocator.py`: Yield optimization and allocation scoring model.
 
 4. **Client & Developer Tooling**:
-   - Complete `@hakiru/sdk` TypeScript package with full typing and transaction helpers.
-   - Hakiru Agent Skill specification for AI agent execution.
+   - Complete `@hikari/sdk` TypeScript package with full typing and transaction helpers.
+   - Hikari Agent Skill specification for AI agent execution.
 
-### What You Personally Provide / Configure:
-1. **Social Platform Credentials**:
+### What You Personally Provide / Configure (When Going Live):
+1. **Social Platform Credentials (Optional for live broadcast)**:
    - `TELEGRAM_BOT_TOKEN`: From Telegram's `@BotFather`.
-   - `DISCORD_WEBHOOK_URL`: From your Discord channel integrations.
-   - `TWITTER_API_KEYS`: Consumer Key, Secret, and Access Token from developer portal.
+   - `DISCORD_WEBHOOK_URL`: From your Discord channel webhook settings.
+   - `TWITTER_API_KEYS`: Consumer Key, Secret, and Bearer Token from developer portal.
 2. **Network Secrets & Accounts**:
-   - Deployer Private Key / Secret for deploying contracts on Testnet/Mainnet.
-   - Guardian Multi-Sig or Admin public key for administrative authority.
-3. **Infrastructure Hosting**:
-   - Vercel / Railway / VPS instance to run the 24/7 harvest keeper and bot service.
+   - Stellar Testnet/Mainnet Deployer Private Key (`S...`) for contract admin calls.
+   - Guardian Multi-Sig or Admin public key (`G...`) for administrative authority.
+3. **Infrastructure Hosting (100% Free Tiers)**:
+   - Vercel or Cloudflare Pages for Frontend DApp hosting (Free).
+   - Render or Koyeb for Node.js API / Keeper hosting (Free).
+   - Neon Serverless PostgreSQL for user persistence (Free).
 
 ---
 
@@ -123,7 +127,7 @@ To facilitate seamless delivery, tasks are segregated between what will be coded
 
 ```
 Phase 1: Smart Contract Core
-├── Compile Rust Soroban contracts (Factory, Vault, Strategy Adapters)
+├── Compile Rust Soroban contracts (Factory, Vault, Streamer, Adapters, Sentinel)
 ├── Execute unit and integration tests with Soroban SDK test environment
 └── Deploy to testnet and register initial strategy adapters
 
@@ -135,7 +139,7 @@ Phase 2: Live Social Telemetry & Bots
 Phase 3: Automation & Autonomous Keepers
 ├── Deploy 24/7 Harvest & Rebalance Keeper daemon
 ├── Launch APY indexer and Net Asset Value (NAV) calculator
-└── Connect AI agent action toolset
+└── Connect AI agent action toolset & Policy Engine
 
 Phase 4: Production Launch & Community Scaling
 ├── Security audit check via static analysis tools
@@ -147,7 +151,7 @@ Phase 4: Production Launch & Community Scaling
 
 ## 7. Compliance & Originality Governance
 
-All implementations under this specification must strictly conform to:
+All implementations under this specification conform to:
 - **Sole Authorship**: Attributed solely to **`ibochivincent-lang`**.
 - **Source Sanitization**: No external source links, borrowed repo names, video references, or upstream attribution tags are permitted.
 - **Independent Architecture**: Native naming, bespoke directory hierarchy, and customized operational domain vocabulary.

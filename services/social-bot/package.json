@@ -1,7 +1,7 @@
 {
-  "name": "@hakiru/social-bot",
+  "name": "@hikari/social-bot",
   "version": "0.1.0",
-  "description": "Hakiru Protocol: Live Social Media & Telemetry Broadcasting Suite",
+  "description": "Hikari Protocol: Live Social Media & Telemetry Broadcasting Suite",
   "author": "ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>",
   "license": "MIT",
   "main": "dist/index.js",

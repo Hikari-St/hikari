@@ -1,9 +1,9 @@
-// Hakiru Protocol: X (Twitter) Milestone & Alpha Broadcaster
+// Hikari Protocol: X (Twitter) Milestone & Alpha Broadcaster
 // Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 
 import { ProtocolMetrics } from "./types";
 
-export class HakiruXBroadcaster {
+export class HikariXBroadcaster {
   private apiConfigured: boolean = false;
 
   constructor() {
@@ -17,7 +17,7 @@ export class HakiruXBroadcaster {
     return [
       `🚀 MILESTONE REACHED: ${milestoneName}!`,
       "",
-      `The @HakiruProtocol testnet liquidity engine has achieved another major benchmark on @StellarOrg Soroban:`,
+      `The @HikariProtocol testnet liquidity engine has achieved another major benchmark on @StellarOrg Soroban:`,
       "",
       `📊 EarnXLM TVL: ${metrics.tvlXlm.toLocaleString()} XLM (12.4% APY)`,
       `💵 EarnUSD TVL: $${metrics.tvlUsd.toLocaleString()} USD (17.0% APY)`,
@@ -35,7 +35,7 @@ export class HakiruXBroadcaster {
     return [
       "📈 WEEKLY ALPHA & REBALANCE RECAP 📈",
       "",
-      "Hakiru Protocol's autonomous yield agents have executed 168 successful auto-compounds this week.",
+      "Hikari Protocol's autonomous yield agents have executed 168 successful auto-compounds this week.",
       "",
       `🏆 Top Performing Strategy: ${topStrategy}`,
       `⚡ Dynamic Net Yield: ${weeklyApy} APY`,
@@ -43,7 +43,7 @@ export class HakiruXBroadcaster {
       "🛡️ Circuit Breakers: 100% Green / Zero Drawdown Events",
       "",
       "Read the full telemetry analysis in our community channels.",
-      "#HakiruProtocol #Stellar #CryptoYield",
+      "#HikariProtocol #Stellar #CryptoYield",
     ].join("\n");
   }
 
@@ -61,3 +61,8 @@ export class HakiruXBroadcaster {
     }
   }
 }
+
+// Backwards-compatibility alias
+export const HakiruXBroadcaster = HikariXBroadcaster;
+export type HakiruXBroadcaster = HikariXBroadcaster;
+

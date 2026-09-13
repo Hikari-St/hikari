@@ -22,9 +22,9 @@ async function runMasterVerification() {
   const interfacesRs = fs.readFileSync("contracts/interfaces/src/lib.rs", "utf-8");
 
   results.contractsSource = {
-    hasFactoryContract: factoryRs.includes("pub struct HakiruFactory"),
+    hasFactoryContract: factoryRs.includes("pub struct HikariFactory") || factoryRs.includes("pub struct HakiruFactory"),
     hasFactoryTrait: interfacesRs.includes("pub trait FactoryTrait"),
-    hasSentinelContract: sentinelRs.includes("pub struct HakiruSentinel"),
+    hasSentinelContract: sentinelRs.includes("pub struct HikariSentinel") || sentinelRs.includes("pub struct HakiruSentinel"),
     hasSentinelTrait: interfacesRs.includes("pub trait SentinelTrait"),
     hasMultiAssetBasketTrait: interfacesRs.includes("pub trait MultiAssetBasketTrait"),
     hasWorkspaceMembers: fs.readFileSync("contracts/Cargo.toml", "utf-8").includes('"factory"') &&

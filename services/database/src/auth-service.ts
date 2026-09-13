@@ -79,11 +79,11 @@ export class HikariWalletSecurityService {
 
     const message = [
       "============================================================",
-      "             HAKIRU PROTOCOL WALLET AUTHENTICATION          ",
+      "             HIKARI PROTOCOL WALLET AUTHENTICATION          ",
       "============================================================",
       `Address: ${req.stellarAddress}`,
       `Nonce: ${nonce}`,
-      `Domain: hakiru.stellar.org`,
+      `Domain: hikari.stellar.org`,
       `Issued At: ${new Date(now).toISOString()}`,
       `Expires At: ${new Date(expiresAt).toISOString()}`,
       "------------------------------------------------------------",

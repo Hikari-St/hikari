@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Hakiru Protocol: AI Predictive Yield Allocator Micro-Agent
+Hikari Protocol: AI Predictive Yield Allocator Micro-Agent
 Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 Target: Stellar Soroban Yield Orchestration
 """

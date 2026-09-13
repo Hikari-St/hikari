@@ -17,7 +17,9 @@ $packages = @(
     "hikari-gate-seal",
     "hikari-oracle",
     "hikari-governance",
-    "hikari-streamer"
+    "hikari-streamer",
+    "hikari-factory",
+    "hikari-sentinel"
 )
 
 $outDir = Join-Path $PSScriptRoot "..\contracts\wasm"

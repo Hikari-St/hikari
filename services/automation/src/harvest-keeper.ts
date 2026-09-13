@@ -1,4 +1,4 @@
-// Hakiru Protocol: Autonomous Harvest & Auto-Compound Keeper Daemon
+// Hikari Protocol: Autonomous Harvest & Auto-Compound Keeper Daemon
 // Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 
 export interface StrategyYieldMetric {
@@ -19,7 +19,7 @@ export interface HarvestResult {
   txHash: string;
 }
 
-export class HakiruHarvestKeeper {
+export class HikariHarvestKeeper {
   private minProfitThresholdXlm: number = 25.0; // minimum 25 XLM to justify compounding gas
   private isRunning: boolean = false;
   private totalCompoundedToDateXlm: number = 18450.75;
@@ -123,8 +123,12 @@ export class HakiruHarvestKeeper {
   }
 }
 
+// Backwards-compatibility alias
+export const HakiruHarvestKeeper = HikariHarvestKeeper;
+export type HakiruHarvestKeeper = HikariHarvestKeeper;
+
 if (require.main === module) {
-  const keeper = new HakiruHarvestKeeper();
+  const keeper = new HikariHarvestKeeper();
   console.log("[Harvest Keeper] Initialized autonomous compounding daemon.");
   keeper.executeHarvestCycle();
 

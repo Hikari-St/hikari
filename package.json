@@ -35,6 +35,8 @@
     "build:services": "node engine/node_modules/typescript/bin/tsc -p services/social-bot/tsconfig.json && node engine/node_modules/typescript/bin/tsc -p services/automation/tsconfig.json && node engine/node_modules/typescript/bin/tsc -p services/database/tsconfig.json",
     "keeper:harvest": "node services/automation/dist/harvest-keeper.js",
     "solvency:proof": "node services/automation/dist/merkle-solvency.js",
+    "test:hikari": "node scripts/verify_hakiru_full_suite.js",
+    "test:suite": "node scripts/verify_hakiru_full_suite.js",
     "test:hakiru": "node scripts/verify_hakiru_full_suite.js"
   },
   "devDependencies": {
