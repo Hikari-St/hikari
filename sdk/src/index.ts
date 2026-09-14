@@ -3,3 +3,4 @@
 
 export * from "./types.js";
 export * from "./client.js";
+export * from "./contract-reader.js";

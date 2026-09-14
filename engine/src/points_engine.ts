@@ -35,7 +35,7 @@ export class HikariPointsEngine {
   private users: Map<string, UserPointsProfile> = new Map();
 
   constructor() {
-    this.seedMockLeaderboard();
+    // Clean initialization: no fabricated seed participants
   }
 
   /**
@@ -66,11 +66,25 @@ export class HikariPointsEngine {
    */
   public getUserProfile(
     address: string,
-    stakedAmountUsd: number = 250,
+    stakedAmountUsd: number = 0,
     tierId: "CONSERVATIVE_USDC" | "BALANCED_HXLM" | "DYNAMIC_ALPHA_HXLM" = "BALANCED_HXLM"
   ): UserPointsProfile {
     if (this.users.has(address)) {
       return this.users.get(address)!;
+    }
+
+    if (stakedAmountUsd <= 0) {
+      const emptyProfile: UserPointsProfile = {
+        userAddress: address,
+        totalShards: 0,
+        baseRatePerDay: 0,
+        activeMultiplier: 1.0,
+        rank: 0,
+        tier: "Standard Staker",
+        badges: [],
+      };
+      this.users.set(address, emptyProfile);
+      return emptyProfile;
     }
 
     const { dailyShards, multiplier } = this.calculateDailyShards({
@@ -86,7 +100,7 @@ export class HikariPointsEngine {
       totalShards: dailyShards * 30, // 30 days accumulated
       baseRatePerDay: dailyShards,
       activeMultiplier: multiplier,
-      rank: 42,
+      rank: this.users.size + 1,
       tier: "Luminescent Guardian",
       badges: ["Early Testnet Pioneer", "Blend Integrator", "Passkey Signer"],
     };
@@ -118,11 +132,5 @@ export class HikariPointsEngine {
         tier: u.tier,
       };
     });
-  }
-
-  private seedMockLeaderboard() {
-    // Seed initial on-chain participants (Testnet Admin & Execution Agent stakers)
-    this.getUserProfile("GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN", 2500, "DYNAMIC_ALPHA_HXLM");
-    this.getUserProfile("GAQZQABZADRIHXJSNS75OLEKNE65ZFU273PBSA6H23IHILQVFK3VQ5L2", 1200, "BALANCED_HXLM");
   }
 }
