@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hikari Multi-Agent Trading Desk — Autonomous AI Trading on Stellar Protocol 27</title>
+  <meta name="description" content="Autonomous Multi-Agent AI Trading Desk for Stellar Soroban. 4 Financial Specialists, Bull vs. Bear multi-turn debate, Risk Committee governance, and zero-cash-drag yield carry.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #070314;
+      background-image: 
+        radial-gradient(circle at 20% 15%, rgba(139, 47, 230, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 80% 40%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 50% 85%, rgba(245, 158, 11, 0.12) 0%, transparent 50%);
+      color: #f1f5f9;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    .trading-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(7, 3, 20, 0.75);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .trading-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #ffffff;
+    }
+    .trading-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 4rem;
+    }
+    .desk-hero-card {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(139, 47, 230, 0.08) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+    }
+    .regime-pill-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted, #94a3b8);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .regime-pill-btn.active, .regime-pill-btn:hover {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: #fbbf24;
+      color: #fbbf24;
+    }
+    .trading-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      color: #ffffff;
+      padding: 0.9rem 1.4rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="trading-topbar">
+    <div style="display: flex; align-items: center; gap: 1.25rem;">
+      <a href="app.html" class="trading-brand">
+        <div class="logo-kanji-badge" style="width: 34px; height: 34px; font-size: 1.1rem; background: linear-gradient(135deg, #f59e0b 0%, #8b2fe6 100%); display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 800; color: #fff;">光</div>
+        <div>
+          <div style="font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em;">Hikari Protocol</div>
+          <div style="font-size: 0.72rem; color: #fbbf24; font-weight: 600; text-transform: uppercase;">Autonomous AI Trading Desk</div>
+        </div>
+      </a>
+      <span class="hikari-badge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; font-size: 0.72rem; padding: 0.3rem 0.75rem; border-radius: 999px;">
+        ● Testnet: Ledger #54,892,104
+      </span>
+      <span class="hikari-badge" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 0.72rem; padding: 0.3rem 0.75rem; border-radius: 999px;">
+        Protocol 27 Soroban
+      </span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <a href="app.html" class="nav-btn" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s;">
+        ← Back to DApp
+      </a>
+      <button id="btnTdTriggerCycle" class="hikari-btn-primary" style="margin: 0; padding: 0.5rem 1.2rem; font-size: 0.82rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none; font-weight: 700; cursor: pointer;">
+        ⚡ Run Hikari Agent Cycle
+      </button>
+      <button id="btnConnectWallet" class="connect-wallet-btn" style="padding: 0.45rem 1rem; font-size: 0.82rem;">
+        Connect Wallet
+      </button>
+    </div>
+  </header>
+
+  <main class="trading-container">
+    
+    <!-- Hero Banner: Multi-Agent Consensus & Zero Cash Drag -->
+    <div class="desk-hero-card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
+            <span class="social-ping-dot" style="background: #fbbf24; box-shadow: 0 0 10px #fbbf24;"></span>
+            <span style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.05em;">Stellar Native Autonomous Intelligence</span>
+          </div>
+          <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.85rem; font-weight: 800; margin: 0 0 0.4rem 0; color: #ffffff;">
+            Hikari Multi-Agent AI Trading Desk
+          </h1>
+          <p style="margin: 0; font-size: 0.88rem; color: #94a3b8; max-width: 720px; line-height: 1.5;">
+            4 Autonomous Financial Specialists (Warren, George, Cathie, Ray) debate market conditions in real-time, execute mathematically verified entries on SDEX/Soroswap, and eliminate cash drag with <strong>24.70% APY Yield Carry in Blend Backstop</strong>.
+          </p>
+        </div>
+
+        <!-- Simulation Regime Switcher -->
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem;">
+          <span style="font-size: 0.72rem; color: var(--text-dim, #64748b); font-weight: 600; text-transform: uppercase;">Simulate Market Regime:</span>
+          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <button class="regime-pill-btn active" data-regime="bullish">Bullish Expansion</button>
+            <button class="regime-pill-btn" data-regime="neutral">Neutral Range</button>
+            <button class="regime-pill-btn" data-regime="volatile">Volatile Shakeout</button>
+            <button class="regime-pill-btn" data-regime="bearish">Bearish Contraction</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Macro Metrics Bar -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+        <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+          <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Stellar XLM Price</div>
+          <div style="font-size: 1.6rem; font-weight: 800; color: #ffffff; margin: 0.3rem 0;" id="tdXlmPrice">$0.1245</div>
+          <div style="font-size: 0.75rem; color: #10b981; font-weight: 600;" id="tdPriceSub">+3.40% 24h • VWAP: $0.1242</div>
+        </div>
+
+        <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+          <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Market Regime</div>
+          <div style="font-size: 1.45rem; font-weight: 800; color: #38bdf8; margin: 0.3rem 0;" id="tdMacroRegime">BULLISH_EXPANSION</div>
+          <div style="font-size: 0.75rem; color: #94a3b8;" id="tdRegimeScore">Composite Score: 78/100</div>
+        </div>
+
+        <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+          <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Zero Cash Drag (Yield Carry)</div>
+          <div style="font-size: 1.6rem; font-weight: 800; color: #10b981; margin: 0.3rem 0;" id="tdYieldCarryActive">24.70% APY</div>
+          <div style="font-size: 0.75rem; color: #94a3b8;">100% Idle Margin in Blend Backstop</div>
+        </div>
+
+        <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+          <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Committee Consensus</div>
+          <div style="font-size: 1.45rem; font-weight: 800; color: #fbbf24; margin: 0.3rem 0;" id="tdConsensusSignal">MODERATE_LONG (7.50%)</div>
+          <div style="font-size: 0.75rem; color: #10b981;">Confidence: 82% • Max DD Cap: 4.5%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Specialist Financial Analysts Cards -->
+    <div style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0;">
+          Specialist Financial Analysts (Hikari Multi-Agent Framework)
+        </h2>
+        <span style="font-size: 0.75rem; color: #94a3b8;">4 Autonomous Sub-Agents Active</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+        <!-- Warren: Fundamental Analyst -->
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🏛️</div>
+            <div>
+              <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">Warren</div>
+              <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 600;">Fundamental Analyst</div>
+            </div>
+          </div>
+          <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5; margin: 0 0 0.8rem 0;" id="tdAnalystWarren">
+            Stellar network daily payments up +18.4%. Protocol 27 Soroban contract invocations set new all-time high. XLM real valuation remains at attractive 0.72 P/S ratio.
+          </p>
+          <div style="font-size: 0.72rem; color: #10b981; font-weight: 600; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.5rem;">
+            Signal: BUY (Confidence: 88%)
+          </div>
+        </div>
+
+        <!-- George: Technical Analyst -->
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">📈</div>
+            <div>
+              <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">George</div>
+              <div style="font-size: 0.72rem; color: #10b981; font-weight: 600;">Technical Analyst</div>
+            </div>
+          </div>
+          <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5; margin: 0 0 0.8rem 0;" id="tdAnalystGeorge">
+            RSI at 58.4 (bullish neutral). MACD positive histogram divergence. Strong liquidity cluster on SDEX orderbook at $0.1190 defending the lower trend channel.
+          </p>
+          <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 600; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.5rem;">
+            Signal: ACCUMULATE (Spread: 4 bps)
+          </div>
+        </div>
+
+        <!-- Cathie: Sentiment / Momentum Analyst -->
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">⚡</div>
+            <div>
+              <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">Cathie</div>
+              <div style="font-size: 0.72rem; color: #c084fc; font-weight: 600;">Sentiment &amp; News Lead</div>
+            </div>
+          </div>
+          <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5; margin: 0 0 0.8rem 0;" id="tdAnalystCathie">
+            Institutional anchor integrations expanding across LatAm. Stablecoin remittance volume on Stellar up 27% QoQ. Social sentiment score 84/100.
+          </p>
+          <div style="font-size: 0.72rem; color: #c084fc; font-weight: 600; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.5rem;">
+            Signal: STRONG_BUY (Velocity: High)
+          </div>
+        </div>
+
+        <!-- Ray: Risk Committee Lead -->
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🛡️</div>
+            <div>
+              <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">Ray</div>
+              <div style="font-size: 0.72rem; color: #fbbf24; font-weight: 600;">Risk &amp; Hedging Lead</div>
+            </div>
+          </div>
+          <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5; margin: 0 0 0.8rem 0;" id="tdAnalystRay">
+            Maximum leverage capped at 1.0x. Half-Kelly position sizing enforced. Stop-loss hard bound at $0.1160. Unused cash parked in Blend Backstop earning 24.7%.
+          </p>
+          <div style="font-size: 0.72rem; color: #fbbf24; font-weight: 600; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.5rem;">
+            Signal: APPROVED (Max Risk: 4.5%)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bull vs. Bear Debate Arena & Committee Decision -->
+    <div style="display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 1.5rem; margin-bottom: 2rem;">
+      <!-- Debate Arena -->
+      <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #ffffff;">Hikari Multi-Turn Debate: Bull vs. Bear</h3>
+          <span style="font-size: 0.72rem; color: #10b981; font-weight: 700; background: rgba(16, 185, 129, 0.15); padding: 2px 8px; border-radius: 4px;">Turn 3/3 • Consensus Reached</span>
+        </div>
+        
+        <div id="tdDebateFeed" style="display: flex; flex-direction: column; gap: 0.85rem; max-height: 320px; overflow-y: auto; padding-right: 0.5rem;">
+          <!-- Bull Turn -->
+          <div style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981; padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.82rem;">
+            <div style="font-weight: 700; color: #10b981; margin-bottom: 0.25rem;">Bullish Agent (Cathie + George):</div>
+            <div style="color: #cbd5e1; line-height: 1.5;">
+              "Technical breakout above $0.1220 with SDEX bid volume increasing +32%. Soroban ecosystem growth warrants increasing long exposure to XLM."
+            </div>
+          </div>
+
+          <!-- Bear Turn -->
+          <div style="background: rgba(244, 63, 94, 0.08); border-left: 3px solid #f43f5e; padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.82rem;">
+            <div style="font-weight: 700; color: #f43f5e; margin-bottom: 0.25rem;">Bearish Agent (Warren + Ray):</div>
+            <div style="color: #cbd5e1; line-height: 1.5;">
+              "Macro headwinds in broader crypto markets persist. Full size long is too risky; position size must not exceed 25% with remaining capital earning yield carry."
+            </div>
+          </div>
+
+          <!-- Trader Proposal -->
+          <div style="background: rgba(56, 189, 248, 0.08); border-left: 3px solid #38bdf8; padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.82rem;">
+            <div style="font-weight: 700; color: #38bdf8; margin-bottom: 0.25rem;">Synthesizing Trader Agent:</div>
+            <div style="color: #cbd5e1; line-height: 1.5;">
+              "Proposal: Enter 20% MODERATE_LONG on XLM/USDC at $0.1245. Target: $0.1380. Stop-loss: $0.1160. Route 80% remaining capital to Blend Backstop for 24.7% yield carry."
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Risk Committee Resolution Box -->
+      <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;" id="tdRiskDecisionBox">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #ffffff;">Risk Committee Approval</h3>
+            <span style="background: rgba(16, 185, 129, 0.2); color: #10b981; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 4px;">APPROVED</span>
+          </div>
+          
+          <div style="font-size: 0.82rem; color: #94a3b8; line-height: 1.6; margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+              <span>Action:</span> <strong style="color: #10b981;">MODERATE_LONG (XLM)</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+              <span>Position Size:</span> <strong style="color: #ffffff;">20.00% NAV</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+              <span>Yield Carry:</span> <strong style="color: #c084fc;">80.00% in Blend</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+              <span>Lens Best Route:</span> <strong style="color: #ffffff;">SDEX Orderbook</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+              <span>Slippage Cap:</span> <strong style="color: #ffffff;">&le; 0.25%</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>On-Chain Sig:</span> <span style="font-family: monospace; color: #38bdf8;">0x8fa3...c491</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 0.75rem; font-size: 0.75rem; color: #94a3b8; border: 1px solid rgba(255,255,255,0.06);">
+          🛡️ <strong>Dual Invariant:</strong> No trade can execute without 3/3 risk committee unanimous consensus.
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Execution Terminal -->
+    <div style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h3 style="font-size: 1rem; color: #ffffff; margin: 0; font-family: 'JetBrains Mono', monospace;">
+          >_ Autonomous On-Chain Execution Log (Lens Aggregation)
+        </h3>
+        <span style="font-size: 0.72rem; color: #10b981; font-family: monospace;">● LIVE WEBSOCKET TAPE</span>
+      </div>
+
+      <div id="tdExecutionLog" style="background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #94a3b8; max-height: 220px; overflow-y: auto; line-height: 1.7;">
+        <div>[2026-09-14 13:45:00] [WARREN] Evaluated Soroban ledger metrics: 4.2M daily active ops. P/S 0.72. Valuation BUY.</div>
+        <div>[2026-09-14 13:45:01] [GEORGE] Lens Depth Scanner: SDEX XLM/USDC VWAP $0.1242. Orderbook spread: 4 bps.</div>
+        <div>[2026-09-14 13:45:02] [CATHIE] Sentiment momentum: +12% ecosystem builder growth. Signal: ACCUMULATE.</div>
+        <div>[2026-09-14 13:45:03] [RAY] Enforcing Half-Kelly size limit: Max 200,000 XLM. Yield carry allocated to Blend Backstop.</div>
+        <div style="color: #10b981;">[2026-09-14 13:45:04] [HIKARI_DESK] Executed MODERATE_LONG on SDEX. 200,000 XLM filled @ $0.1245. Yield carry: 800,000 XLM deployed in Blend Backstop (24.70% APY).</div>
+      </div>
+    </div>
+
+    <!-- Zero Cash Drag Architecture Explainer -->
+    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(56, 189, 248, 0.08) 100%); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 14px; padding: 1.5rem; display: flex; align-items: center; gap: 1.25rem;">
+      <div style="font-size: 2.2rem;">💡</div>
+      <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.6;">
+        <strong style="color: #ffffff;">How Zero Cash Drag Works on Stellar:</strong> Traditional crypto trading desks leave unallocated cash sitting idle in dry powder losing purchasing power. In the <strong>Hikari Multi-Agent Trading Desk</strong>, 100% of unallocated trading capital is parked in the highest-yielding <strong>Blend Backstop Module (24.70% APY)</strong> until the moment a consensus trade signal triggers. When an order executes, capital migrates with zero slippage.
+      </div>
+    </div>
+
+  </main>
+
+  <footer style="border-top: 1px solid rgba(255,255,255,0.08); padding: 1.5rem 2rem; text-align: center; font-size: 0.78rem; color: #64748b;">
+    Hikari Protocol • Autonomous AI Asset Management & Multi-Agent Trading on Stellar Soroban (Protocol 27)
+  </footer>
+
+  <!-- Toast Container -->
+  <div id="tradingToast" class="trading-toast" style="display: none;">
+    <span id="tradingToastIcon">⚡</span>
+    <span id="tradingToastText">Hikari multi-agent cycle running...</span>
+  </div>
+
+  <script>
+    function showToast(text, icon = "⚡") {
+      const toast = document.getElementById("tradingToast");
+      const toastText = document.getElementById("tradingToastText");
+      const toastIcon = document.getElementById("tradingToastIcon");
+      if (!toast) return;
+      toastText.textContent = text;
+      toastIcon.textContent = icon;
+      toast.style.display = "flex";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 3500);
+    }
+
+    async function loadTradingData() {
+      try {
+        const res = await fetch("/api/trading-agent");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data) {
+          if (data.currentPrice) {
+            document.getElementById("tdXlmPrice").textContent = `$${data.currentPrice.toFixed(4)}`;
+          }
+          if (data.marketRegime) {
+            document.getElementById("tdMacroRegime").textContent = data.marketRegime;
+          }
+          if (data.consensusDecision) {
+            document.getElementById("tdConsensusSignal").textContent = `${data.consensusDecision} (${data.approvedAllocationPercent})`;
+          }
+        }
+      } catch (err) {
+        console.warn("Trading API fallback:", err);
+      }
+    }
+
+    // Run Agent Cycle Interaction
+    const btnTrigger = document.getElementById("btnTdTriggerCycle");
+    if (btnTrigger) {
+      btnTrigger.addEventListener("click", async () => {
+        showToast("Triggering Hikari multi-agent consensus cycle...");
+        btnTrigger.disabled = true;
+        btnTrigger.textContent = "⏳ Running Specialists...";
+
+        const logBox = document.getElementById("tdExecutionLog");
+        const timeStr = new Date().toISOString().replace("T", " ").slice(0, 19);
+
+        if (logBox) {
+          const entry1 = document.createElement("div");
+          entry1.style.color = "#38bdf8";
+          entry1.textContent = `[${timeStr}] [CYCLE_TRIGGERED] Warren, George, Cathie, and Ray evaluating new market tick...`;
+          logBox.prepend(entry1);
+        }
+
+        setTimeout(() => {
+          if (logBox) {
+            const entry2 = document.createElement("div");
+            entry2.style.color = "#fbbf24";
+            entry2.textContent = `[${timeStr}] [DEBATE_CONSENSUS] Bull-Bear debate synthesized. Risk Committee approved Half-Kelly entry.`;
+            logBox.prepend(entry2);
+          }
+        }, 600);
+
+        setTimeout(() => {
+          if (logBox) {
+            const entry3 = document.createElement("div");
+            entry3.style.color = "#10b981";
+            entry3.textContent = `[${timeStr}] [EXECUTION_FILLED] Lens Orderbook: Filled 250,000 XLM @ $0.1248. Yield carry active: 75% deployed in Blend Backstop (24.70% APY).`;
+            logBox.prepend(entry3);
+          }
+          showToast("✓ Hikari cycle finished: Consensus BUY 7.50% NAV on XLM. Yield carry: 92.5% Blend.", "✓");
+          btnTrigger.disabled = false;
+          btnTrigger.textContent = "⚡ Run Hikari Agent Cycle";
+          loadTradingData();
+        }, 1200);
+      });
+    }
+
+    // Regime Switcher Simulation Buttons
+    document.querySelectorAll(".regime-pill-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".regime-pill-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const regime = btn.getAttribute("data-regime");
+        const regimeEl = document.getElementById("tdMacroRegime");
+        const consensusEl = document.getElementById("tdConsensusSignal");
+        const scoreEl = document.getElementById("tdRegimeScore");
+        
+        if (regime === "bullish") {
+          regimeEl.textContent = "BULLISH_EXPANSION";
+          regimeEl.style.color = "#38bdf8";
+          consensusEl.textContent = "MODERATE_LONG (7.50%)";
+          scoreEl.textContent = "Composite Score: 78/100";
+        } else if (regime === "neutral") {
+          regimeEl.textContent = "NEUTRAL_RANGE";
+          regimeEl.style.color = "#fbbf24";
+          consensusEl.textContent = "HOLD (Yield Carry 100%)";
+          scoreEl.textContent = "Composite Score: 52/100";
+        } else if (regime === "volatile") {
+          regimeEl.textContent = "HIGH_VOLATILITY";
+          regimeEl.style.color = "#f43f5e";
+          consensusEl.textContent = "HEDGE / BUNKER_PREP";
+          scoreEl.textContent = "Composite Score: 38/100";
+        } else if (regime === "bearish") {
+          regimeEl.textContent = "BEARISH_DEFENSIVE";
+          regimeEl.style.color = "#f43f5e";
+          consensusEl.textContent = "DEFEND (100% Blend Backstop)";
+          scoreEl.textContent = "Composite Score: 24/100";
+        }
+        showToast(`Market regime switched to ${regime.toUpperCase()}`);
+      });
+    });
+
+    // Wallet Connect Mock
+    const btnConnect = document.getElementById("btnConnectWallet");
+    if (btnConnect) {
+      btnConnect.addEventListener("click", () => {
+        btnConnect.textContent = "GCJSD...BQN";
+        btnConnect.style.background = "rgba(16, 185, 129, 0.2)";
+        btnConnect.style.color = "#10b981";
+        btnConnect.style.borderColor = "rgba(16, 185, 129, 0.5)";
+        showToast("Connected to Stellar Testnet (Freighter Wallet)", "✓");
+      });
+    }
+
+    // Init
+    loadTradingData();
+  </script>
+</body>
+</html>

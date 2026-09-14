@@ -2041,9 +2041,9 @@ function initFuturesDirectionSystem() {
 
   if (btnDeckOpenFullAnalytics) {
     btnDeckOpenFullAnalytics.addEventListener("click", () => {
-      const navBtn = document.getElementById("btnNavYieldRouter");
-      if (navBtn) {
-        navBtn.click();
+      const target = document.getElementById("yieldRerouterDeckSection") || document.getElementById("proDeckSlotStake");
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth" });
       }
     });
   }
@@ -2373,7 +2373,11 @@ function initHakiru5TabApp() {
   }
 
   navTabs.forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (e) => {
+      if (btn.id === "btnNavAiTrading" || btn.tagName.toLowerCase() === "a") {
+        // Standalone page opened via link target="_blank"
+        return;
+      }
       const tab = btn.dataset.tab;
       switchTab(tab);
     });

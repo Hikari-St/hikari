@@ -83,12 +83,12 @@ async function verify() {
     process.exit(1);
   }
 
-  // 3. Verify Direct Vault Redirect Pages
-  for (const slug of ['earn-xlm', 'earn-usd', 'earn-multichain', 'app']) {
+  // 3. Verify Direct Vault & Trading Redirect Pages
+  for (const slug of ['earn-xlm', 'earn-usd', 'earn-multichain', 'app', 'trading']) {
     const resRedirect = await fetch(`http://localhost:3000/${slug}`);
     if (!resRedirect.ok) throw new Error(`Redirect route /${slug} failed with status: ${resRedirect.status}`);
   }
-  console.log('✓ Direct redirect routes (/app, /earn-xlm, /earn-usd, /earn-multichain) respond with 200 OK');
+  console.log('✓ Direct redirect routes (/app, /earn-xlm, /earn-usd, /earn-multichain, /trading) respond with 200 OK');
 
   console.log('✓ ALL 38 landing page decoupling, dedicated DApp workspace, vault routing, and security assertions PASSED successfully!');
 }

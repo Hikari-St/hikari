@@ -62,14 +62,14 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
             <span>Earn</span> <span class="tab-badge-new">NEW</span>
           </button>
-          <button class="app-tab-btn" data-tab="yield-router" id="btnNavYieldRouter">
+          <button class="app-tab-btn" data-tab="yield-router" id="btnNavYieldRouter" style="display: none !important;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
             <span>Pro Analytics &amp; Risk</span> <span class="tab-badge-new" style="background: rgba(139, 47, 230, 0.25); color: #c084fc; border-color: rgba(192, 132, 252, 0.5);">24.7%</span>
           </button>
-          <button class="app-tab-btn" data-tab="ai-trading" id="btnNavAiTrading">
+          <a href="trading.html" target="_blank" class="app-tab-btn" id="btnNavAiTrading" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 6px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-            <span>Hikari Trading Desk</span> <span class="tab-badge-new" style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; border-color: rgba(245, 158, 11, 0.5);">ALPHA</span>
-          </button>
+            <span>Hikari Trading Desk</span> <span class="tab-badge-new" style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; border-color: rgba(245, 158, 11, 0.5);">OPEN ↗</span>
+          </a>
           <button class="app-tab-btn" data-tab="governance" id="btnNavGovernance">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
             <span>Governance</span> <span class="tab-badge-new" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: rgba(16, 185, 129, 0.4);">DAO</span>
@@ -268,27 +268,50 @@
           </div>
         </div>
 
-        <!-- Slot for Advanced Pro Analytics, Trading Bots & Risk Telemetry (Before FAQs) -->
-        <div id="proDeckSlotStake" class="pro-deck-slot">
+        <!-- Slot for Advanced Pro Analytics, Trading Bots & Risk Telemetry (Integrated Directly Below Hikari Statistics) -->
+        <div id="proDeckSlotStake" class="pro-deck-slot" style="margin-top: 1.5rem;">
           <div id="proDeckWrapper" class="pro-deck-wrapper">
-    <!-- Collapsible Pro Deck Header Toggle (Integrated Card Style before FAQs) -->
-    <div class="pro-deck-banner-card">
-      <button id="btnToggleProDeck" class="pro-deck-banner-btn" type="button">
-        <div class="pro-deck-banner-left">
-          <div class="pro-deck-banner-icon">⚡</div>
+    <!-- Integrated Pro Deck Header Card -->
+    <div class="pro-deck-banner-card" style="border-radius: 12px 12px 0 0; border-bottom: 1px solid rgba(245, 158, 11, 0.2); background: linear-gradient(135deg, rgba(139, 47, 230, 0.12) 0%, rgba(245, 158, 11, 0.08) 100%);">
+      <div class="pro-deck-banner-btn" style="cursor: default; display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem;">
+        <div class="pro-deck-banner-left" style="display: flex; align-items: center; gap: 0.85rem;">
+          <div class="pro-deck-banner-icon" style="box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); background: linear-gradient(135deg, #f59e0b, #8b2fe6); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #fff;">⚡</div>
           <div class="pro-deck-banner-text">
-            <span class="pro-deck-banner-title">Advanced Pro Analytics &amp; Risk Telemetry</span>
-            <span class="pro-deck-banner-sub">Real time Soroban keeper bots, risk telemetry, and invariant proofs</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="pro-deck-banner-title" style="font-size: 1.05rem; font-weight: 800; color: #ffffff;">Advanced Pro Analytics &amp; Risk Telemetry</span>
+              <span class="tab-badge-new" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: rgba(16, 185, 129, 0.4); font-size: 0.68rem; padding: 2px 7px;">INTEGRATED &bull; PROTOCOL 27</span>
+            </div>
+            <span class="pro-deck-banner-sub" style="font-size: 0.78rem; color: var(--text-muted);">Autonomous AI yield rerouter, live Stellar yield scanner, Soroban keeper bots, and invariant proofs</span>
           </div>
         </div>
-        <div class="pro-deck-banner-right">
-          <span class="pro-deck-chevron" id="proDeckChevron">▾</span>
+        <div class="pro-deck-banner-right" style="display: flex; align-items: center; gap: 12px;">
+          <a href="trading.html" target="_blank" class="hikari-btn-primary" style="padding: 0.45rem 1rem; font-size: 0.78rem; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 700; border-radius: 6px; box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);">
+            <span>⚡ Open Trading Desk</span> <span>↗</span>
+          </a>
+          <button id="btnToggleProDeck" class="pro-deck-chevron" id="proDeckChevron" style="background: none; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; display: none;" title="Toggle visibility">▾</button>
         </div>
-      </button>
+      </div>
     </div>
 
-    <!-- Collapsible Pro Deck Container -->
-    <div id="proDeckContainer" style="display: none;">
+    <!-- Integrated Pro Deck Container (Open & Rendered by Default) -->
+    <div id="proDeckContainer" style="display: block;">
+      <!-- Dedicated Standalone Multi-Agent Trading Desk Callout -->
+      <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(139, 47, 230, 0.08) 100%); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.35rem;">
+            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 8px #fbbf24;"></span>
+            <span style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.05em;">Dedicated Autonomous Workspace</span>
+            <span class="tab-badge-new" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.5); font-size: 0.65rem;">STANDALONE PAGE</span>
+          </div>
+          <h3 style="margin: 0 0 0.35rem 0; font-size: 1.1rem; font-weight: 800; color: #ffffff;">Hikari Multi-Agent Trading Desk</h3>
+          <p style="margin: 0; font-size: 0.82rem; color: var(--text-muted); max-width: 650px;">
+            Experience our 4 financial specialists (Warren, George, Cathie, Ray), live Bull vs. Bear debate arena, Risk Committee Kelly-criterion approvals, and zero-cash-drag yield carry deployed on a dedicated full-screen trading console.
+          </p>
+        </div>
+        <a href="trading.html" target="_blank" class="hikari-btn-primary" style="text-decoration: none; padding: 0.65rem 1.35rem; font-size: 0.85rem; font-weight: 700; border-radius: 8px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000000; box-shadow: 0 0 20px rgba(245, 158, 11, 0.45); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;">
+          <span>⚡ Launch Trading Desk Console</span> <span style="font-size: 13px;">↗</span>
+        </a>
+      </div>
       <!-- Contextual Vault Hero Banner: AI Infrastructure & Yield Rerouter -->
     <div class="vault-context-banner" id="vaultContextBanner">
       <div class="vault-context-content">
