@@ -24,8 +24,8 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hikari Protocol | Stellar AI Liquid Yield & Agentic Finance</title>
-  <meta name="description" content="Stellar native liquid yield protocol powered by autonomous AI agents and deterministic policy guardrails.">
+  <title>Hikari Protocol | Next-Gen Autonomous AI Yield Router &amp; Trading Desk on Stellar</title>
+  <meta name="description" content="Next-generation autonomous AI yield router and trading simulator on Stellar. Earn the best yields on USDC and XLM with automated venue rerouting and disciplined trading assistance.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -127,6 +127,9 @@
           <span id="headerShardsText">1.6M Shards</span>
           <span class="shards-multiplier-tag" id="headerMultiplierTag">2.25x</span>
         </button>
+        <a href="trading.html" id="btnTradingDeskNav" class="topnav__trading" data-magnetic title="Open Quantitative Trading Desk">
+          <span>⚡ Trading Desk</span>
+        </a>
         <a href="app.html" id="btnLaunchAppNav" class="topnav__login" data-magnetic title="Launch App" style="text-decoration: none;">
           <span id="btnLaunchAppNavText">Launch App</span>
           <span class="topnav__login-arrow">
@@ -201,6 +204,14 @@
               <h4>AI Agent & MEV Engine</h4>
             </div>
             <div class="nav-slider-items">
+              <a href="trading.html" class="nav-slider-card" style="border: 1px solid rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.06);">
+                <div class="nav-slider-card-top">
+                  <span class="nav-card-title" style="color: #fbbf24;">⚡ Quantitative Trading Desk</span>
+                  <span class="nav-card-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">Live Console</span>
+                </div>
+                <p class="nav-card-desc">Candlestick analysis, 4 specialized models, and disciplined trade setups for active traders.</p>
+              </a>
+
               <a href="app.html#agentSection" class="nav-slider-card">
                 <div class="nav-slider-card-top">
                   <span class="nav-card-title">Multi Agent Rebalance Engine</span>
@@ -280,25 +291,25 @@
     </div>
 
     <!-- Hero Section with Live 12.4% APY Visual Graphic Hook -->
+    <!-- Hero Section: Autonomous AI Yield Router & Trading Desk -->
     <div class="hero" id="hero">
       <div class="hero__left">
         <div class="hero__pill-tag" data-fade>
           <span class="status-dot"></span>
-          <span>Stellar Protocol 27 • Autonomous AI Yield</span>
+          <span>Stellar Protocol 27 • Autonomous AI Yield Router &amp; Trading Assistant</span>
         </div>
 
         <h1 class="hero__title">
           <span class="hero__line" data-title-line>Next Generation</span>
-          <span class="hero__line" data-title-line><em>Autonomous AI Yield.</em></span>
-          <span class="hero__line" data-title-line>Compounding at <span style="white-space: nowrap;">12.4% APY.</span></span>
+          <span class="hero__line" data-title-line><em>Autonomous AI Yield Router</em></span>
+          <span class="hero__line" data-title-line>&amp; Trading Simulator on Stellar.</span>
         </h1>
 
         <p class="hero__desc" data-fade>
-          Stellar native autonomous liquid yield protocol powered by AI multi agent orchestration,
-          MEV atomic backruns, and formal Soroban policy guardrails. Deposit XLM to mint yield bearing hXLM.
+          Earn on Stellar with the highest verified yields on <strong>USDC</strong> and <strong>XLM</strong>. Our autonomous agent selects the optimal opportunities for you, dynamically rerouting between XLM and USDC during favorable market conditions to protect capital and maximize returns.
         </p>
 
-        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;" data-fade>
+        <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; margin-bottom: 0.5rem;" data-fade>
           <a href="app.html?vault=xlm" class="cta-big" data-magnetic data-cta id="btnHeroStake">
             <span class="cta-big__label">Launch App</span>
             <span class="cta-big__arrow">
@@ -307,16 +318,25 @@
               </svg>
             </span>
           </a>
+          <a href="trading.html" class="cta-big" data-magnetic data-cta id="btnHeroTradingDesk" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.12) 100%); border: 1px solid rgba(245, 158, 11, 0.55); color: #ffffff;">
+            <span class="cta-big__label" style="color: #fbbf24;">⚡ Trading Desk</span>
+            <span class="cta-big__arrow" style="background: #f59e0b; color: #000000;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </a>
         </div>
 
         <div class="hero__chips">
-          <span class="chip" data-chip><span>12.4% Dynamic APY Alpha</span></span>
-          <span class="chip" data-chip><span>SEP-41 Liquid hXLM</span></span>
-          <span class="chip" data-chip><span>Zero Lag AI Rebalancing</span></span>
+          <span class="chip" data-chip><span>17.0% USDC Yield Peak</span></span>
+          <span class="chip" data-chip><span>12.4% XLM Compounding</span></span>
+          <span class="chip" data-chip><span>Adaptive XLM ↔ USDC Rerouting</span></span>
+          <span class="chip" data-chip><span>Disciplined Trade Setups</span></span>
         </div>
       </div>
 
-      <!-- Hero Visual Graphic: Live 12.4% APY Yield Terminal Card -->
+      <!-- Hero Visual Graphic: Live Yield & Adaptive Routing Terminal Card -->
       <div class="hero__graphic-wrap" data-fade>
         <div class="hero__yield-card">
           <div class="yield-card__glow"></div>
@@ -324,19 +344,19 @@
           <div class="yield-card__top">
             <div class="yield-card__badge">
               <span class="status-dot"></span>
-              <span>LIVE PROTOCOL ALPHA</span>
+              <span>AUTONOMOUS YIELD ROUTER • PROTOCOL 27</span>
             </div>
-            <span class="yield-card__freq">Compounding 24/7</span>
+            <span class="yield-card__freq">Adaptive Rebalancing 24/7</span>
           </div>
 
           <div class="yield-card__main-stat">
             <div class="yield-card__apy-row">
-              <span class="yield-card__apy-num" id="heroApyDisplay">12.4%</span>
-              <span class="yield-card__apy-label">Net APY</span>
+              <span class="yield-card__apy-num" id="heroApyDisplay">17.0% / 12.4%</span>
+              <span class="yield-card__apy-label">USDC &bull; XLM APY</span>
             </div>
             <div class="yield-card__apy-sub">
-              <span class="yield-boost-tag">+7.2% vs Vanilla Staking</span>
-              <span class="yield-sim-counter" id="heroYieldCounter">+0.0034 XLM / min</span>
+              <span class="yield-boost-tag">Pareto Allocation Engine</span>
+              <span class="yield-sim-counter" id="heroYieldCounter">Dynamic XLM ↔ USDC Reroute Active</span>
             </div>
           </div>
 
@@ -347,38 +367,43 @@
               <span class="alloc-val">4 Primitives</span>
             </div>
             <div class="alloc-bar-graphic">
-              <div class="alloc-bar-seg alloc-seg-blend" style="width: 40%;" title="Blend Pool: 40%"></div>
+              <div class="alloc-bar-seg alloc-seg-blend" style="width: 35%;" title="Blend Pool: 35%"></div>
               <div class="alloc-bar-seg alloc-seg-phx" style="width: 30%;" title="Phoenix CLAMM: 30%"></div>
-              <div class="alloc-bar-seg alloc-seg-soro" style="width: 15%;" title="Soroswap AMM: 15%"></div>
-              <div class="alloc-bar-seg alloc-seg-buf" style="width: 15%;" title="Liquid Reserve: 15%"></div>
+              <div class="alloc-bar-seg alloc-seg-soro" style="width: 20%;" title="Soroswap AMM: 20%"></div>
+              <div class="alloc-bar-seg alloc-seg-buf" style="width: 15%;" title="Defensive USDC Floor: 15%"></div>
             </div>
             <div class="alloc-legend-row">
-              <span>Blend: 40%</span>
+              <span>Blend: 35%</span>
               <span>Phoenix: 30%</span>
-              <span>Soroswap: 15%</span>
-              <span>Buffer: 15%</span>
+              <span>Soroswap: 20%</span>
+              <span>USDC Buffer: 15%</span>
             </div>
           </div>
 
           <!-- Interactive Calculator Mini-Widget -->
           <div class="yield-card__calc">
             <div class="calc-header">
-              <span>Simulate Staking Growth</span>
+              <span>Simulate Staking &amp; Yield Growth</span>
               <span id="calcDepositVal" style="color: var(--purple-soft); font-weight: 700;">1,000 XLM</span>
             </div>
             <input type="range" id="heroCalcSlider" min="100" max="10000" step="100" value="1000" class="calc-range-slider">
             <div class="calc-result-row">
-              <span class="calc-label">Est. Annual Yield (+12.4%):</span>
+              <span class="calc-label">Est. Annual Yield (+12.4% XLM):</span>
               <span class="calc-result-num" id="calcReturnVal">+124.00 XLM</span>
             </div>
           </div>
 
-          <a href="app.html?vault=xlm" class="yield-card__action-btn" id="btnHeroCardStake">
-            <span>Stake XLM in DApp →</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </a>
+          <div style="display: flex; gap: 0.6rem; flex-direction: column;">
+            <a href="app.html?vault=xlm" class="yield-card__action-btn" id="btnHeroCardStake">
+              <span>Launch App (Yield Vaults) →</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="trading.html" class="yield-card__action-btn" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; text-align: center; justify-content: center;">
+              <span>⚡ Open Quantitative Trading Desk</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -855,7 +880,7 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
               </svg>
             </div>
             <h3 class="earn-card__title">EarnXLM</h3>
-            <p class="earn-card__desc">EarnXLM is an XLM growth vault allocating XLM and hXLM across leading blue chip DeFi protocols meant to optimize for capital efficiency</p>
+            <p class="earn-card__desc">Earn on Stellar with high-yield XLM compounding. When market conditions are favorable, our autonomous agent routes capital into XLM for maximum upside and 12.4% APY rewards.</p>
             <div class="earn-card__metrics">
               <div class="earn-metric-col">
                 <span class="earn-metric-val">485K XLM</span>
@@ -904,7 +929,7 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
               </svg>
             </div>
             <h3 class="earn-card__title">EarnUSD</h3>
-            <p class="earn-card__desc">EarnUSD delivers access to USD denominated reward strategies built around transparent asset selection, risk controls and reporting</p>
+            <p class="earn-card__desc">Earn highest yield on USDC (17.0% APY). When volatility spikes or market turns unfavorable, our autonomous agent reroutes XLM into USDC to protect capital with zero stress.</p>
             <div class="earn-card__metrics">
               <div class="earn-metric-col">
                 <span class="earn-metric-val">$42.5K</span>
@@ -968,6 +993,85 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
             </div>
             <a href="app.html?vault=multichain" class="earn-card__btn" id="btnDepositMulti" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Deposit</a>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 1B. QUANTITATIVE TRADING DESK & SIMULATOR ==================== -->
+    <section class="trading-showcase-section" id="tradingDeskShowcase" style="padding: 2rem 0 3.5rem; margin-bottom: 1.5rem;">
+      <div style="max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;">
+        <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(139, 47, 230, 0.08) 100%); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 2.25rem 2rem; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);">
+          
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem;">
+            <div>
+              <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 999px; padding: 4px 12px; margin-bottom: 0.75rem;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 8px #fbbf24;"></span>
+                <span style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.05em;">QUANTITATIVE TRADING DESK &amp; SIMULATOR</span>
+              </div>
+              <h2 style="font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 800; color: #ffffff; margin: 0 0 0.5rem 0;">
+                Systematic Trading Assistant &bull; Trade Emotionless
+              </h2>
+              <p style="font-size: 0.92rem; color: #cbd5e1; max-width: 720px; line-height: 1.5; margin: 0;">
+                Whether staking in yield vaults or trading short-term pair swings, Hikari provides institutional-grade intelligence. Four quantitative models evaluate candlestick structure, order flow imbalances, momentum, and risk guardrails in real time across XLM/USDC, BTC/USDT, ETH/USDC, and SOL/USDC.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <a href="trading.html" class="cta-big" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000000; font-weight: 800; text-decoration: none; padding: 0.75rem 1.6rem; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 0 24px rgba(245, 158, 11, 0.45);">
+                <span>⚡ Open Trading Desk</span>
+                <span style="font-size: 14px;">↗</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 3-Pillar Feature Row -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+            <!-- Column 1: Live Candlestick & Technical Overlays -->
+            <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.25rem;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.6rem;">
+                <span style="font-size: 1.2rem;">📈</span>
+                <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; margin: 0;">Live Candlestick Analysis</h3>
+              </div>
+              <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.45; margin: 0 0 0.85rem 0;">
+                High-performance HTML5 Canvas charts with EMA 20/50 crossovers, Bollinger Bands, and RSI indicators across 15M, 1H, 4H, and 1D timeframes.
+              </p>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 0.7rem; padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);">EMA 20/50</span>
+                <span style="background: rgba(192, 132, 252, 0.15); color: #c084fc; font-size: 0.7rem; padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(192, 132, 252, 0.3);">RSI Momentum</span>
+                <span style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.7rem; padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">Volume Profile</span>
+              </div>
+            </div>
+
+            <!-- Column 2: 4 Quantitative Models -->
+            <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.25rem;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.6rem;">
+                <span style="font-size: 1.2rem;">🤖</span>
+                <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; margin: 0;">4 Analysis Models</h3>
+              </div>
+              <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.45; margin: 0 0 0.85rem 0;">
+                Hierarchical consensus model combining Technical Trend, Price Action, Orderbook Sentiment, and Risk Management before validating any signal.
+              </p>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <span style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 0.7rem; padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.3);">Consensus Logic</span>
+                <span style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.7rem; padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">Risk Committee</span>
+              </div>
+            </div>
+
+            <!-- Column 3: Disciplined Execution Rules -->
+            <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.25rem;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.6rem;">
+                <span style="font-size: 1.2rem;">🛡️</span>
+                <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; margin: 0;">Disciplined Execution Playbook</h3>
+              </div>
+              <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.45; margin: 0 0 0.85rem 0;">
+                Exact entries, hard stop-losses, and multi-tier profit targets with 3 golden discipline rules: No FOMO, Zero Hesitation, and Profit Locking.
+              </p>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <span style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; font-size: 0.7rem; padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(244, 63, 94, 0.3);">Mandatory Stop</span>
+                <span style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.7rem; padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">2.6:1 Risk/Reward</span>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -1429,21 +1533,24 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
           <div class="footer-col">
             <h4 class="footer-col-title">Hikari Protocol</h4>
             <ul class="footer-links-list">
+              <li><a href="app.html">Launch App (Yield Vaults)</a></li>
+              <li><a href="trading.html">Quantitative Trading Desk</a></li>
               <li><a href="app.html?vault=xlm">hXLM Liquid Staking</a></li>
-              <li><a href="app.html?vault=usd">EarnXLM & EarnUSD</a></li>
+              <li><a href="app.html?vault=usd">EarnXLM &amp; EarnUSD</a></li>
               <li><a href="app.html#contractsSection">Deployed Contracts (8)</a></li>
-              <li><a href="#securityShowcase">Audits & Verification</a></li>
+              <li><a href="#securityShowcase">Audits &amp; Verification</a></li>
               <li><a href="https://github.com/ibochivincent-lang/hikari" target="_blank" rel="noopener">GitHub Repository</a></li>
               <li><a href="app.html#feesSection">Protocol Fee Controller</a></li>
             </ul>
           </div>
 
-          <!-- Col 3: Analytics -->
+          <!-- Col 3: Analytics & Trading -->
           <div class="footer-col">
-            <h4 class="footer-col-title">Analytics</h4>
+            <h4 class="footer-col-title">Analytics &amp; Trading</h4>
             <ul class="footer-links-list">
+              <li><a href="trading.html">Pair Trading Simulator</a></li>
               <li><a href="app.html#chartSection">Protocol Analytics Hub</a></li>
-              <li><a href="app.html?showBots=true#chartSection">Autonomous Trading Bots</a></li>
+              <li><a href="app.html?showBots=true#chartSection">Strategy Bots Hub</a></li>
               <li><a href="app.html?vault=usd">Dynamic NAV Explorer</a></li>
               <li><a href="https://stellar.expert/explorer/testnet" target="_blank" rel="noopener">StellarExpert Explorer ↗</a></li>
               <li><a href="#governanceShowcase">Node Operator Scorecard</a></li>

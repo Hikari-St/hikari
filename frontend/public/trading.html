@@ -377,75 +377,68 @@
   </style>
 </head>
 <body>
+<body class="trading-page-body">
 
-  <!-- Navigation Bar with Responsive Mobile 2-Tier Stacking -->
+  <!-- Sticky Topbar Navigation with Distinct Pair Selectors -->
   <header class="trading-topbar">
     <div class="topbar-brand-row">
-      <a href="app.html" class="trading-brand">
-        <div class="logo-kanji-badge" style="width: 34px; height: 34px; font-size: 1.1rem; background: linear-gradient(135deg, #f59e0b 0%, #8b2fe6 100%); display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 800; color: #fff;">光</div>
+      <a href="app.html" class="trading-logo-link">
+        <span class="trading-logo-icon">⚡</span>
         <div>
-          <div style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em;">Hikari Protocol</div>
-          <div style="font-size: 0.68rem; color: #fbbf24; font-weight: 700; text-transform: uppercase;">AI Trading Desk</div>
+          <span style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.15rem; color: #ffffff; letter-spacing: -0.02em;">HIKARI</span>
+          <div style="font-size: 0.68rem; color: #fbbf24; font-weight: 700; text-transform: uppercase;">Quantitative Trading Desk</div>
         </div>
       </a>
 
-      <!-- Mobile Top Actions: Back to DApp & Connect Wallet -->
+      <!-- Mobile Action Buttons (Right of Logo on Mobile) -->
       <div class="topbar-actions-mobile">
-        <a href="app.html" class="nav-btn" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; padding: 0.38rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">
-          ← DApp
-        </a>
-        <button id="btnConnectWalletMobile" class="connect-wallet-btn" style="padding: 0.38rem 0.75rem; font-size: 0.75rem;">
-          Connect
-        </button>
+        <a href="app.html" class="topbar-back-btn" style="padding: 0.35rem 0.65rem; font-size: 0.72rem;">&larr; DApp</a>
+        <button id="btnConnectWalletMobile" class="wallet-connect-btn" style="padding: 0.35rem 0.65rem; font-size: 0.72rem;">Connect</button>
       </div>
     </div>
 
-    <!-- Quick Pair Selector Bar: Touch-Friendly Smooth Horizontal Scroll -->
-    <div class="pair-selector-scroll" id="pairSelectorBar">
+    <!-- Active Pair Selector Pills (Horizontal swipeable on mobile) -->
+    <div class="pair-selector-scroll">
       <button class="pair-pill-btn active" data-pair="XLM/USDC">
-        <span>XLM/USDC</span>
+        <span>Stellar</span> <strong>XLM/USDC</strong>
       </button>
       <button class="pair-pill-btn" data-pair="BTC/USDT">
-        <span>BTC/USDT</span>
+        <span>Bitcoin</span> <strong>BTC/USDT</strong>
       </button>
       <button class="pair-pill-btn" data-pair="ETH/USDC">
-        <span>ETH/USDC</span>
+        <span>Ethereum</span> <strong>ETH/USDC</strong>
       </button>
       <button class="pair-pill-btn" data-pair="SOL/USDC">
-        <span>SOL/USDC</span>
+        <span>Solana</span> <strong>SOL/USDC</strong>
       </button>
     </div>
 
     <!-- Desktop Action Buttons -->
-    <div class="topbar-actions-desktop" style="display: flex; align-items: center; gap: 0.75rem;">
-      <a href="app.html" class="nav-btn" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s;">
-        ← Back to DApp
-      </a>
-      <button id="btnTdTriggerCycle" class="hikari-btn-primary" style="margin: 0; padding: 0.5rem 1.2rem; font-size: 0.82rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none; font-weight: 700; cursor: pointer;">
-        ⚡ Run Multi-Agent Chart Analysis
+    <div class="topbar-actions-desktop" style="display: flex; align-items: center; gap: 0.65rem;">
+      <button id="btnTdTriggerCycle" class="hikari-btn-primary" style="margin: 0; padding: 0.5rem 1.1rem; font-size: 0.8rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 700; border: none; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);">
+        ⚡ Run Chart Analysis
       </button>
-      <button id="btnConnectWallet" class="connect-wallet-btn" style="padding: 0.45rem 1rem; font-size: 0.82rem;">
-        Connect Wallet
-      </button>
+      <a href="app.html" class="topbar-back-btn">&larr; Return to DApp</a>
+      <button id="btnConnectWallet" class="wallet-connect-btn">Connect Wallet</button>
     </div>
   </header>
 
   <main class="trading-container">
     
-    <!-- Hero Banner: Trade Emotionless with Hikari Multi-Agent Trading Desk -->
+    <!-- Hero Banner: Systematic Quantitative Execution -->
     <div class="desk-hero-card">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
         <div>
           <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
             <span class="social-ping-dot" style="background: #10b981; box-shadow: 0 0 10px #10b981;"></span>
-            <span style="font-size: 0.72rem; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 0.05em;">TauricResearch/TradingAgents Architecture</span>
+            <span style="font-size: 0.72rem; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 0.05em;">Quantitative Research Architecture</span>
             <span class="tab-badge-new" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.5); font-size: 0.65rem;">SHORT-TERM PAIRS</span>
           </div>
           <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.85rem; font-weight: 800; margin: 0 0 0.4rem 0; color: #ffffff;">
-            Trade Emotionless with Hikari Multi-Agent Trading Desk
+            Hikari Trading Desk &bull; Systematic Execution
           </h1>
           <p style="margin: 0; font-size: 0.88rem; color: #94a3b8; max-width: 780px; line-height: 1.5;">
-            Zero fear. Zero greed. Pure algorithmic discipline. 4 Autonomous AI specialists dissect live candlestick charts, order flow, and momentum—delivering short-term traders mathematically verified setups with exact entries, defensive stops, and profit targets.
+            Disciplined quantitative execution. Four specialized models evaluate candlestick structure, order flow imbalance, momentum, and risk guardrails in real time to deliver short-term traders mathematically verified setups with exact entries, defensive stops, and profit targets.
           </p>
         </div>
 
@@ -470,7 +463,7 @@
         </div>
 
         <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
-          <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Multi-Agent Consensus</div>
+          <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Consensus Decision</div>
           <div style="font-size: 1.45rem; font-weight: 800; color: #10b981; margin: 0.3rem 0;" id="tdConsensusSignal">BUY (LONG)</div>
           <div style="font-size: 0.72rem; color: #38bdf8;" id="tdConfidenceBadge">Confidence: 91% Alignment</div>
         </div>
@@ -489,15 +482,15 @@
       </div>
     </div>
 
-    <!-- Main Workspace Grid: Candlestick Chart + Emotionless Trade Setup Card -->
+    <!-- Main Workspace Grid: Candlestick Chart + Disciplined Trade Setup Card -->
     <div class="main-trading-grid">
       
-      <!-- Left Column: Candlestick Chart with AI Technical Overlays -->
+      <!-- Left Column: Candlestick Chart with Technical Overlays -->
       <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.25rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
           <div style="display: flex; align-items: center; gap: 0.6rem;">
             <span style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; color: #ffffff;" id="chartPairHeading">XLM/USDC Chart</span>
-            <span class="tab-badge-new" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); font-size: 0.65rem; padding: 2px 6px;">AI LIVE OVERLAYS</span>
+            <span class="tab-badge-new" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); font-size: 0.65rem; padding: 2px 6px;">TECHNICAL OVERLAYS</span>
           </div>
 
           <!-- Timeframe Selector -->
@@ -539,12 +532,12 @@
         </div>
       </div>
 
-      <!-- Right Column: Emotionless Trade Setup Card (The Short-Term Trader's Playbook) -->
+      <!-- Right Column: Validated Trade Setup Card (The Short-Term Trader's Playbook) -->
       <div class="signal-box-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
-            <span style="font-size: 0.76rem; font-weight: 700; color: #10b981; text-transform: uppercase;">Emotionless Signal Setup</span>
+            <span style="font-size: 0.76rem; font-weight: 700; color: #10b981; text-transform: uppercase;">Validated Trade Setup</span>
           </div>
           <span style="font-size: 0.7rem; color: #94a3b8;" id="tdTimeframeBadge">1H Intraday / Day Trade</span>
         </div>
@@ -553,7 +546,7 @@
           🟢 BUY (LONG)
         </div>
         <p style="font-size: 0.8rem; color: #cbd5e1; margin: 0 0 1rem 0; line-height: 1.4;" id="tdSignalReasoning">
-          Technical momentum and order flow indicate institutional accumulation. Multi-agent consensus approves long entry with 2.6:1 risk/reward.
+          Technical momentum and order flow indicate accumulation. Consensus model approves long entry with 2.6:1 risk/reward.
         </p>
 
         <!-- Exact Target Levels Grid -->
@@ -576,10 +569,10 @@
           </div>
         </div>
 
-        <!-- The 3 Golden Rules of Emotionless Trading -->
+        <!-- The 3 Golden Rules of Execution Discipline -->
         <div style="margin-top: 0.5rem;">
           <div style="font-size: 0.72rem; font-weight: 700; color: #ffffff; text-transform: uppercase; margin-bottom: 0.4rem;">
-            🛡️ Emotionless Trading Rules:
+            🛡️ Execution Discipline Rules:
           </div>
           <div class="discipline-rule-item">
             <span style="color: #fbbf24; font-weight: 700;">1.</span>
@@ -602,12 +595,12 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
         <div>
           <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: #ffffff; margin: 0 0 0.2rem 0;">
-            4 Specialist Multi-Agents (Tauric Framework Architecture)
+            4 Quantitative Analysis Models
           </h2>
           <span style="font-size: 0.78rem; color: #94a3b8;">Hierarchical consensus: Technical, Price Action, Sentiment, and Risk Management</span>
         </div>
         <span class="tab-badge-new" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.4); font-size: 0.7rem; padding: 4px 8px;">
-          ● 4 AGENTS EVALUATING LIVE
+          ● 4 MODELS EVALUATING LIVE
         </span>
       </div>
 
@@ -722,15 +715,15 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <span style="width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 8px #38bdf8;"></span>
-            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: #38bdf8; font-weight: 700;">Multi-Agent Terminal Stream</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: #38bdf8; font-weight: 700;">Live Execution Terminal Stream</span>
           </div>
-          <span style="font-size: 0.72rem; color: #64748b; font-family: 'JetBrains Mono', monospace;">Autonomous Loop</span>
+          <span style="font-size: 0.72rem; color: #64748b; font-family: 'JetBrains Mono', monospace;">Real-Time Telemetry</span>
         </div>
 
         <div id="tdExecutionLog" style="flex: 1; min-height: 160px; max-height: 200px; overflow-y: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; line-height: 1.5; color: #94a3b8; padding: 0.5rem; background: rgba(0, 0, 0, 0.4); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05);">
-          <div style="color: #38bdf8;">[SYSTEM_READY] Hikari Multi-Agent Trading Desk online (Tauric framework).</div>
+          <div style="color: #38bdf8;">[SYSTEM_READY] Hikari Trading Desk online.</div>
           <div style="color: #10b981;">[DATA_INGEST] Ingested 1H OHLCV candles for XLM/USDC. Price: $0.17298.</div>
-          <div style="color: #fbbf24;">[AGENT_CONSENSUS] Market Technical Analyst &amp; Price Action Analyst aligned on LONG.</div>
+          <div style="color: #fbbf24;">[MODEL_CONSENSUS] Market Technical Model &amp; Price Action Model aligned on LONG.</div>
           <div style="color: #ffffff;">[SIGNAL_ACTIVE] Entry: $0.1722 - $0.1735 | Stop-Loss: $0.16850 | TP: $0.18450 (2.6:1 R:R).</div>
         </div>
       </div>
@@ -742,7 +735,7 @@
   <!-- Interactive Toast Notification -->
   <div id="tradingToast" class="trading-toast" style="display: none;">
     <span id="toastIcon" style="font-size: 1.1rem;">⚡</span>
-    <span id="toastMessage">Multi-agent analysis triggered.</span>
+    <span id="toastMessage">Chart analysis triggered.</span>
   </div>
 
   <!-- Client-side script for Responsive Chart rendering & Pair Switching -->
@@ -1149,12 +1142,12 @@
           if (logBox) {
             const entry3 = document.createElement("div");
             entry3.style.color = "#10b981";
-            entry3.textContent = `[${timeStr}] [SETUP_PUBLISHED] Emotionless signal ready for short-term traders. Target: TP2 with 2.6:1 R:R.`;
+            entry3.textContent = `[${timeStr}] [SETUP_PUBLISHED] Disciplined setup ready for short-term traders. Target: TP2 with 2.6:1 R:R.`;
             logBox.prepend(entry3);
           }
-          showToast(`✓ Multi-agent chart analysis complete for ${currentPair}! Follow emotionless setup.`, "✓");
+          showToast(`✓ Quantitative chart analysis complete for ${currentPair}! Follow disciplined setup.`, "✓");
           btnTrigger.disabled = false;
-          btnTrigger.textContent = "⚡ Run Multi-Agent Chart Analysis";
+          btnTrigger.textContent = "⚡ Run Chart Analysis";
           loadPairTradingData(currentPair, currentTimeframe);
         }, 1100);
       });

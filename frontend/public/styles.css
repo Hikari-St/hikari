@@ -1889,6 +1889,30 @@ footer {
 .topnav__login-arrow svg { width: 13px; height: 13px; }
 .topnav__login:hover .topnav__login-arrow { transform: rotate(-45deg); }
 
+.topnav__trading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  text-decoration: none;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.84rem;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+.topnav__trading:hover {
+  background: rgba(245, 158, 11, 0.24);
+  border-color: rgba(245, 158, 11, 0.8);
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.35);
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
 /* Hero Typography & Layout */
 .hero {
   position: relative;
