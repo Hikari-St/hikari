@@ -11,11 +11,11 @@ export interface PaymentRequest {
 
 export interface PaymentReceipt {
   success: boolean;
-  txHash: string;
+  txHash: string | null;
   timestamp: number;
   settledAmount: bigint;
   notes: string;
-  fallbackEngaged?: boolean;
+  fallbackEngaged: boolean;
 }
 
 export class PaymentAgent {
@@ -35,36 +35,33 @@ export class PaymentAgent {
     return req.destination.startsWith("G") || req.destination.startsWith("C");
   }
 
+  /**
+   * Settles x402 machine-to-machine micropayment on Stellar.
+   * Throws an explicit error if on-chain x402 payment channels are not configured,
+   * triggering clean fallback to free public oracle telemetry.
+   */
   public async settlePayment(req: PaymentRequest): Promise<PaymentReceipt> {
     if (!this.canPay(req)) {
-      // Fallback: When payment budget is exceeded, engage public fallback oracle
       return this.fetchPublicOracleFallback(req.serviceName, "Payment budget exceeded or query fee capped");
     }
 
-    this.spentTodayStroops += req.amountStroops;
+    const x402Configured = process.env.X402_FACILITATOR_URL && process.env.X402_PAYER_SECRET;
+    if (!x402Configured) {
+      throw new Error(
+        `x402 on-chain machine micropayment settlement is not configured for ${req.serviceName}.`
+      );
+    }
 
-    // Simulating x402 / MPP automated settlement on Stellar
-    const simulatedTxHash = `0x${Array.from({ length: 64 }, () =>
-      Math.floor(Math.random() * 16).toString(16)
-    ).join("")}`;
-
-    return {
-      success: true,
-      txHash: simulatedTxHash,
-      timestamp: Date.now(),
-      settledAmount: req.amountStroops,
-      notes: `Settled ${req.amountStroops} stroops via x402 protocol for ${req.serviceName}`,
-      fallbackEngaged: false,
-    };
+    throw new Error("x402 on-chain payment settlement channel: Not implemented yet on testnet.");
   }
 
   public fetchPublicOracleFallback(serviceName: string, reason: string): PaymentReceipt {
     return {
       success: true,
-      txHash: "0x00000000000000000000000000000000000000000000000000000000PUBLICFALLBACK",
+      txHash: null,
       timestamp: Date.now(),
       settledAmount: 0n,
-      notes: `Fell back to free public Stellar Horizon oracle for ${serviceName} (${reason})`,
+      notes: `Using free public Stellar RPC and Horizon telemetry for ${serviceName} (${reason})`,
       fallbackEngaged: true,
     };
   }

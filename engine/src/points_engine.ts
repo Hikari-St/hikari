@@ -64,7 +64,11 @@ export class HikariPointsEngine {
   /**
    * Get or initialize a user's points profile
    */
-  public getUserProfile(address: string, stakedAmountUsd: number = 250, tierId: "BALANCED_HXLM" = "BALANCED_HXLM"): UserPointsProfile {
+  public getUserProfile(
+    address: string,
+    stakedAmountUsd: number = 250,
+    tierId: "CONSERVATIVE_USDC" | "BALANCED_HXLM" | "DYNAMIC_ALPHA_HXLM" = "BALANCED_HXLM"
+  ): UserPointsProfile {
     if (this.users.has(address)) {
       return this.users.get(address)!;
     }
@@ -92,19 +96,33 @@ export class HikariPointsEngine {
   }
 
   /**
-   * Return top leaderboard rankings
+   * Return top leaderboard rankings based on registered staker profiles.
    */
   public getLeaderboard(): { rank: number; address: string; shards: number; tier: string }[] {
-    return [
-      { rank: 1, address: "GCJSDY6...6BQN", shards: 1420500, tier: "Solar Archon" },
-      { rank: 2, address: "GAQZQAB...5L2", shards: 980400, tier: "Solar Archon" },
-      { rank: 3, address: "GBBD47I...7DEV", shards: 675200, tier: "Starlight Warden" },
-      { rank: 4, address: "GDLOBST...HIKARI", shards: 412000, tier: "Starlight Warden" },
-      { rank: 5, address: "GBXBULL...HIKARI", shards: 289400, tier: "Luminescent Guardian" },
-    ];
+    if (this.users.size === 0) {
+      return [];
+    }
+
+    const sorted = Array.from(this.users.values())
+      .sort((a, b) => b.totalShards - a.totalShards)
+      .slice(0, 10);
+
+    return sorted.map((u, index) => {
+      const shortAddr = u.userAddress.length > 12 
+        ? `${u.userAddress.slice(0, 7)}...${u.userAddress.slice(-4)}`
+        : u.userAddress;
+      return {
+        rank: index + 1,
+        address: shortAddr,
+        shards: u.totalShards,
+        tier: u.tier,
+      };
+    });
   }
 
   private seedMockLeaderboard() {
-    // Initialized seed profiles
+    // Seed initial on-chain participants (Testnet Admin & Execution Agent stakers)
+    this.getUserProfile("GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN", 2500, "DYNAMIC_ALPHA_HXLM");
+    this.getUserProfile("GAQZQABZADRIHXJSNS75OLEKNE65ZFU273PBSA6H23IHILQVFK3VQ5L2", 1200, "BALANCED_HXLM");
   }
 }

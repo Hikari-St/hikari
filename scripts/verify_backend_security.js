@@ -4,6 +4,12 @@
 
 const http = require("http");
 const assert = require("assert");
+let Keypair;
+try {
+  Keypair = require("@stellar/stellar-sdk").Keypair;
+} catch {
+  Keypair = require("../engine/node_modules/@stellar/stellar-sdk").Keypair;
+}
 
 const TEST_PORT = 3000;
 const BASE_URL = `http://localhost:${TEST_PORT}`;
@@ -49,8 +55,10 @@ async function runSecurityVerification() {
 
   const results = {};
 
-  const userAlice = "GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN";
-  const userBob   = "GAQZQABZADRIHXJSNS75OLEKNE65ZFU273PBSA6H23IHILQVFK3VQ5L2";
+  const aliceKeypair = Keypair.random();
+  const bobKeypair = Keypair.random();
+  const userAlice = aliceKeypair.publicKey();
+  const userBob = bobKeypair.publicKey();
 
   // Test 1: Cloud Database Health & Resilient Connectivity
   console.log("1. Testing Cloud Database Health & Connection Mode...");
@@ -74,27 +82,41 @@ async function runSecurityVerification() {
   console.log(`   ✓ Challenge ID generated: ${challengeRes.data.challenge.challengeId}`);
   console.log(`   ✓ Cryptographic Nonce: ${challengeRes.data.challenge.nonce.slice(0, 16)}...`);
 
-  // Test 3: Signature Verification & Session Token Issuance
-  console.log("\n3. Testing Signature Verification & Authenticated Session Issuance...");
-  const verifyRes = await makeRequest("/api/v1/auth/verify", "POST", {
+  // Test 3A: Negative Test - Fake / Bypass Signatures MUST BE REJECTED
+  console.log("\n3A. Negative Test: Ensuring Fake / Bypass Signatures are strictly rejected...");
+  const fakeSigRes = await makeRequest("/api/v1/auth/verify", "POST", {
     challengeId: challengeRes.data.challenge.challengeId,
     stellarAddress: userAlice,
     signature: "DEMO_TESTNET_APPROVED_SIGNATURE"
   });
-  assert.strictEqual(verifyRes.status, 200, "Verify request must return 200");
+  assert.strictEqual(fakeSigRes.status, 401, "Fake signature must be rejected with 401 Unauthorized");
+  assert.strictEqual(fakeSigRes.data.success, false, "Fake signature success must be false");
+  results.fakeSignatureRejected = true;
+  console.log(`   ✓ Security verified: Magic string 'DEMO_TESTNET_APPROVED_SIGNATURE' rejected: "${fakeSigRes.data.error}"`);
+
+  // Test 3B: Real Ed25519 Cryptographic Signature Verification & Session Issuance
+  console.log("\n3B. Testing Real Cryptographic Ed25519 Signature Verification for Alice...");
+  const realSignature = aliceKeypair.sign(Buffer.from(challengeRes.data.challenge.message, "utf-8")).toString("base64");
+  const verifyRes = await makeRequest("/api/v1/auth/verify", "POST", {
+    challengeId: challengeRes.data.challenge.challengeId,
+    stellarAddress: userAlice,
+    signature: realSignature
+  });
+  assert.strictEqual(verifyRes.status, 200, "Verify request with real signature must return 200");
   assert.ok(verifyRes.data.success, "Verify success must be true");
   assert.ok(verifyRes.data.session.sessionToken.includes("."), "Session token must be formatted payload.hmac");
   assert.strictEqual(verifyRes.data.user.stellarAddress, userAlice, "Profile must belong to Alice");
   results.authVerifySuccess = true;
+  console.log(`   ✓ Valid Ed25519 Signature Verified!`);
   console.log(`   ✓ Session Token Issued: ${verifyRes.data.session.sessionToken.slice(0, 32)}...`);
   console.log(`   ✓ Alice Profile Created: ID ${verifyRes.data.user.id}`);
 
-  // Test 4: Replay Attack Defense (Re-using the same challenge)
+  // Test 4: Replay Attack Defense (Re-using the same consumed challenge)
   console.log("\n4. Testing Replay Attack Defense (Replaying Challenge ID)...");
   const replayRes = await makeRequest("/api/v1/auth/verify", "POST", {
     challengeId: challengeRes.data.challenge.challengeId,
     stellarAddress: userAlice,
-    signature: "DEMO_TESTNET_APPROVED_SIGNATURE"
+    signature: realSignature
   });
   assert.strictEqual(replayRes.status, 401, "Replayed challenge must be rejected with 401");
   assert.strictEqual(replayRes.data.success, false, "Replay success must be false");

@@ -38,14 +38,19 @@ export class AgentOrchestrator {
       destination: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
     });
     if (canPay) {
-      const receipt = await this.paymentAgent.settlePayment({
-        serviceName: "StellarRiskOracle",
-        endpoint: "/v1/risk-feed",
-        asset: "USDC",
-        amountStroops: 100_0000n,
-        destination: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
-      });
-      console.log(`  ✓ x402 Micropayment settled. TxHash: ${receipt.txHash}`);
+      try {
+        const receipt = await this.paymentAgent.settlePayment({
+          serviceName: "StellarRiskOracle",
+          endpoint: "/v1/risk-feed",
+          asset: "USDC",
+          amountStroops: 100_0000n,
+          destination: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+        });
+        console.log(`  ✓ x402 Micropayment settled. TxHash: ${receipt.txHash}`);
+      } catch (err: any) {
+        const fallback = this.paymentAgent.fetchPublicOracleFallback("StellarRiskOracle", err.message);
+        console.log(`  ℹ️ Telemetry Notice: ${fallback.notes}`);
+      }
     }
 
     // Step 2: Market Agent gathers market condition
@@ -113,6 +118,17 @@ export class AgentOrchestrator {
     }
 
     console.log("  ✅ PROPOSAL APPROVED! Ready for Soroban smart account execution.");
+
+    // Step 8: Live On-Chain Transaction Submission via Soroban RPC
+    console.log("\n🚀 [EXECUTION] Submitting approved allocation to Soroban Vault contract...");
+    try {
+      const txHash = await this.executionAgent.executeOnChain(proposal, state.vaultAddress);
+      console.log(`  ✓ On-chain transaction confirmed!`);
+      console.log(`    Tx Hash: ${txHash}`);
+      console.log(`    Explorer: https://stellar.expert/explorer/testnet/tx/${txHash}`);
+    } catch (err: any) {
+      console.error(`  ❌ On-chain execution notice: ${err.message}`);
+    }
     console.log("==================================================\n");
   }
 }
@@ -137,13 +153,13 @@ async function main() {
   };
 
   const state: ProtocolState = {
-    vaultAddress: "CVAULT_HIKARI_001",
-    totalAssetsStroops: 100_000_0000000n, // 100,000 XLM
-    idleAssetsStroops: 40_000_0000000n,   // 40,000 XLM idle
-    allocatedAssetsStroops: 60_000_0000000n,
+    vaultAddress: "CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5",
+    totalAssetsStroops: 250_0000000n, // 250 XLM
+    idleAssetsStroops: 150_0000000n,   // 150 XLM idle
+    allocatedAssetsStroops: 100_0000000n, // 100 XLM allocated
     strategyAllocations: new Map([
-      ["strat_blend_xlm_lending_01", 30_000_0000000n],
-      ["strat_phoenix_xlm_usdc_01", 30_000_0000000n],
+      ["strat_blend_xlm_lending_01", 50_0000000n],
+      ["strat_phoenix_xlm_usdc_01", 50_0000000n],
     ]),
   };
 

@@ -1,36 +1,36 @@
 {
   "status": "ONLINE",
-  "lastCycleTimestamp": 1789077270287,
+  "lastCycleTimestamp": 1789424437681,
   "totalCycles": 1,
   "activeStrategies": [
     {
       "id": "CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL",
       "name": "Blend Protocol Lending (XLM Pool)",
-      "allocationStroops": "450000000000",
+      "allocationStroops": "500000000",
       "apyBps": 780
     },
     {
       "id": "CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5",
       "name": "Phoenix Protocol CLAMM (Concentrated LP)",
-      "allocationStroops": "300000000000",
+      "allocationStroops": "500000000",
       "apyBps": 1140
     }
   ],
   "vaultState": {
-    "totalAssetsStroops": "1000626400000",
-    "idleAssetsStroops": "250626400000",
-    "allocatedAssetsStroops": "750000000000",
-    "reservePercentage": 25
+    "totalAssetsStroops": "3126400000",
+    "idleAssetsStroops": "2126400000",
+    "allocatedAssetsStroops": "1000000000",
+    "reservePercentage": 68
   },
   "mevMetrics": {
     "totalCapturedStroops": "783000000",
     "vaultBoostStroops": "626400000",
     "lastBundle": {
-      "bundleId": "bundle_1789077270283",
-      "txHash": "28736745eb4e24cd601fb35c8c8149d4c3a380279e59341e4d5f01dee5c1761e",
-      "timestamp": 1789077270284,
+      "bundleId": "bundle_1789424434185",
+      "txHash": "f5131e3c5b52b5e784fb63f23bdfb39fc21b70a37a5f964e86e240f32bf61498",
+      "timestamp": 1789424434185,
       "opportunity": {
-        "id": "mev_1789077270283_j86t2",
+        "id": "mev_1789424434185_ltgnf",
         "pair": "XLM/USDC",
         "buyVenue": "PhoenixCLAMM",
         "sellVenue": "SoroswapAMM",
@@ -51,11 +51,11 @@
     "isGateSealed": false,
     "isBunkerMode": false,
     "haircutBps": 0,
-    "drawdownBps": 98
+    "drawdownBps": 237
   },
   "recentLogs": [
-    "[2026-09-10T21:54:30.284Z]   ✓ Bundle confirmed! Tx: 28736745eb4e24cd... | +62.6400 XLM streamed to Vault",
-    "[2026-09-10T21:54:30.283Z] ⚡ [MEV ENGINE] Arbitrage detected: Buy on PhoenixCLAMM, Sell on SoroswapAMM (Spread: 87 bps)",
-    "[2026-09-10T21:54:30.276Z] --- [CYCLE #1] Autonomous Rebalance & MEV Scan ---"
+    "[2026-09-14T22:20:34.186Z]   ✓ Bundle confirmed! Tx: f5131e3c5b52b5e7... | +62.6400 XLM streamed to Vault",
+    "[2026-09-14T22:20:34.185Z] ⚡ [MEV ENGINE] Arbitrage detected: Buy on PhoenixCLAMM, Sell on SoroswapAMM (Spread: 87 bps)",
+    "[2026-09-14T22:20:34.184Z] --- [CYCLE #1] Autonomous Rebalance & MEV Scan ---"
   ]
 }

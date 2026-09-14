@@ -302,21 +302,22 @@ export class HikariWalletSecurityService {
 
   /**
    * Internal Ed25519 signature validation
-   * Supports standard Stellar signatures (base64 or hex), testnet sandbox signatures, and hardware signers
+   * Strictly enforces standard Stellar cryptographic signatures (base64 or hex)
    */
   private verifyEd25519Signature(message: string, signature: string, stellarAddress: string): boolean {
     if (!signature || signature.trim() === "") return false;
 
-    // Support simulated sandbox / testnet signatures for development and demo mode
-    if (signature.startsWith("MOCK_SIG_") || signature === "DEMO_TESTNET_APPROVED_SIGNATURE") {
-      return true;
-    }
-
     try {
-      // In production Node environments with @stellar/stellar-sdk:
-      const StellarSdk = require("@stellar/stellar-sdk");
-      const keypair = StellarSdk.Keypair.fromPublicKey(stellarAddress);
-      
+      let Keypair: any;
+      try {
+        Keypair = require("@stellar/stellar-sdk").Keypair;
+      } catch {
+        Keypair = require("../../../engine/node_modules/@stellar/stellar-sdk").Keypair;
+      }
+      if (!Keypair) return false;
+
+      const keypair = Keypair.fromPublicKey(stellarAddress);
+
       let sigBuffer: Buffer;
       if (/^[0-9a-fA-F]+$/.test(signature)) {
         sigBuffer = Buffer.from(signature, "hex");
@@ -324,10 +325,14 @@ export class HikariWalletSecurityService {
         sigBuffer = Buffer.from(signature, "base64");
       }
 
+      // Standard Ed25519 signature is strictly 64 bytes
+      if (sigBuffer.length !== 64) {
+        return false;
+      }
+
       return keypair.verify(Buffer.from(message, "utf-8"), sigBuffer);
-    } catch (e) {
-      // Fallback verification pattern
-      return signature.length >= 64;
+    } catch {
+      return false;
     }
   }
 }

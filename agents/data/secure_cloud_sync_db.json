@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-13T21:39:08.998Z",
+  "updatedAt": "2026-09-14T22:18:06.897Z",
   "mode": "ENCRYPTED_RESILIENT_STORAGE",
   "users": [
     {
@@ -31,6 +31,66 @@
         "discordAlerts": false
       },
       "kycTier": "COMMUNITY_VERIFIED"
+    },
+    {
+      "id": "06a8c1b3-b315-4f7b-8480-e93b9c7a4f2e",
+      "stellarAddress": "GAK7MQ7XOE42EXL6B564B327BLBZRUNQ4UHTGVQGWLQEWRMKMUQ4QQGA",
+      "createdAt": "2026-09-14T18:24:35.538Z",
+      "lastActiveAt": "2026-09-14T18:24:35.551Z",
+      "riskProfile": "BALANCED",
+      "preferences": {
+        "theme": "light",
+        "currency": "XLM",
+        "notificationsEnabled": true,
+        "telegramAlerts": true,
+        "discordAlerts": false
+      },
+      "kycTier": "COMMUNITY_VERIFIED"
+    },
+    {
+      "id": "0545045a-4e36-486b-9e3f-c5924f928c30",
+      "stellarAddress": "GDEP4P3X7CCZNLMB2RNSGSMNQJ4FUKYLIPGP2TX6QPIEONSQDT3SKPDT",
+      "createdAt": "2026-09-14T18:24:35.548Z",
+      "lastActiveAt": "2026-09-14T18:24:35.548Z",
+      "riskProfile": "BALANCED",
+      "preferences": {
+        "theme": "dark",
+        "currency": "XLM",
+        "notificationsEnabled": true,
+        "telegramAlerts": false,
+        "discordAlerts": false
+      },
+      "kycTier": "COMMUNITY_VERIFIED"
+    },
+    {
+      "id": "d9588c58-ce5e-49df-8070-84049fd88399",
+      "stellarAddress": "GAEOJNK2NWHU2QDMICCQWNLA7PY3Q6IXDG3NWWSG6FJMWHWEPNSPASHU",
+      "createdAt": "2026-09-14T22:18:06.882Z",
+      "lastActiveAt": "2026-09-14T22:18:06.892Z",
+      "riskProfile": "BALANCED",
+      "preferences": {
+        "theme": "light",
+        "currency": "XLM",
+        "notificationsEnabled": true,
+        "telegramAlerts": true,
+        "discordAlerts": false
+      },
+      "kycTier": "COMMUNITY_VERIFIED"
+    },
+    {
+      "id": "3a42e5a5-6468-400b-bc90-1405401a5f05",
+      "stellarAddress": "GAS3CL4EH2WO27UIAZSJCXWBRJWVKH4C5BH55UWHIY6NG5X3LSYC7R4R",
+      "createdAt": "2026-09-14T22:18:06.890Z",
+      "lastActiveAt": "2026-09-14T22:18:06.890Z",
+      "riskProfile": "BALANCED",
+      "preferences": {
+        "theme": "dark",
+        "currency": "XLM",
+        "notificationsEnabled": true,
+        "telegramAlerts": false,
+        "discordAlerts": false
+      },
+      "kycTier": "COMMUNITY_VERIFIED"
     }
   ],
   "portfolios": [
@@ -43,6 +103,26 @@
       "costBasisStroops": "20000000000",
       "yieldEarnedStroops": "0",
       "updatedAt": "2026-09-13T21:39:08.997Z"
+    },
+    {
+      "id": "2cd7a014-1358-46b7-b693-15dae372b1c0",
+      "userAddress": "GAK7MQ7XOE42EXL6B564B327BLBZRUNQ4UHTGVQGWLQEWRMKMUQ4QQGA",
+      "vaultType": "EARN_XLM",
+      "depositedStroops": "2500000000",
+      "hSharesBalance": "2500000000",
+      "costBasisStroops": "2500000000",
+      "yieldEarnedStroops": "0",
+      "updatedAt": "2026-09-14T18:24:35.558Z"
+    },
+    {
+      "id": "ad23e265-4012-4041-9d5d-1ef393b4fc50",
+      "userAddress": "GAEOJNK2NWHU2QDMICCQWNLA7PY3Q6IXDG3NWWSG6FJMWHWEPNSPASHU",
+      "vaultType": "EARN_XLM",
+      "depositedStroops": "2500000000",
+      "hSharesBalance": "2500000000",
+      "costBasisStroops": "2500000000",
+      "yieldEarnedStroops": "0",
+      "updatedAt": "2026-09-14T22:18:06.896Z"
     }
   ],
   "transactions": [
@@ -141,6 +221,30 @@
       "status": "CONFIRMED",
       "ledgerSequence": 345521,
       "timestamp": "2026-09-12T19:27:37.940Z"
+    },
+    {
+      "id": "d512d515-e6f0-47ab-b11d-d7352a2aa1cf",
+      "userAddress": "GAK7MQ7XOE42EXL6B564B327BLBZRUNQ4UHTGVQGWLQEWRMKMUQ4QQGA",
+      "txHash": "0x30c794929d9a5fc4bf1fd7446c91515329617ae22a23802459fc9ee8a7908306",
+      "action": "DEPOSIT",
+      "vaultType": "EARN_XLM",
+      "amountStroops": "2500000000",
+      "sharesDelta": "+2500000000",
+      "status": "CONFIRMED",
+      "ledgerSequence": 346004,
+      "timestamp": "2026-09-14T18:24:35.558Z"
+    },
+    {
+      "id": "00d4c7de-77d3-4bd0-9681-316da8c13156",
+      "userAddress": "GAEOJNK2NWHU2QDMICCQWNLA7PY3Q6IXDG3NWWSG6FJMWHWEPNSPASHU",
+      "txHash": "0xe1f22a946549bd6fe855adf252f9bfbf0dfec3fed9eba10b373154a9b848e428",
+      "action": "DEPOSIT",
+      "vaultType": "EARN_XLM",
+      "amountStroops": "2500000000",
+      "sharesDelta": "+2500000000",
+      "status": "CONFIRMED",
+      "ledgerSequence": 346083,
+      "timestamp": "2026-09-14T22:18:06.896Z"
     }
   ],
   "loyalty": []

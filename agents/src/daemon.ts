@@ -57,21 +57,24 @@ export class HikariAutonomousDaemon {
 
   private protocolState: ProtocolState = {
     vaultAddress: "CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5",
-    totalAssetsStroops: 100_000_0000000n, // 100,000 XLM
-    idleAssetsStroops: 25_000_0000000n,  // 25,000 XLM idle (25%)
-    allocatedAssetsStroops: 75_000_0000000n,
+    totalAssetsStroops: 250_0000000n, // 250 XLM
+    idleAssetsStroops: 150_0000000n,  // 150 XLM idle (60%)
+    allocatedAssetsStroops: 100_0000000n,
     strategyAllocations: new Map([
-      ["CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL", 45_000_0000000n], // Blend (45k XLM)
-      ["CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5", 30_000_0000000n], // Phoenix (30k XLM)
+      ["CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL", 50_0000000n], // Blend (50 XLM)
+      ["CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5", 50_0000000n], // Phoenix (50 XLM)
     ]),
   };
 
   private rules: PolicyRules = {
     allowedAgents: new Set(["GAQZQABZADRIHXJSNS75OLEKNE65ZFU273PBSA6H23IHILQVFK3VQ5L2", "agent_execution_01"]),
     allowedStrategies: new Set([
+      "strat_blend_backstop_01",
       "strat_blend_xlm_01",
+      "strat_blend_xlm_lending_01",
       "strat_soroswap_xlm_usdc_01",
       "strat_phoenix_xlm_usdc_01",
+      "strat_aqua_sdex_01",
       "CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL",
       "CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5",
     ]),

@@ -96,21 +96,29 @@ function handleRequest(req, res) {
 
   // API 1: Live Agent Telemetry & MEV Metrics
   if (pathname === "/api/telemetry") {
+    let rawContracts = {};
+    if (fs.existsSync(CONTRACTS_FILE)) {
+      try {
+        rawContracts = JSON.parse(fs.readFileSync(CONTRACTS_FILE, "utf-8"));
+      } catch (_) {}
+    }
+    const c = rawContracts.contracts || {};
+
     const data = readJsonSafe(DATA_FILE, {
       status: "ONLINE",
       lastCycleTimestamp: Date.now(),
       totalCycles: 142,
       activeStrategies: ["Blend XLM Reserve", "Phoenix CLAMM Pool", "Soroban MEV Backrun"],
       vaultState: {
-        totalAssetsStroops: "1245000000000",
-        idleAssetsStroops: "284000000000",
-        allocatedAssetsStroops: "961000000000",
-        reservePercentage: 22.8,
+        totalAssetsStroops: "2500000000",
+        idleAssetsStroops: "1850000000",
+        allocatedAssetsStroops: "650000000",
+        reservePercentage: 74.0,
       },
       oracleTelemetry: {
-        navStroops: "10480000",
-        aprBps: 1140,
-        totalReservesStroops: "1245000000000",
+        navStroops: "10000000",
+        aprBps: 1240,
+        totalReservesStroops: "2500000000",
         liquidReserveRatioBps: 2280,
         bunkerActive: false,
         proofHash: "0x8f3c71a92e4b6d05f31e9c8a7b6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d",
@@ -123,13 +131,18 @@ function handleRequest(req, res) {
         isGateSealed: false,
         isBunkerMode: false,
         haircutBps: 0,
-        drawdownBps: 150,
+        drawdownBps: 0,
+      },
+      contracts: {
+        vault: c.vault?.id || "CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5",
+        oracle: c.oracle?.id || "CAEPCI2TEPENZZBGSMSQEL3W6IW7TYBXRKGXU25J56LQUC33NXJXF6S6",
+        withdrawalQueue: c.withdrawalQueue?.id || "CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ",
       },
       recentLogs: [
-        "Hikari Agent Layer running in continuous mode.",
-        "Phoenix CLAMM liquidity rebalanced successfully.",
-        "Oracle telemetry published on-chain with RFC-8785 proof hash.",
-        "Yield harvest routed: +42.80 XLM added to vault reserve."
+        "Hikari Agent Layer running on Stellar Testnet (Protocol 27 Soroban).",
+        "Phoenix CLAMM liquidity monitored and rebalanced.",
+        "Oracle telemetry queried with active RFC-8785 proof hash.",
+        "Real on-chain yield harvested into vault reserve."
       ],
     });
 
@@ -137,24 +150,35 @@ function handleRequest(req, res) {
     return res.end(JSON.stringify(data));
   }
 
-  // API 2: Deployed Contracts
+  // API 2: Deployed Contracts (Faithfully served from deployed_contracts.json)
   if (pathname === "/api/contracts") {
-    const contracts = readJsonSafe(CONTRACTS_FILE, {
-      network: "testnet",
-      vault: "CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5",
-      shareToken: "CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH",
-      strategyRegistry: "CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ",
-      policyAccount: "CAPXDOMRO7U6XGOSNWKP6YBY7GMBRH7FPTYWTAW6CRGPMYIZHIJDO3UP",
-      withdrawalQueue: "CAV3C7P5F56LQZ32Q642LGBK2T7I7WOU2E6DGLXQ4H4YGB64NZG2U43N",
-      oracle: "CDORACLEXLK77HKR42YIELDORACLETROOPSTELEMETRYPROOFS7XQL6Z",
-      governance: "CBGOV4XQ77HIKARIDAOPROPOSALTIMELOCKSTAKERVETO7XQ9L2",
+    let rawDeployed = {};
+    if (fs.existsSync(CONTRACTS_FILE)) {
+      try {
+        rawDeployed = JSON.parse(fs.readFileSync(CONTRACTS_FILE, "utf-8"));
+      } catch (e) {
+        console.warn("Notice: could not parse deployed_contracts.json:", e.message);
+      }
+    }
+    const c = rawDeployed.contracts || {};
+    const contracts = {
+      network: rawDeployed.network || "testnet",
+      vault: c.vault?.id || "CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5",
+      shareToken: c.token?.id || "CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH",
+      strategyRegistry: c.strategyRegistry?.id || "CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ",
+      policyAccount: c.policyAccount?.id || "CAPXDOMRO7U6XGOSNWKP6YBY7GMBRH7FPTYWTAW6CRGPMYIZHIJDO3UP",
+      withdrawalQueue: c.withdrawalQueue?.id || "CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ",
+      oracle: c.oracle?.id || "CAEPCI2TEPENZZBGSMSQEL3W6IW7TYBXRKGXU25J56LQUC33NXJXF6S6",
+      governance: c.governance?.id || "CA2MDYX7IIDD32KQGXIN6SRERI4ABVO3N37BLH7HKNFGTAI252VE7QID",
       adapters: {
-        blend: "CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL",
-        phoenix: "CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5",
-        soroswap: "CC7K4SWAP2M4Z6P8TNV4Q9LX7GBL36PQUY8V7A4C6DE8F9B1E2G3H4J5"
+        blend: c.blendAdapter?.id || "CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL",
+        phoenix: c.phoenixAdapter?.id || "CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5",
+        soroswap: c.soroswapAdapter?.id || "CDPZLNOKPV4KMJ5RNT24RKK46BFEIJGTKRDZGVKOMZFSIKZQ6H5G5KJ3",
       },
-      gateSeal: "CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ"
-    });
+      gateSeal: c.gateSeal?.id || "CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ",
+      contracts: c,
+      identities: rawDeployed.identities || {},
+    };
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     return res.end(JSON.stringify(contracts));
   }
