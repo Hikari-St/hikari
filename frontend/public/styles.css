@@ -1893,22 +1893,23 @@ footer {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(245, 158, 11, 0.12);
-  color: #fbbf24;
+  background: rgba(139, 47, 230, 0.15);
+  color: #c084fc;
   text-decoration: none;
-  padding: 0.45rem 1rem;
+  padding: 0.45rem 1.15rem;
   border-radius: 999px;
   font-weight: 700;
   font-size: 0.84rem;
-  border: 1px solid rgba(245, 158, 11, 0.45);
+  border: 1px solid rgba(192, 132, 252, 0.45);
   cursor: pointer;
   transition: all 0.25s ease;
   white-space: nowrap;
+  box-shadow: 0 0 15px rgba(139, 47, 230, 0.25);
 }
 .topnav__trading:hover {
-  background: rgba(245, 158, 11, 0.24);
-  border-color: rgba(245, 158, 11, 0.8);
-  box-shadow: 0 0 24px rgba(245, 158, 11, 0.35);
+  background: rgba(139, 47, 230, 0.32);
+  border-color: #c084fc;
+  box-shadow: 0 0 25px rgba(139, 47, 230, 0.55), 0 0 10px rgba(192, 132, 252, 0.4);
   transform: translateY(-2px);
   color: #ffffff;
 }

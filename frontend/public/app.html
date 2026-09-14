@@ -68,7 +68,7 @@
           </button>
           <a href="trading.html" target="_blank" class="app-tab-btn" id="btnNavAiTrading" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 6px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-            <span>Hikari Trading Desk</span> <span class="tab-badge-new" style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; border-color: rgba(245, 158, 11, 0.5);">OPEN ↗</span>
+            <span>Hikari Trading Desk</span> <span class="tab-badge-new" style="background: rgba(139, 47, 230, 0.25); color: #c084fc; border-color: rgba(192, 132, 252, 0.5);">OPEN ↗</span>
           </a>
           <button class="app-tab-btn" data-tab="governance" id="btnNavGovernance">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
@@ -272,10 +272,10 @@
         <div id="proDeckSlotStake" class="pro-deck-slot" style="margin-top: 1.5rem;">
           <div id="proDeckWrapper" class="pro-deck-wrapper">
     <!-- Integrated Pro Deck Header Card -->
-    <div class="pro-deck-banner-card" style="border-radius: 12px 12px 0 0; border-bottom: 1px solid rgba(245, 158, 11, 0.2); background: linear-gradient(135deg, rgba(139, 47, 230, 0.12) 0%, rgba(245, 158, 11, 0.08) 100%);">
+    <div class="pro-deck-banner-card" style="border-radius: 12px 12px 0 0; border-bottom: 1px solid rgba(192, 132, 252, 0.2); background: linear-gradient(135deg, rgba(139, 47, 230, 0.15) 0%, rgba(56, 189, 248, 0.08) 100%);">
       <div class="pro-deck-banner-btn" style="cursor: default; display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem;">
         <div class="pro-deck-banner-left" style="display: flex; align-items: center; gap: 0.85rem;">
-          <div class="pro-deck-banner-icon" style="box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); background: linear-gradient(135deg, #f59e0b, #8b2fe6); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #fff;">⚡</div>
+          <div class="pro-deck-banner-icon" style="box-shadow: 0 0 15px rgba(139, 47, 230, 0.5); background: linear-gradient(135deg, #8b2fe6, #c084fc); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: 800; color: #fff;">PRO</div>
           <div class="pro-deck-banner-text">
             <div style="display: flex; align-items: center; gap: 8px;">
               <span class="pro-deck-banner-title" style="font-size: 1.05rem; font-weight: 800; color: #ffffff;">Advanced Pro Analytics &amp; Risk Telemetry</span>
@@ -285,10 +285,10 @@
           </div>
         </div>
         <div class="pro-deck-banner-right" style="display: flex; align-items: center; gap: 12px;">
-          <a href="trading.html" target="_blank" class="hikari-btn-primary" style="padding: 0.45rem 1rem; font-size: 0.78rem; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 700; border-radius: 6px; box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);">
-            <span>⚡ Open Trading Desk</span> <span>↗</span>
+          <a href="trading.html" target="_blank" class="hikari-btn-primary" style="padding: 0.45rem 1.1rem; font-size: 0.78rem; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; background: linear-gradient(135deg, #8b2fe6, #c084fc); color: #ffffff; font-weight: 700; border-radius: 6px; box-shadow: 0 0 16px rgba(139, 47, 230, 0.45);">
+            <span>Open Trading Desk</span> <span>↗</span>
           </a>
-          <button id="btnToggleProDeck" class="pro-deck-chevron" id="proDeckChevron" style="background: none; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; display: none;" title="Toggle visibility">▾</button>
+          <button id="btnToggleProDeck" class="pro-deck-chevron" style="background: none; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; display: none;" title="Toggle visibility">▾</button>
         </div>
       </div>
     </div>
@@ -296,20 +296,20 @@
     <!-- Integrated Pro Deck Container (Open & Rendered by Default) -->
     <div id="proDeckContainer" style="display: block;">
       <!-- Dedicated Standalone Quantitative Trading Desk Callout -->
-      <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(139, 47, 230, 0.08) 100%); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);">
+      <div style="background: linear-gradient(135deg, rgba(139, 47, 230, 0.12) 0%, rgba(56, 189, 248, 0.06) 100%); border: 1px solid rgba(192, 132, 252, 0.35); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 0 20px rgba(139, 47, 230, 0.1);">
         <div>
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.35rem;">
-            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 8px #fbbf24;"></span>
-            <span style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.05em;">Dedicated Workspace</span>
-            <span class="tab-badge-new" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.5); font-size: 0.65rem;">STANDALONE PAGE</span>
+            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #c084fc; box-shadow: 0 0 8px #c084fc;"></span>
+            <span style="font-size: 0.75rem; font-weight: 700; color: #c084fc; text-transform: uppercase; letter-spacing: 0.05em;">Dedicated Workspace</span>
+            <span class="tab-badge-new" style="background: rgba(139, 47, 230, 0.2); color: #c084fc; border-color: rgba(192, 132, 252, 0.5); font-size: 0.65rem;">STANDALONE PAGE</span>
           </div>
           <h3 style="margin: 0 0 0.35rem 0; font-size: 1.1rem; font-weight: 800; color: #ffffff;">Hikari Trading Desk &bull; Systematic Pair Trading</h3>
           <p style="margin: 0; font-size: 0.82rem; color: var(--text-muted); max-width: 650px;">
             Live candlestick and order flow analysis across XLM/USDC, BTC/USDT, ETH/USDC, and SOL/USDC. Quantitative models evaluate market structure, orderbook depth, and momentum to provide disciplined trade setups with exact entries, defensive stops, and profit targets.
           </p>
         </div>
-        <a href="trading.html" target="_blank" class="hikari-btn-primary" style="text-decoration: none; padding: 0.65rem 1.35rem; font-size: 0.85rem; font-weight: 700; border-radius: 8px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000000; box-shadow: 0 0 20px rgba(245, 158, 11, 0.45); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;">
-          <span>⚡ Launch Trading Desk Console</span> <span style="font-size: 13px;">↗</span>
+        <a href="trading.html" target="_blank" class="hikari-btn-primary" style="text-decoration: none; padding: 0.65rem 1.35rem; font-size: 0.85rem; font-weight: 700; border-radius: 8px; background: linear-gradient(135deg, #8b2fe6 0%, #c084fc 100%); color: #ffffff; box-shadow: 0 0 20px rgba(139, 47, 230, 0.5); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;">
+          <span>Launch Trading Desk Console</span> <span style="font-size: 13px;">↗</span>
         </a>
       </div>
       <!-- Contextual Vault Hero Banner: Yield Infrastructure & Rerouter -->
@@ -403,16 +403,16 @@
         </div>
 
         <!-- Liquid Reserve Floor Card -->
-        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 0.9rem;">
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 0.9rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
             <span style="font-weight: 700; color: #ffffff; font-size: 0.88rem;">Liquid Reserve Floor</span>
-            <span style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">SAFETY INVARIANT</span>
+            <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">SAFETY INVARIANT</span>
           </div>
-          <div style="font-size: 1.45rem; font-weight: 800; color: #fbbf24; margin: 0.2rem 0;">15.00% <span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 500;">TARGET</span></div>
+          <div style="font-size: 1.45rem; font-weight: 800; color: #38bdf8; margin: 0.2rem 0;">15.00% <span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 500;">TARGET</span></div>
           <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.5rem;">Instant 0-Slippage Unstake Buffer</div>
           <div style="font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.4rem; display: flex; justify-content: space-between;">
             <span style="color: var(--text-dim);">Protected:</span>
-            <strong style="color: #fbbf24;">15% (1.5M XLM)</strong>
+            <strong style="color: #38bdf8;">15% (1.5M XLM)</strong>
           </div>
         </div>
       </div>
@@ -448,7 +448,7 @@
       <!-- Action Row: Instant Reroute Simulation + Link to Tab 7 -->
       <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
         <button type="button" id="btnDeckTriggerReroute" class="hikari-btn-primary hakiru-btn-primary" style="margin: 0; padding: 0.5rem 1.2rem; font-size: 0.82rem; width: auto;">
-          ⚡ Simulate Allocation Rebalance
+          Simulate Allocation Rebalance
         </button>
         <button type="button" id="btnDeckOpenFullAnalytics" class="hikari-btn-secondary hakiru-btn-secondary" style="margin: 0; padding: 0.5rem 1.2rem; font-size: 0.82rem; width: auto; color: #c084fc; border-color: rgba(192, 132, 252, 0.4);">
           Open Full Pro Analytics &amp; Risk Deck →
@@ -2107,8 +2107,8 @@
           <div class="hikari-card-header hakiru-card-header" style="text-align: left; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
               <div style="display: flex; align-items: center; gap: 0.6rem;">
-                <div class="hikari-token-icon-wrap" style="width: 38px; height: 38px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4);">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <div class="hikari-token-icon-wrap" style="width: 38px; height: 38px; background: rgba(139, 47, 230, 0.2); border: 1px solid rgba(192, 132, 252, 0.4);">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
                   </svg>
                 </div>
@@ -2120,10 +2120,10 @@
                 </div>
               </div>
               <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <button id="btnTdTriggerCycle" class="hikari-btn-primary hakiru-btn-primary" style="margin: 0; padding: 0.4rem 1rem; font-size: 0.78rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none;">
-                  ⚡ Run Analysis Cycle
+                <button id="btnTdTriggerCycle" class="hikari-btn-primary hakiru-btn-primary" style="margin: 0; padding: 0.4rem 1rem; font-size: 0.78rem; background: linear-gradient(135deg, #8b2fe6 0%, #c084fc 100%); border: none; box-shadow: 0 0 16px rgba(139, 47, 230, 0.45); color: #ffffff;">
+                  Run Analysis Cycle
                 </button>
-                <span class="hikari-badge hakiru-badge" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 999px;">
+                <span class="hikari-badge hakiru-badge" style="background: rgba(139, 47, 230, 0.15); border: 1px solid rgba(192, 132, 252, 0.4); color: #c084fc; font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 999px;">
                   Active Desk
                 </span>
               </div>
@@ -2149,7 +2149,7 @@
             </div>
             <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
               <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Committee Consensus</div>
-              <div style="font-size: 1.35rem; font-weight: 700; color: #fbbf24; margin: 0.35rem 0;" id="tdConsensusSignal">MODERATE_LONG</div>
+              <div style="font-size: 1.35rem; font-weight: 700; color: #10b981; margin: 0.35rem 0;" id="tdConsensusSignal">BUY (LONG)</div>
               <div style="font-size: 0.72rem; color: #10b981;">Confidence: 82% &bull; Max DD Cap: 4.5%</div>
             </div>
           </div>
@@ -2162,7 +2162,7 @@
               <!-- Warren: Fundamental Analyst -->
               <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem;">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                  <div style="font-size: 1.2rem;">🏛️</div>
+                  <div style="font-size: 0.85rem; font-weight: 800; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border-radius: 6px; padding: 4px 6px;">FA</div>
                   <div>
                     <div style="font-weight: 700; color: #ffffff; font-size: 0.88rem;">Warren</div>
                     <div style="font-size: 0.7rem; color: var(--text-dim);">Fundamental Analyst</div>
@@ -2176,7 +2176,7 @@
               <!-- George: Technical Analyst -->
               <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem;">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                  <div style="font-size: 1.2rem;">📈</div>
+                  <div style="font-size: 0.85rem; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.15); border-radius: 6px; padding: 4px 6px;">TA</div>
                   <div>
                     <div style="font-weight: 700; color: #ffffff; font-size: 0.88rem;">George</div>
                     <div style="font-size: 0.7rem; color: var(--text-dim);">Technical Analyst</div>
@@ -2190,7 +2190,7 @@
               <!-- Cathie: Sentiment / Momentum Analyst -->
               <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem;">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                  <div style="font-size: 1.2rem;">⚡</div>
+                  <div style="font-size: 0.85rem; font-weight: 800; color: #c084fc; background: rgba(192, 132, 252, 0.15); border-radius: 6px; padding: 4px 6px;">SM</div>
                   <div>
                     <div style="font-weight: 700; color: #ffffff; font-size: 0.88rem;">Cathie</div>
                     <div style="font-size: 0.7rem; color: var(--text-dim);">Sentiment &amp; News</div>
@@ -2204,7 +2204,7 @@
               <!-- Ray: Risk Committee Lead -->
               <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem;">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                  <div style="font-size: 1.2rem;">🛡️</div>
+                  <div style="font-size: 0.85rem; font-weight: 800; color: #f43f5e; background: rgba(244, 63, 94, 0.15); border-radius: 6px; padding: 4px 6px;">RC</div>
                   <div>
                     <div style="font-weight: 700; color: #ffffff; font-size: 0.88rem;">Ray</div>
                     <div style="font-size: 0.7rem; color: var(--text-dim);">Risk &amp; Hedging Lead</div>

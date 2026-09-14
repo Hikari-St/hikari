@@ -1,74 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Hikari Multi-Agent Trading Desk — Trade Emotionless with AI Chart Analysis</title>
-  <meta name="description" content="Trade emotionless with Hikari Multi-Agent Trading Desk. Autonomous AI specialists analyze chart structure for XLM/USDC, BTC/USDT, ETH/USDC, and SOL/USDC to deliver high-probability short-term trade setups.">
+  <title>Hikari Protocol | Quantitative Trading Desk — Systematic Execution</title>
+  <meta name="description" content="Systematic quantitative trading desk powered by 4 specialized analysis models, real-time candlestick technical overlays, and disciplined trade brackets.">
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
     }
-    body {
-      background-color: #070314;
+    body.trading-page-body {
+      background-color: var(--bg-primary, #070314);
       background-image: 
-        radial-gradient(circle at 15% 10%, rgba(139, 47, 230, 0.2) 0%, transparent 45%),
-        radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.15) 0%, transparent 40%),
-        radial-gradient(circle at 50% 90%, rgba(245, 158, 11, 0.12) 0%, transparent 55%);
-      color: #f1f5f9;
+        radial-gradient(circle at 15% 10%, rgba(139, 47, 230, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 50% 90%, rgba(139, 47, 230, 0.15) 0%, transparent 55%);
+      color: var(--text-main, #f1f5f9);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       margin: 0;
       padding: 0;
       min-height: 100vh;
       overflow-x: hidden;
     }
-    .trading-topbar {
+    .trading-container {
+      max-width: 1280px;
+      margin: 1.25rem auto;
+      padding: 0 1.5rem 4rem;
+    }
+
+    /* Topbar matching app.html DApp structure */
+    .app-topbar.trading-topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.85rem 2rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(7, 3, 20, 0.92);
+      padding: 0.65rem 1.25rem;
+      background: var(--bg-card, rgba(18, 12, 38, 0.75));
+      border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+      border-radius: 18px;
+      margin: 1rem auto 1.5rem;
+      max-width: 1280px;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
       position: sticky;
-      top: 0;
+      top: 12px;
       z-index: 100;
-      gap: 1rem;
     }
-    .topbar-brand-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .trading-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.65rem;
-      text-decoration: none;
-      color: #ffffff;
-    }
+
     .pair-selector-scroll {
       display: flex;
       align-items: center;
-      gap: 0.45rem;
-    }
-    .trading-container {
-      max-width: 1280px;
-      margin: 1.5rem auto;
-      padding: 0 1.5rem 4rem;
+      gap: 0.35rem;
     }
     .pair-pill-btn {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #94a3b8;
-      padding: 0.45rem 1rem;
+      color: var(--text-muted, #94a3b8);
+      padding: 0.42rem 0.9rem;
       border-radius: 8px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -78,20 +78,21 @@
       transition: all 0.2s ease;
     }
     .pair-pill-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(139, 47, 230, 0.15);
+      border-color: rgba(192, 132, 252, 0.4);
       color: #ffffff;
     }
     .pair-pill-btn.active {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(139, 47, 230, 0.25) 100%);
-      border-color: #fbbf24;
-      color: #fbbf24;
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+      background: linear-gradient(135deg, rgba(139, 47, 230, 0.35) 0%, rgba(192, 132, 252, 0.2) 100%);
+      border-color: #c084fc;
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(139, 47, 230, 0.45);
     }
     .tf-pill-btn {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #94a3b8;
-      padding: 0.35rem 0.85rem;
+      color: var(--text-muted, #94a3b8);
+      padding: 0.32rem 0.75rem;
       border-radius: 6px;
       font-size: 0.75rem;
       font-weight: 600;
@@ -104,12 +105,12 @@
       color: #38bdf8;
     }
     .desk-hero-card {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.06) 0%, rgba(139, 47, 230, 0.08) 100%);
-      border: 1px solid rgba(245, 158, 11, 0.25);
+      background: linear-gradient(135deg, rgba(139, 47, 230, 0.12) 0%, rgba(56, 189, 248, 0.05) 100%);
+      border: 1px solid rgba(192, 132, 252, 0.28);
       border-radius: 16px;
       padding: 1.5rem 2rem;
-      margin-bottom: 1.75rem;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+      margin-bottom: 1.5rem;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35), 0 0 30px rgba(139, 47, 230, 0.12);
     }
     .regime-pill-btn {
       background: rgba(255, 255, 255, 0.04);
@@ -124,55 +125,101 @@
       white-space: nowrap;
     }
     .regime-pill-btn.active, .regime-pill-btn:hover {
-      background: rgba(245, 158, 11, 0.2);
-      border-color: #fbbf24;
-      color: #fbbf24;
+      background: rgba(139, 47, 230, 0.28);
+      border-color: #c084fc;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(192, 132, 252, 0.35);
     }
     .signal-box-card {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 78, 59, 0.15) 100%);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(6, 78, 59, 0.12) 100%);
       border: 1px solid rgba(16, 185, 129, 0.35);
-      border-radius: 14px;
-      padding: 1.5rem;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+      border-radius: 16px;
+      padding: 1.35rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
     }
     .discipline-rule-item {
       display: flex;
       align-items: flex-start;
-      gap: 0.6rem;
-      font-size: 0.82rem;
-      color: #cbd5e1;
-      padding: 0.45rem 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      gap: 0.5rem;
+      font-size: 0.76rem;
+      color: var(--text-muted, #cbd5e1);
+      margin-bottom: 0.45rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      line-height: 1.35;
     }
-    .trading-toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      left: 20px;
-      max-width: 480px;
-      margin: 0 auto;
-      background: rgba(15, 23, 42, 0.98);
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-      color: #ffffff;
-      padding: 0.85rem 1.25rem;
-      border-radius: 10px;
-      font-size: 0.84rem;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    .discipline-rule-item strong {
+      color: var(--text-main, #ffffff);
     }
-    .agent-avatar-badge {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      flex-shrink: 0;
+
+    /* Light Theme Overrides matching DApp */
+    [data-theme="light"] body.trading-page-body {
+      background-color: #f8fafc;
+      background-image: 
+        radial-gradient(circle at 15% 10%, rgba(139, 47, 230, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.06) 0%, transparent 40%);
+      color: #0f172a;
+    }
+    [data-theme="light"] .app-topbar.trading-topbar {
+      background: #ffffff;
+      border-color: #e5def5;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    [data-theme="light"] .desk-hero-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f6fc 100%);
+      border-color: #e0d4fa;
+      box-shadow: 0 8px 30px rgba(139, 47, 230, 0.06);
+    }
+    [data-theme="light"] .desk-hero-card h1,
+    [data-theme="light"] .desk-hero-card h2,
+    [data-theme="light"] .desk-hero-card h3 {
+      color: #0f172a !important;
+    }
+    [data-theme="light"] .signal-box-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.08);
+    }
+    [data-theme="light"] .chart-card-container {
+      background: #ffffff !important;
+      border-color: #e2e8f0 !important;
+    }
+    [data-theme="light"] .macro-metric-card {
+      background: #ffffff !important;
+      border-color: #e2e8f0 !important;
+    }
+    [data-theme="light"] .macro-metric-card div:nth-child(2) {
+      color: #0f172a !important;
+    }
+    [data-theme="light"] .analyst-card-item {
+      background: #ffffff !important;
+      border-color: #e2e8f0 !important;
+    }
+    [data-theme="light"] .analyst-card-item strong {
+      color: #0f172a !important;
+    }
+    [data-theme="light"] .debate-card-item {
+      background: #ffffff !important;
+      border-color: #e2e8f0 !important;
+    }
+    [data-theme="light"] .chart-container-box {
+      background: #ffffff !important;
+      border-color: #e2e8f0 !important;
+    }
+    [data-theme="light"] .pair-pill-btn {
+      background: #f1f5f9;
+      border-color: #e2e8f0;
+      color: #475569;
+    }
+    [data-theme="light"] .pair-pill-btn.active {
+      background: linear-gradient(135deg, rgba(139, 47, 230, 0.15) 0%, rgba(192, 132, 252, 0.15) 100%);
+      border-color: #8b2fe6;
+      color: #8b2fe6;
+    }
+    [data-theme="light"] .regime-pill-btn {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: #475569;
     }
 
     /* Layout Grids */
@@ -201,15 +248,15 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.6rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
     }
     .chart-container-box {
       position: relative;
       width: 100%;
-      height: 320px;
+      height: 340px;
       background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
       overflow: hidden;
     }
     .chart-indicators-overlay {
@@ -240,30 +287,19 @@
     /* Comprehensive Mobile Responsiveness Media Queries        */
     /* ========================================================= */
     @media (max-width: 960px) {
-      .trading-topbar {
+      .app-topbar.trading-topbar {
         flex-direction: column !important;
         align-items: stretch !important;
         padding: 0.75rem 1rem !important;
         gap: 0.65rem !important;
       }
-      .topbar-brand-row {
+      .app-topbar-left {
         justify-content: space-between !important;
         width: 100% !important;
       }
-      .topbar-actions-mobile {
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.45rem !important;
-      }
-      .topbar-actions-desktop {
+      .app-topbar-right {
         width: 100% !important;
-      }
-      .topbar-actions-desktop #btnTdTriggerCycle {
-        width: 100% !important;
-        padding: 0.75rem 1rem !important;
-        font-size: 0.85rem !important;
-        justify-content: center !important;
-        border-radius: 10px !important;
+        justify-content: space-between !important;
       }
       .pair-selector-scroll {
         width: 100% !important;
@@ -308,7 +344,7 @@
         gap: 1.25rem !important;
       }
       .chart-container-box {
-        height: 260px !important;
+        height: 270px !important;
       }
     }
 
@@ -376,54 +412,63 @@
     }
   </style>
 </head>
-<body>
-<body class="trading-page-body">
+<body class="app-page-body trading-page-body">
+  <div class="app-layout-container">
 
-  <!-- Sticky Topbar Navigation with Distinct Pair Selectors -->
-  <header class="trading-topbar">
-    <div class="topbar-brand-row">
-      <a href="app.html" class="trading-logo-link">
-        <span class="trading-logo-icon">⚡</span>
-        <div>
-          <span style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.15rem; color: #ffffff; letter-spacing: -0.02em;">HIKARI</span>
-          <div style="font-size: 0.68rem; color: #fbbf24; font-weight: 700; text-transform: uppercase;">Quantitative Trading Desk</div>
-        </div>
-      </a>
-
-      <!-- Mobile Action Buttons (Right of Logo on Mobile) -->
-      <div class="topbar-actions-mobile">
-        <a href="app.html" class="topbar-back-btn" style="padding: 0.35rem 0.65rem; font-size: 0.72rem;">&larr; DApp</a>
-        <button id="btnConnectWalletMobile" class="wallet-connect-btn" style="padding: 0.35rem 0.65rem; font-size: 0.72rem;">Connect</button>
+    <!-- Dedicated DApp Sticky Top Navigation Bar (Identical to app.html) -->
+    <header class="app-topbar hikari-header trading-topbar">
+      <div class="app-topbar-left">
+        <a href="app.html" class="app-brand-link" title="Hikari DApp" style="display: flex; align-items: center; gap: 0.65rem; text-decoration: none;">
+          <div class="logo-kanji-badge" style="width: 32px; height: 32px; font-size: 1.05rem;">光</div>
+          <span class="app-brand-name" style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.15rem; color: var(--text-main, #ffffff); letter-spacing: -0.02em;">HIKARI<span class="logo-kanji-sub" style="font-size: 0.85rem; color: #c084fc; margin-left: 2px;">光</span></span>
+        </a>
+        <a href="app.html" class="app-tab-btn" style="text-decoration: none; padding: 0.35rem 0.85rem; font-size: 0.76rem; display: inline-flex; align-items: center; gap: 5px; margin-left: 0.5rem; border-radius: 9999px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span>← DApp</span>
+        </a>
       </div>
-    </div>
 
-    <!-- Active Pair Selector Pills (Horizontal swipeable on mobile) -->
-    <div class="pair-selector-scroll">
-      <button class="pair-pill-btn active" data-pair="XLM/USDC">
-        <span>Stellar</span> <strong>XLM/USDC</strong>
-      </button>
-      <button class="pair-pill-btn" data-pair="BTC/USDT">
-        <span>Bitcoin</span> <strong>BTC/USDT</strong>
-      </button>
-      <button class="pair-pill-btn" data-pair="ETH/USDC">
-        <span>Ethereum</span> <strong>ETH/USDC</strong>
-      </button>
-      <button class="pair-pill-btn" data-pair="SOL/USDC">
-        <span>Solana</span> <strong>SOL/USDC</strong>
-      </button>
-    </div>
+      <div class="app-topbar-center">
+        <!-- Active Pair Selector Pills Styled as DApp Tabs Nav -->
+        <nav class="app-tabs-nav pair-selector-scroll" id="tradingPairTabsNav">
+          <button class="app-tab-btn pair-pill-btn active" data-pair="XLM/USDC">
+            <span>Stellar</span> <strong>XLM/USDC</strong>
+          </button>
+          <button class="app-tab-btn pair-pill-btn" data-pair="BTC/USDT">
+            <span>Bitcoin</span> <strong>BTC/USDT</strong>
+          </button>
+          <button class="app-tab-btn pair-pill-btn" data-pair="ETH/USDC">
+            <span>Ethereum</span> <strong>ETH/USDC</strong>
+          </button>
+          <button class="app-tab-btn pair-pill-btn" data-pair="SOL/USDC">
+            <span>Solana</span> <strong>SOL/USDC</strong>
+          </button>
+        </nav>
+      </div>
 
-    <!-- Desktop Action Buttons -->
-    <div class="topbar-actions-desktop" style="display: flex; align-items: center; gap: 0.65rem;">
-      <button id="btnTdTriggerCycle" class="hikari-btn-primary" style="margin: 0; padding: 0.5rem 1.1rem; font-size: 0.8rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 700; border: none; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);">
-        ⚡ Run Chart Analysis
-      </button>
-      <a href="app.html" class="topbar-back-btn">&larr; Return to DApp</a>
-      <button id="btnConnectWallet" class="wallet-connect-btn">Connect Wallet</button>
-    </div>
-  </header>
+      <div class="app-topbar-right">
+        <button id="btnTdTriggerCycle" class="hikari-btn-primary" style="margin: 0; padding: 0.45rem 1rem; font-size: 0.78rem; background: linear-gradient(135deg, #8b2fe6 0%, #c084fc 100%); color: #ffffff; font-weight: 700; border: none; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 0 16px rgba(139, 47, 230, 0.45); cursor: pointer;">
+          Run Analysis
+        </button>
+        
+        <!-- Wallet Connect CTA with Vector Wallet Icon (Exact DApp component) -->
+        <button id="btnConnectWallet" class="btn-connect-wallet" title="Connect Wallet">
+          <svg class="wallet-btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path><circle cx="18" cy="14" r="1" fill="currentColor"></circle></svg>
+          <span class="btn-connect-text">Connect wallet</span>
+          <span class="arrow-glyph">→</span>
+        </button>
 
-  <main class="trading-container">
+        <!-- Theme Toggle Pill (Exact DApp component) -->
+        <button id="themeToggleBtn" class="theme-toggle-pill" title="Toggle Light/Dark Theme" aria-label="Toggle Theme" style="border-radius: 50%; width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+          <span class="theme-pill-icon">
+            <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="12" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <main class="app-main-content trading-container">
     
     <!-- Hero Banner: Systematic Quantitative Execution -->
     <div class="desk-hero-card">
@@ -432,7 +477,7 @@
           <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
             <span class="social-ping-dot" style="background: #10b981; box-shadow: 0 0 10px #10b981;"></span>
             <span style="font-size: 0.72rem; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 0.05em;">Quantitative Research Architecture</span>
-            <span class="tab-badge-new" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.5); font-size: 0.65rem;">SHORT-TERM PAIRS</span>
+            <span class="tab-badge-new" style="background: rgba(139, 47, 230, 0.2); color: #c084fc; border-color: rgba(192, 132, 252, 0.5); font-size: 0.65rem;">SHORT-TERM PAIRS</span>
           </div>
           <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.85rem; font-weight: 800; margin: 0 0 0.4rem 0; color: #ffffff;">
             Hikari Trading Desk &bull; Systematic Execution
@@ -470,7 +515,7 @@
 
         <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
           <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Risk / Reward Ratio</div>
-          <div style="font-size: 1.6rem; font-weight: 800; color: #fbbf24; margin: 0.3rem 0;" id="tdRiskRewardVal">2.6 : 1</div>
+          <div style="font-size: 1.6rem; font-weight: 800; color: #c084fc; margin: 0.3rem 0;" id="tdRiskRewardVal">2.6 : 1</div>
           <div style="font-size: 0.72rem; color: #94a3b8;" id="tdKellyBadge">Half-Kelly Sizing: 7.5% NAV</div>
         </div>
 
@@ -509,7 +554,7 @@
             <span style="color: #38bdf8;">EMA(20): <span id="valEma20">0.1714</span></span>
             <span style="color: #c084fc;">EMA(50): <span id="valEma50">0.1698</span></span>
             <span style="color: #10b981;">RSI: <span id="valRsi">61.8</span></span>
-            <span style="color: #fbbf24;">MACD: <span id="valMacd">+0.0014</span></span>
+            <span style="color: #c084fc;">MACD: <span id="valMacd">+0.0014</span></span>
           </div>
         </div>
 
@@ -519,8 +564,8 @@
             <span style="display: flex; align-items: center; gap: 4px; color: #10b981;">
               <span style="width: 10px; height: 3px; background: #10b981; display: inline-block;"></span> Take-Profit Zones
             </span>
-            <span style="display: flex; align-items: center; gap: 4px; color: #fbbf24;">
-              <span style="width: 10px; height: 3px; background: #fbbf24; display: inline-block;"></span> Entry Range
+            <span style="display: flex; align-items: center; gap: 4px; color: #c084fc;">
+              <span style="width: 10px; height: 3px; background: #c084fc; display: inline-block;"></span> Entry Range
             </span>
             <span style="display: flex; align-items: center; gap: 4px; color: #f43f5e;">
               <span style="width: 10px; height: 3px; background: #f43f5e; display: inline-block;"></span> Stop-Loss (Defensive)
@@ -539,20 +584,71 @@
             <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
             <span style="font-size: 0.76rem; font-weight: 700; color: #10b981; text-transform: uppercase;">Validated Trade Setup</span>
           </div>
-          <span style="font-size: 0.7rem; color: #94a3b8;" id="tdTimeframeBadge">1H Intraday / Day Trade</span>
+          <span style="font-size: 0.7rem; color: var(--text-muted, #94a3b8);" id="tdTimeframeBadge">1H Intraday / Day Trade</span>
         </div>
 
         <div style="font-size: 1.45rem; font-weight: 900; color: #10b981; margin-bottom: 0.35rem;" id="tdSignalHeadline">
-          🟢 BUY (LONG)
+          BUY (LONG)
         </div>
-        <p style="font-size: 0.8rem; color: #cbd5e1; margin: 0 0 1rem 0; line-height: 1.4;" id="tdSignalReasoning">
+        <p style="font-size: 0.8rem; color: var(--text-muted, #cbd5e1); margin: 0 0 0.85rem 0; line-height: 1.4;" id="tdSignalReasoning">
           Technical momentum and order flow indicate accumulation. Consensus model approves long entry with 2.6:1 risk/reward.
         </p>
 
+        <!-- GRAPHIC DISPLAY: Visual Trade Bracket (Entry Point, Stop Loss, Take Profit) -->
+        <div class="graphic-trade-bracket" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(192, 132, 252, 0.25); border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-main, #ffffff);">Visual Trade Bracket</span>
+            </div>
+            <span style="font-size: 0.68rem; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); padding: 2px 7px; border-radius: 999px;" id="visualRrBadge">
+              Risk / Reward 1 : 2.6
+            </span>
+          </div>
+
+          <!-- Graphic Level Bars Track -->
+          <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+            <!-- Take Profit 2 Level -->
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 46px; font-size: 0.68rem; font-weight: 800; color: #10b981; text-align: right; font-family: 'JetBrains Mono', monospace;">TP2</span>
+              <div style="flex: 1; background: linear-gradient(90deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.5) 100%); border: 1px solid #10b981; border-radius: 6px; padding: 0.35rem 0.65rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.7rem; font-weight: 700; color: #ffffff;">Target (+6.8%)</span>
+                <span style="font-size: 0.74rem; font-weight: 800; color: #10b981; font-family: 'JetBrains Mono', monospace;" id="visualTp2">$0.18450</span>
+              </div>
+            </div>
+
+            <!-- Take Profit 1 Level -->
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 46px; font-size: 0.68rem; font-weight: 800; color: #34d399; text-align: right; font-family: 'JetBrains Mono', monospace;">TP1</span>
+              <div style="flex: 1; background: linear-gradient(90deg, rgba(52, 211, 153, 0.15) 0%, rgba(52, 211, 153, 0.35) 100%); border: 1px dashed rgba(52, 211, 153, 0.8); border-radius: 6px; padding: 0.32rem 0.65rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.68rem; font-weight: 600; color: #e2e8f0;">Scalp 50% (+3.1%)</span>
+                <span style="font-size: 0.72rem; font-weight: 800; color: #34d399; font-family: 'JetBrains Mono', monospace;" id="visualTp1">$0.17820</span>
+              </div>
+            </div>
+
+            <!-- Entry Baseline Level -->
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 46px; font-size: 0.7rem; font-weight: 900; color: #c084fc; text-align: right; font-family: 'JetBrains Mono', monospace;">ENTRY</span>
+              <div style="flex: 1; background: linear-gradient(90deg, rgba(139, 47, 230, 0.35) 0%, rgba(192, 132, 252, 0.5) 100%); border: 1.5px solid #c084fc; box-shadow: 0 0 14px rgba(139, 47, 230, 0.35); border-radius: 6px; padding: 0.4rem 0.65rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.72rem; font-weight: 800; color: #ffffff;">Limit Entry Baseline</span>
+                <span style="font-size: 0.76rem; font-weight: 800; color: #ffffff; font-family: 'JetBrains Mono', monospace;" id="visualEntry">$0.1722 - $0.1735</span>
+              </div>
+            </div>
+
+            <!-- Stop Loss Level -->
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 46px; font-size: 0.68rem; font-weight: 800; color: #f43f5e; text-align: right; font-family: 'JetBrains Mono', monospace;">STOP</span>
+              <div style="flex: 1; background: linear-gradient(90deg, rgba(244, 63, 94, 0.2) 0%, rgba(244, 63, 94, 0.45) 100%); border: 1px solid #f43f5e; border-radius: 6px; padding: 0.35rem 0.65rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.7rem; font-weight: 700; color: #ffffff;">Invalidation Stop (-2.3%)</span>
+                <span style="font-size: 0.74rem; font-weight: 800; color: #f43f5e; font-family: 'JetBrains Mono', monospace;" id="visualSl">$0.16850</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Exact Target Levels Grid -->
         <div class="target-levels-grid">
-          <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 0.6rem 0.75rem;">
-            <div style="font-size: 0.65rem; color: #fbbf24; text-transform: uppercase; font-weight: 700;">Limit Entry Zone</div>
+          <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(192, 132, 252, 0.4); border-radius: 8px; padding: 0.6rem 0.75rem;">
+            <div style="font-size: 0.65rem; color: #c084fc; text-transform: uppercase; font-weight: 700;">Limit Entry Zone</div>
             <div style="font-size: 0.92rem; font-weight: 800; color: #ffffff;" id="tdLevelEntry">$0.1722 - $0.1735</div>
           </div>
           <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 8px; padding: 0.6rem 0.75rem;">
@@ -572,10 +668,10 @@
         <!-- The 3 Golden Rules of Execution Discipline -->
         <div style="margin-top: 0.5rem;">
           <div style="font-size: 0.72rem; font-weight: 700; color: #ffffff; text-transform: uppercase; margin-bottom: 0.4rem;">
-            🛡️ Execution Discipline Rules:
+            Execution Discipline Rules:
           </div>
           <div class="discipline-rule-item">
-            <span style="color: #fbbf24; font-weight: 700;">1.</span>
+            <span style="color: #c084fc; font-weight: 700;">1.</span>
             <span><strong>No FOMO:</strong> Never buy outside the entry range. If missed, wait for the next setup.</span>
           </div>
           <div class="discipline-rule-item">
@@ -609,7 +705,7 @@
         <!-- Agent 1: Market Structure & Technical Analyst -->
         <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.15rem;">
           <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
-            <div class="agent-avatar-badge" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8;">📊</div>
+            <div class="agent-avatar-badge" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; font-weight: 800; font-size: 0.8rem;">TA</div>
             <div>
               <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">Technical Structure Analyst</div>
               <div style="font-size: 0.7rem; color: #38bdf8; font-weight: 600;">RSI, MACD, EMA Stacking, S/R</div>
@@ -627,7 +723,7 @@
         <!-- Agent 2: Price Action & Order Flow Analyst -->
         <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.15rem;">
           <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
-            <div class="agent-avatar-badge" style="background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3); color: #c084fc;">🕯️</div>
+            <div class="agent-avatar-badge" style="background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3); color: #c084fc; font-weight: 800; font-size: 0.8rem;">PA</div>
             <div>
               <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">Price Action Analyst</div>
               <div style="font-size: 0.7rem; color: #c084fc; font-weight: 600;">Candles, Fair Value Gaps, Liquidity</div>
@@ -645,7 +741,7 @@
         <!-- Agent 3: Sentiment & Orderbook Analyst -->
         <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.15rem;">
           <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
-            <div class="agent-avatar-badge" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24;">🌊</div>
+            <div class="agent-avatar-badge" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; font-weight: 800; font-size: 0.8rem;">OB</div>
             <div>
               <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">Sentiment &amp; Orderbook</div>
               <div style="font-size: 0.7rem; color: #fbbf24; font-weight: 600;">Depth Imbalance, Funding, Whale Bids</div>
@@ -663,7 +759,7 @@
         <!-- Agent 4: Risk Management Committee -->
         <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.15rem;">
           <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
-            <div class="agent-avatar-badge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981;">⚖️</div>
+            <div class="agent-avatar-badge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; font-weight: 800; font-size: 0.8rem;">RC</div>
             <div>
               <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">Risk Committee</div>
               <div style="font-size: 0.7rem; color: #10b981; font-weight: 600;">Half-Kelly, Max DD, Invariant Checks</div>
@@ -692,14 +788,14 @@
         </div>
 
         <div style="background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.75rem;">
-          <div style="font-size: 0.75rem; font-weight: 700; color: #10b981; margin-bottom: 0.3rem;">🐂 Bull Thesis (Momentum Expansion):</div>
+          <div style="font-size: 0.75rem; font-weight: 700; color: #10b981; margin-bottom: 0.3rem;">Bull Thesis (Momentum Expansion):</div>
           <div style="font-size: 0.82rem; color: #e2e8f0; line-height: 1.4;" id="debateBullThesis">
             Multi-timeframe trend alignment, expanding volume, and dynamic EMA 20/50 support favor upside expansion toward profit target.
           </div>
         </div>
 
         <div style="background: rgba(244, 63, 94, 0.06); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.75rem;">
-          <div style="font-size: 0.75rem; font-weight: 700; color: #f43f5e; margin-bottom: 0.3rem;">🐻 Bear Thesis (Vulnerabilities &amp; Invalidation):</div>
+          <div style="font-size: 0.75rem; font-weight: 700; color: #f43f5e; margin-bottom: 0.3rem;">Bear Thesis (Vulnerabilities &amp; Invalidation):</div>
           <div style="font-size: 0.82rem; color: #e2e8f0; line-height: 1.4;" id="debateBearVulnerability">
             Overhead resistance near upper band may induce short-term consolidation. Non-negotiable stop-loss defends against downside invalidation.
           </div>
@@ -731,10 +827,11 @@
     </div>
 
   </main>
+  </div> <!-- .app-layout-container -->
 
   <!-- Interactive Toast Notification -->
   <div id="tradingToast" class="trading-toast" style="display: none;">
-    <span id="toastIcon" style="font-size: 1.1rem;">⚡</span>
+    <span id="toastIcon" style="font-size: 0.9rem; font-weight: bold; color: #38bdf8;">●</span>
     <span id="toastMessage">Chart analysis triggered.</span>
   </div>
 
@@ -745,7 +842,7 @@
     window.lastCandles = null;
     window.lastSetup = null;
 
-    function showToast(message, icon = "⚡") {
+    function showToast(message, icon = "●") {
       const toast = document.getElementById("tradingToast");
       const toastMsg = document.getElementById("toastMessage");
       const toastIcon = document.getElementById("toastIcon");
@@ -876,7 +973,8 @@
       }
 
       // 2. Draw Horizontal Grid Lines & Y-Axis Price Labels
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.06)";
+      const isLight = document.documentElement.getAttribute("data-theme") === "light";
+      ctx.strokeStyle = isLight ? "rgba(0, 0, 0, 0.08)" : "rgba(255, 255, 255, 0.06)";
       ctx.lineWidth = 1;
       ctx.font = "10px 'JetBrains Mono', monospace";
       ctx.textAlign = "right";
@@ -890,7 +988,7 @@
 
         const pVal = maxPrice - (priceRange * i) / 4;
         const pStr = pVal > 10 ? pVal.toFixed(2) : pVal.toFixed(4);
-        ctx.fillStyle = "rgba(148, 163, 184, 0.75)";
+        ctx.fillStyle = isLight ? "rgba(71, 85, 105, 0.9)" : "rgba(148, 163, 184, 0.75)";
         ctx.fillText(pStr, width - 6, y + 3);
       }
 
@@ -923,68 +1021,154 @@
         if (idx % 6 === 0 || idx === candles.length - 1) {
           const date = new Date(c.time * 1000);
           const timeStr = date.getHours().toString().padStart(2, '0') + ":" + date.getMinutes().toString().padStart(2, '0');
-          ctx.fillStyle = "rgba(148, 163, 184, 0.6)";
+          ctx.fillStyle = isLight ? "rgba(71, 85, 105, 0.7)" : "rgba(148, 163, 184, 0.6)";
           ctx.font = "9px 'JetBrains Mono', monospace";
           ctx.textAlign = "center";
           ctx.fillText(timeStr, x, height - 8);
         }
       });
 
-      // 4. Draw Trade Setup Levels (Entry, Stop Loss, Take Profit)
+      // 4. GRAPHIC DISPLAY OF ENTRY POINT, STOP LOSS, AND TAKE PROFIT (Trading Bracket)
       if (setup) {
         const isMobile = width < 500;
-        // Take Profit 2 Line (Green)
-        if (setup.takeProfit2) {
-          const yTp = scaleY(setup.takeProfit2);
+        const leftEdge = 15;
+        const rightEdge = width - paddingRight + 5;
+        const regionW = rightEdge - leftEdge;
+
+        const yEntry = setup.entryPrice ? scaleY(setup.entryPrice) : null;
+        const yTp2 = setup.takeProfit2 ? scaleY(setup.takeProfit2) : null;
+        const yTp1 = setup.takeProfit1 ? scaleY(setup.takeProfit1) : null;
+        const ySl = setup.stopLoss ? scaleY(setup.stopLoss) : null;
+
+        // A. Shaded Take-Profit Region (Emerald Green Glow)
+        if (yEntry !== null && yTp2 !== null && yTp2 < yEntry) {
+          const tpGrad = ctx.createLinearGradient(0, yTp2, 0, yEntry);
+          tpGrad.addColorStop(0, isLight ? "rgba(16, 185, 129, 0.22)" : "rgba(16, 185, 129, 0.16)");
+          tpGrad.addColorStop(1, isLight ? "rgba(16, 185, 129, 0.05)" : "rgba(16, 185, 129, 0.03)");
+          ctx.fillStyle = tpGrad;
+          ctx.fillRect(leftEdge, yTp2, regionW, yEntry - yTp2);
+
+          // Left bracket line for profit
           ctx.strokeStyle = "#10b981";
-          ctx.lineWidth = 1.5;
-          ctx.setLineDash([4, 4]);
+          ctx.lineWidth = 3;
           ctx.beginPath();
-          ctx.moveTo(10, yTp);
-          ctx.lineTo(width - paddingRight + 5, yTp);
+          ctx.moveTo(leftEdge, yTp2);
+          ctx.lineTo(leftEdge, yEntry);
+          ctx.stroke();
+
+          // TP2 Target Line
+          ctx.strokeStyle = "#10b981";
+          ctx.lineWidth = 1.8;
+          ctx.setLineDash([5, 4]);
+          ctx.beginPath();
+          ctx.moveTo(leftEdge, yTp2);
+          ctx.lineTo(rightEdge, yTp2);
           ctx.stroke();
           ctx.setLineDash([]);
-          ctx.fillStyle = "#10b981";
-          ctx.font = "10px 'JetBrains Mono', monospace";
-          ctx.textAlign = "right";
-          const label = isMobile ? `TP2: ${setup.takeProfit2Formatted}` : `Target TP2: ${setup.takeProfit2Formatted}`;
-          ctx.fillText(label, width - paddingRight, yTp - 4);
+
+          // Pill badge for TP2
+          const tp2Text = isMobile ? `TP2: ${setup.takeProfit2Formatted}` : `TP2 Target (+6.8%): ${setup.takeProfit2Formatted}`;
+          drawPillBadge(ctx, tp2Text, rightEdge - (isMobile ? 80 : 155), yTp2, "#10b981", "#ffffff");
+
+          // Left profit zone annotation
+          if (!isMobile) {
+            ctx.fillStyle = "#10b981";
+            ctx.font = "bold 9px 'JetBrains Mono', monospace";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            ctx.fillText("PROFIT TARGET ZONE (2.6x Risk)", leftEdge + 6, yTp2 + 4);
+          }
         }
 
-        // Entry Zone Line (Amber)
-        if (setup.entryPrice) {
-          const yEntry = scaleY(setup.entryPrice);
-          ctx.strokeStyle = "#fbbf24";
-          ctx.lineWidth = 1.5;
-          ctx.setLineDash([2, 2]);
+        // B. Intermediate Take-Profit 1 Line (Scalp 50%)
+        if (yTp1 !== null && yTp1 < yEntry) {
+          ctx.strokeStyle = "rgba(52, 211, 153, 0.85)";
+          ctx.lineWidth = 1.2;
+          ctx.setLineDash([3, 3]);
           ctx.beginPath();
-          ctx.moveTo(10, yEntry);
-          ctx.lineTo(width - paddingRight + 5, yEntry);
+          ctx.moveTo(leftEdge, yTp1);
+          ctx.lineTo(rightEdge, yTp1);
           ctx.stroke();
           ctx.setLineDash([]);
-          ctx.fillStyle = "#fbbf24";
-          ctx.font = "10px 'JetBrains Mono', monospace";
-          ctx.textAlign = "right";
-          const label = isMobile ? `Entry: ${setup.entryPrice}` : `Entry: ${setup.entryZone || setup.entryPrice}`;
-          ctx.fillText(label, width - paddingRight, yEntry - 4);
+
+          const tp1Text = isMobile ? `TP1: ${setup.takeProfit1Formatted}` : `TP1 Scalp (+3.1%): ${setup.takeProfit1Formatted}`;
+          drawPillBadge(ctx, tp1Text, rightEdge - (isMobile ? 80 : 145), yTp1, "#059669", "#ffffff");
         }
 
-        // Stop Loss Line (Red)
-        if (setup.stopLoss) {
-          const ySl = scaleY(setup.stopLoss);
+        // C. Shaded Stop-Loss Region (Defensive Rose/Red Glow)
+        if (yEntry !== null && ySl !== null && ySl > yEntry) {
+          const slGrad = ctx.createLinearGradient(0, yEntry, 0, ySl);
+          slGrad.addColorStop(0, isLight ? "rgba(244, 63, 94, 0.05)" : "rgba(244, 63, 94, 0.03)");
+          slGrad.addColorStop(1, isLight ? "rgba(244, 63, 94, 0.22)" : "rgba(244, 63, 94, 0.16)");
+          ctx.fillStyle = slGrad;
+          ctx.fillRect(leftEdge, yEntry, regionW, ySl - yEntry);
+
+          // Left bracket line for risk
+          ctx.strokeStyle = "#f43f5e";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(leftEdge, yEntry);
+          ctx.lineTo(leftEdge, ySl);
+          ctx.stroke();
+
+          // Stop Loss Line
           ctx.strokeStyle = "#f43f5e";
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(10, ySl);
-          ctx.lineTo(width - paddingRight + 5, ySl);
+          ctx.moveTo(leftEdge, ySl);
+          ctx.lineTo(rightEdge, ySl);
           ctx.stroke();
-          ctx.fillStyle = "#f43f5e";
-          ctx.font = "10px 'JetBrains Mono', monospace";
-          ctx.textAlign = "right";
-          const label = isMobile ? `SL: ${setup.stopLossFormatted}` : `Stop-Loss: ${setup.stopLossFormatted}`;
-          ctx.fillText(label, width - paddingRight, ySl + 12);
+
+          const slText = isMobile ? `SL: ${setup.stopLossFormatted}` : `Stop-Loss (-2.3%): ${setup.stopLossFormatted}`;
+          drawPillBadge(ctx, slText, rightEdge - (isMobile ? 75 : 145), ySl, "#f43f5e", "#ffffff");
+
+          // Left defensive zone annotation
+          if (!isMobile) {
+            ctx.fillStyle = "#f43f5e";
+            ctx.font = "bold 9px 'JetBrains Mono', monospace";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "bottom";
+            ctx.fillText("DEFENSIVE RISK ZONE (1.0x Risk)", leftEdge + 6, ySl - 4);
+          }
+        }
+
+        // D. Luminous Entry Point Line (Center Baseline)
+        if (yEntry !== null) {
+          ctx.strokeStyle = "#c084fc";
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.moveTo(leftEdge, yEntry);
+          ctx.lineTo(rightEdge, yEntry);
+          ctx.stroke();
+
+          const entryText = isMobile ? `ENTRY: ${setup.entryPrice}` : `Limit Entry: ${setup.entryZone || setup.entryPrice}`;
+          drawPillBadge(ctx, entryText, rightEdge - (isMobile ? 85 : 155), yEntry, "#8b2fe6", "#ffffff");
         }
       }
+    }
+
+    // Canvas Pill Badge Helper
+    function drawPillBadge(ctx, text, x, y, bg, fg) {
+      ctx.font = "bold 9px 'JetBrains Mono', monospace";
+      const metrics = ctx.measureText(text);
+      const paddingH = 6;
+      const h = 15;
+      const w = metrics.width + paddingH * 2;
+      const by = y - (h / 2);
+
+      ctx.fillStyle = bg;
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(x, by, w, h, 4);
+      } else {
+        ctx.rect(x, by, w, h);
+      }
+      ctx.fill();
+
+      ctx.fillStyle = fg;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, x + paddingH, y);
     }
 
     // Auto-resize chart on window resize, orientation change, or container resize
@@ -1117,7 +1301,7 @@
       btnTrigger.addEventListener("click", () => {
         showToast(`Analyzing ${currentPair} chart with 4 specialist agents...`);
         btnTrigger.disabled = true;
-        btnTrigger.textContent = "⏳ Deliberating Chart Structure...";
+        btnTrigger.textContent = "Deliberating Chart Structure...";
 
         const logBox = document.getElementById("tdExecutionLog");
         const timeStr = new Date().toTimeString().split(" ")[0];
@@ -1145,9 +1329,9 @@
             entry3.textContent = `[${timeStr}] [SETUP_PUBLISHED] Disciplined setup ready for short-term traders. Target: TP2 with 2.6:1 R:R.`;
             logBox.prepend(entry3);
           }
-          showToast(`✓ Quantitative chart analysis complete for ${currentPair}! Follow disciplined setup.`, "✓");
+          showToast(`Quantitative chart analysis complete for ${currentPair}! Follow disciplined setup.`);
           btnTrigger.disabled = false;
-          btnTrigger.textContent = "⚡ Run Chart Analysis";
+          btnTrigger.textContent = "Run Chart Analysis";
           loadPairTradingData(currentPair, currentTimeframe);
         }, 1100);
       });
