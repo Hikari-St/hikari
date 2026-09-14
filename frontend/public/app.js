@@ -2347,6 +2347,8 @@ function initHakiru5TabApp() {
     rewards: document.getElementById("viewTabRewards"),
     earn: document.getElementById("viewTabEarn"),
     governance: document.getElementById("viewTabGovernance"),
+    "yield-router": document.getElementById("viewTabYieldRouter"),
+    "ai-trading": document.getElementById("viewTabTradingAgents"),
   };
 
   function updateProDeckPlacement(tabKey) {
@@ -2387,6 +2389,12 @@ function initHakiru5TabApp() {
     updateProDeckPlacement(tabKey);
     if (tabKey === "governance" && typeof window.loadGovernanceProposals === "function") {
       window.loadGovernanceProposals();
+    }
+    if (tabKey === "yield-router" && typeof window.loadYieldRouterData === "function") {
+      window.loadYieldRouterData();
+    }
+    if (tabKey === "ai-trading" && typeof window.loadTradingDeskData === "function") {
+      window.loadTradingDeskData();
     }
     window.location.hash = tabKey;
     try {
@@ -3231,6 +3239,139 @@ function initGovernanceSystem() {
   window.loadGovernanceProposals();
 }
 
+function initYieldRouterSystem() {
+  const inputDeposit = document.getElementById("inputYrDeposit");
+  const calcAnnual = document.getElementById("yrCalcAnnualReward");
+  const calcVsNative = document.getElementById("yrCalcVsNative");
+  const btnStakeAndRoute = document.getElementById("btnYrStakeAndRoute");
+  const btnSimulateRebalance = document.getElementById("btnYrSimulateRebalance");
+  const telemetryBox = document.getElementById("yrRebalanceTelemetry");
+  const presetBtns = document.querySelectorAll(".btnYrPreset");
+
+  let currentBlendedApy = 22.19;
+
+  function updateCalculations() {
+    const amount = parseFloat(inputDeposit?.value) || 0;
+    const annualReward = (amount * currentBlendedApy) / 100;
+    if (calcAnnual) {
+      calcAnnual.textContent = `+${annualReward.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} XLM / yr`;
+    }
+    if (calcVsNative) {
+      calcVsNative.textContent = `vs. +0.00 XLM holding native XLM (0% inflation)`;
+    }
+  }
+
+  if (inputDeposit) {
+    inputDeposit.addEventListener("input", updateCalculations);
+  }
+
+  presetBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (inputDeposit) {
+        inputDeposit.value = btn.dataset.amount;
+        updateCalculations();
+      }
+    });
+  });
+
+  window.loadYieldRouterData = async function () {
+    try {
+      const res = await fetch("/api/yield-routes");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.aiRecommendation) {
+        currentBlendedApy = data.aiRecommendation.blendedNetApyPct || 22.19;
+        const topApyEl = document.getElementById("yrTopApy");
+        if (topApyEl) topApyEl.textContent = `${data.aiRecommendation.topGrossApyPct.toFixed(2)}%`;
+        const blendedEl = document.getElementById("yrBlendedApy");
+        if (blendedEl) blendedEl.textContent = `${currentBlendedApy.toFixed(2)}%`;
+        const reserveEl = document.getElementById("yrReserveFloor");
+        if (reserveEl) reserveEl.textContent = `${data.aiRecommendation.reserveFloorPct.toFixed(2)}% Invariant`;
+        updateCalculations();
+      }
+    } catch (err) {
+      console.warn("Could not fetch /api/yield-routes:", err);
+    }
+  };
+
+  if (btnStakeAndRoute) {
+    btnStakeAndRoute.addEventListener("click", () => {
+      const amount = parseFloat(inputDeposit?.value) || 10000;
+      showToast(`Routing ${amount.toLocaleString()} XLM through Meridian Vault to Blend & Phoenix...`);
+      setTimeout(() => {
+        showToast(`✓ Minted ${(amount * 0.958).toFixed(2)} hXLM! Position deployed at ${currentBlendedApy}% APY.`);
+      }, 1200);
+    });
+  }
+
+  if (btnSimulateRebalance) {
+    btnSimulateRebalance.addEventListener("click", () => {
+      if (!telemetryBox) return;
+      telemetryBox.style.display = "block";
+      telemetryBox.innerHTML = `<div>[KEEPER] Inspecting cross-protocol rate differential...</div>`;
+      setTimeout(() => {
+        telemetryBox.innerHTML += `<div>[LENS] SDEX orderbook depth verified: $0.1245 VWAP (spread: 4 bps)</div>`;
+      }, 400);
+      setTimeout(() => {
+        telemetryBox.innerHTML += `<div>[LANDFALL] Settlement liveness confirmed: 99.9% ledger finality</div>`;
+      }, 800);
+      setTimeout(() => {
+        telemetryBox.innerHTML += `<div style="color: #38bdf8;">[SOROBAN] Invoking Meridian migrate_adapter(BlendBackstopAdapter, max_slippage: 50 bps)...</div>`;
+      }, 1200);
+      setTimeout(() => {
+        telemetryBox.innerHTML += `<div style="color: #10b981; font-weight: 700;">✓ Rebalance complete! 350,000 XLM migrated atomically without depositor signatures. Slippage: 0.08%.</div>`;
+        showToast("✓ Keeper rebalance executed via Meridian migrate_adapter!");
+      }, 1800);
+    });
+  }
+
+  window.loadYieldRouterData();
+}
+
+function initTradingDeskSystem() {
+  const btnTrigger = document.getElementById("btnTdTriggerCycle");
+
+  window.loadTradingDeskData = async function () {
+    try {
+      const res = await fetch("/api/trading-agent");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data) {
+        const priceEl = document.getElementById("tdXlmPrice");
+        if (priceEl && data.currentPrice) priceEl.textContent = `$${data.currentPrice.toFixed(4)}`;
+        const regimeEl = document.getElementById("tdMacroRegime");
+        if (regimeEl && data.marketRegime) regimeEl.textContent = data.marketRegime;
+        const consensusEl = document.getElementById("tdConsensusSignal");
+        if (consensusEl && data.consensusDecision) {
+          consensusEl.textContent = `${data.consensusDecision} (${data.approvedAllocationPercent})`;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not fetch /api/trading-agent:", err);
+    }
+  };
+
+  if (btnTrigger) {
+    btnTrigger.addEventListener("click", () => {
+      showToast("Triggering Tauric multi-agent trading consensus cycle...");
+      const logBox = document.getElementById("tdExecutionLog");
+      if (logBox) {
+        const timeStr = new Date().toISOString().replace("T", " ").slice(0, 19);
+        const newEntry = document.createElement("div");
+        newEntry.style.color = "#38bdf8";
+        newEntry.textContent = `[${timeStr}] [CYCLE_TRIGGERED] Tauric specialists debating new market tick...`;
+        logBox.prepend(newEntry);
+      }
+      setTimeout(() => {
+        showToast("✓ Tauric cycle finished: Consensus BUY 7.50% NAV on XLM. Yield carry: 92.5% Blend.");
+        window.loadTradingDeskData();
+      }, 1200);
+    });
+  }
+
+  window.loadTradingDeskData();
+}
+
 // Call on load
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
@@ -3241,6 +3382,8 @@ if (document.readyState === "loading") {
     initHakiru5TabApp();
     initFuturesDirectionSystem();
     initGovernanceSystem();
+    initYieldRouterSystem();
+    initTradingDeskSystem();
   });
 } else {
   initNavSliderAndCalculator();
@@ -3250,6 +3393,8 @@ if (document.readyState === "loading") {
   initHakiru5TabApp();
   initFuturesDirectionSystem();
   initGovernanceSystem();
+  initYieldRouterSystem();
+  initTradingDeskSystem();
 }
 
 

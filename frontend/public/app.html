@@ -62,6 +62,14 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
             <span>Earn</span> <span class="tab-badge-new">NEW</span>
           </button>
+          <button class="app-tab-btn" data-tab="yield-router" id="btnNavYieldRouter">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+            <span>AI Yield Router</span> <span class="tab-badge-new" style="background: rgba(139, 47, 230, 0.25); color: #c084fc; border-color: rgba(192, 132, 252, 0.5);">24.7%</span>
+          </button>
+          <button class="app-tab-btn" data-tab="ai-trading" id="btnNavAiTrading">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            <span>AI Trading Desk</span> <span class="tab-badge-new" style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; border-color: rgba(245, 158, 11, 0.5);">ALPHA</span>
+          </button>
           <button class="app-tab-btn" data-tab="governance" id="btnNavGovernance">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
             <span>Governance</span> <span class="tab-badge-new" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: rgba(16, 185, 129, 0.4);">DAO</span>
@@ -1758,7 +1766,491 @@
         </div>
       </section>
 
-    
+      <!-- TAB 7: AI YIELD REROUTER & CROSS-PROTOCOL OPTIMIZER -->
+      <section id="viewTabYieldRouter" class="hikari-tab-view hakiru-tab-view" style="display: none;">
+        <div class="hikari-card hakiru-card" style="max-width: 980px; margin: 0 auto 2rem; width: 100%;">
+          <div class="hikari-card-header hakiru-card-header" style="text-align: left; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <div class="hikari-token-icon-wrap" style="width: 38px; height: 38px; background: rgba(139, 47, 230, 0.2); border: 1px solid rgba(192, 132, 252, 0.4);">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+                  </svg>
+                </div>
+                <div>
+                  <h1 class="hikari-card-title hakiru-card-title" style="margin: 0; font-size: 1.6rem;">AI Yield Rerouter &amp; Optimizer</h1>
+                  <p class="hikari-card-subtitle hakiru-card-subtitle" style="margin: 0; font-size: 0.85rem;">
+                    Autonomous Stellar Soroban Yield Aggregator &bull; Pareto Optimal Allocation &bull; Atomic Zero-Slippage Rebalancing
+                  </p>
+                </div>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span class="hikari-badge hakiru-badge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 999px;">
+                  ● Keeper Live: Ledger #54,892,104
+                </span>
+                <span class="hikari-badge hakiru-badge" style="background: rgba(139, 47, 230, 0.15); border: 1px solid rgba(192, 132, 252, 0.4); color: #c084fc; font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 999px;">
+                  Lido for Stellar (hXLM)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Top Protocol APY</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #10b981; margin: 0.35rem 0;" id="yrTopApy">24.70%</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Blend Backstop Pool (b_rate / 1e12)</div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Optimal Blended APY</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #c084fc; margin: 0.35rem 0;" id="yrBlendedApy">22.19%</div>
+              <div style="font-size: 0.72rem; color: #38bdf8;">+22.19% vs. 0% Native XLM</div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Safe Reserve Floor</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #ffffff; margin: 0.35rem 0;" id="yrReserveFloor">15.00%</div>
+              <div style="font-size: 0.72rem; color: #10b981;">Instant Liquidity Guaranteed</div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Autonomous Keepers</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #f59e0b; margin: 0.35rem 0;" id="yrProtocolsActive">4 Protocols</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Slippage Guard: &le; 50 bps</div>
+            </div>
+          </div>
+
+          <!-- Explainer Banner: Lido for Stellar Architecture -->
+          <div style="background: linear-gradient(135deg, rgba(139, 47, 230, 0.1) 0%, rgba(56, 189, 248, 0.1) 100%); border: 1px solid rgba(192, 132, 252, 0.3); border-radius: 12px; padding: 1.1rem 1.3rem; margin-bottom: 1.75rem; display: flex; gap: 1rem; align-items: center;">
+            <div style="font-size: 2rem; flex-shrink: 0;">🚀</div>
+            <div style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.5;">
+              <strong style="color: #ffffff;">Why Hikari is the "Lido for Stellar":</strong> Unlike Ethereum PoS validators, Stellar does not inflate XLM via staking. Hikari turns <code style="color: #c084fc; background: rgba(0,0,0,0.3); padding: 2px 5px; border-radius: 4px;">hXLM</code> into a hyper-yielding liquid staking token by autonomously routing vault deposits across Blend v2 lending, Phoenix CLAMM concentrated liquidity, and Soroswap LP farms. <strong>Users hold hXLM and earn 22.19% APY passively with zero gas management or manual rebalancing.</strong>
+            </div>
+          </div>
+
+          <!-- Live Protocol Allocation Cards -->
+          <div style="margin-bottom: 1.75rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <h3 style="font-size: 1rem; color: #ffffff; margin: 0;">Active Yield Strategies &amp; Pareto Weights</h3>
+              <span style="font-size: 0.75rem; color: var(--text-dim);">Real-time on-chain telemetry</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+              <!-- Blend Backstop Card -->
+              <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 1.1rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-weight: 700; color: #ffffff; font-size: 0.92rem;">Blend Backstop</span>
+                    <span style="background: rgba(16, 185, 129, 0.2); color: #10b981; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">TOP YIELD</span>
+                  </div>
+                  <div style="font-size: 1.6rem; font-weight: 800; color: #10b981; margin-bottom: 0.25rem;" id="yrBlendApy">24.70% <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-dim);">APY</span></div>
+                  <div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.8rem;">Blend Pool Protocol v2 &bull; b_rate 1e12</div>
+                </div>
+                <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.6rem; font-size: 0.78rem; display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-muted);">Allocated:</span>
+                  <strong style="color: #c084fc;" id="yrBlendAlloc">35% (3.5M XLM)</strong>
+                </div>
+              </div>
+
+              <!-- Phoenix CLAMM Card -->
+              <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 1.1rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-weight: 700; color: #ffffff; font-size: 0.92rem;">Phoenix CLAMM</span>
+                    <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">CONCENTRATED</span>
+                  </div>
+                  <div style="font-size: 1.6rem; font-weight: 800; color: #38bdf8; margin-bottom: 0.25rem;" id="yrPhoenixApy">21.80% <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-dim);">APY</span></div>
+                  <div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.8rem;">Tick Range 0.118 &ndash; 0.126 &bull; Dynamic Fees</div>
+                </div>
+                <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.6rem; font-size: 0.78rem; display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-muted);">Allocated:</span>
+                  <strong style="color: #c084fc;" id="yrPhoenixAlloc">30% (3.0M XLM)</strong>
+                </div>
+              </div>
+
+              <!-- Soroswap Farm Card -->
+              <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(192, 132, 252, 0.3); border-radius: 12px; padding: 1.1rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-weight: 700; color: #ffffff; font-size: 0.92rem;">Soroswap Farm</span>
+                    <span style="background: rgba(192, 132, 252, 0.2); color: #c084fc; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">AMM + FARM</span>
+                  </div>
+                  <div style="font-size: 1.6rem; font-weight: 800; color: #c084fc; margin-bottom: 0.25rem;" id="yrSoroswapApy">18.40% <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-dim);">APY</span></div>
+                  <div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.8rem;">XLM/USDC Pair + SWAP Farm Emits</div>
+                </div>
+                <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.6rem; font-size: 0.78rem; display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-muted);">Allocated:</span>
+                  <strong style="color: #c084fc;" id="yrSoroswapAlloc">20% (2.0M XLM)</strong>
+                </div>
+              </div>
+
+              <!-- Safe Reserve Floor Card -->
+              <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 1.1rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-weight: 700; color: #ffffff; font-size: 0.92rem;">Liquid Reserve</span>
+                    <span style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">SAFETY INVARIANT</span>
+                  </div>
+                  <div style="font-size: 1.6rem; font-weight: 800; color: #fbbf24; margin-bottom: 0.25rem;">0.00% <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-dim);">BUFFER</span></div>
+                  <div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.8rem;">Vault Contract Buffer &bull; 0 Lockup</div>
+                </div>
+                <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.6rem; font-size: 0.78rem; display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-muted);">Floor Target:</span>
+                  <strong style="color: #fbbf24;" id="yrReserveAlloc">15% (1.5M XLM)</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pareto Allocation Visual Bar -->
+          <div style="background: rgba(0, 0, 0, 0.3); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+              <span>Portfolio Allocation Composition</span>
+              <span>10,000,000 Total XLM Staked</span>
+            </div>
+            <div style="display: flex; height: 16px; border-radius: 8px; overflow: hidden; margin-bottom: 0.75rem;">
+              <div style="width: 35%; background: #10b981;" title="Blend Backstop: 35%"></div>
+              <div style="width: 30%; background: #38bdf8;" title="Phoenix CLAMM: 30%"></div>
+              <div style="width: 20%; background: #c084fc;" title="Soroswap Farm: 20%"></div>
+              <div style="width: 15%; background: #f59e0b;" title="Liquid Reserve: 15%"></div>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.75rem; color: var(--text-dim);">
+              <span style="display: flex; align-items: center; gap: 0.4rem;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span> Blend (35%)</span>
+              <span style="display: flex; align-items: center; gap: 0.4rem;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #38bdf8;"></span> Phoenix (30%)</span>
+              <span style="display: flex; align-items: center; gap: 0.4rem;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #c084fc;"></span> Soroswap (20%)</span>
+              <span style="display: flex; align-items: center; gap: 0.4rem;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b;"></span> Reserve Buffer (15%)</span>
+            </div>
+          </div>
+
+          <!-- Yield Route Table with Landfall & Lens Intelligence -->
+          <div style="margin-bottom: 2rem;">
+            <h3 style="font-size: 1rem; color: #ffffff; margin-bottom: 0.75rem;">Cross-Repo Architectural Synthesis &bull; Protocol Route Monitor</h3>
+            <div style="overflow-x: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left;">
+                <thead style="background: rgba(255,255,255,0.03); color: var(--text-dim); text-transform: uppercase; font-size: 0.7rem;">
+                  <tr>
+                    <th style="padding: 0.75rem 1rem;">Protocol Strategy</th>
+                    <th style="padding: 0.75rem 1rem;">Contract Adapter</th>
+                    <th style="padding: 0.75rem 1rem;">Gross APR</th>
+                    <th style="padding: 0.75rem 1rem;">Protocol Fee</th>
+                    <th style="padding: 0.75rem 1rem;">Net APY</th>
+                    <th style="padding: 0.75rem 1rem;">Landfall Liveness</th>
+                    <th style="padding: 0.75rem 1rem;">Lens Depth VWAP</th>
+                    <th style="padding: 0.75rem 1rem;">Target Alloc</th>
+                  </tr>
+                </thead>
+                <tbody id="yrRoutesTableBody" style="color: var(--text-muted);">
+                  <tr style="border-top: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 0.8rem 1rem; color: #ffffff; font-weight: 600;">Blend Backstop v2</td>
+                    <td style="padding: 0.8rem 1rem; font-family: monospace; color: #c084fc;">BlendBackstopAdapter</td>
+                    <td style="padding: 0.8rem 1rem; color: #10b981; font-weight: 600;">26.00%</td>
+                    <td style="padding: 0.8rem 1rem;">5.00%</td>
+                    <td style="padding: 0.8rem 1rem; color: #10b981; font-weight: 700;">24.70%</td>
+                    <td style="padding: 0.8rem 1rem; color: #10b981;">99.9% (Optimal)</td>
+                    <td style="padding: 0.8rem 1rem;">$0.1245 (SDEX)</td>
+                    <td style="padding: 0.8rem 1rem; color: #ffffff; font-weight: 600;">35.0%</td>
+                  </tr>
+                  <tr style="border-top: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 0.8rem 1rem; color: #ffffff; font-weight: 600;">Phoenix CLAMM Concentrated</td>
+                    <td style="padding: 0.8rem 1rem; font-family: monospace; color: #38bdf8;">PhoenixClammAdapter</td>
+                    <td style="padding: 0.8rem 1rem; color: #38bdf8; font-weight: 600;">23.20%</td>
+                    <td style="padding: 0.8rem 1rem;">6.00%</td>
+                    <td style="padding: 0.8rem 1rem; color: #38bdf8; font-weight: 700;">21.80%</td>
+                    <td style="padding: 0.8rem 1rem; color: #10b981;">99.4% (Active)</td>
+                    <td style="padding: 0.8rem 1rem;">$0.1244 (AMM)</td>
+                    <td style="padding: 0.8rem 1rem; color: #ffffff; font-weight: 600;">30.0%</td>
+                  </tr>
+                  <tr style="border-top: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 0.8rem 1rem; color: #ffffff; font-weight: 600;">Soroswap AMM + Liquidity Farm</td>
+                    <td style="padding: 0.8rem 1rem; font-family: monospace; color: #c084fc;">SoroswapFarmAdapter</td>
+                    <td style="padding: 0.8rem 1rem; color: #c084fc; font-weight: 600;">19.80%</td>
+                    <td style="padding: 0.8rem 1rem;">7.00%</td>
+                    <td style="padding: 0.8rem 1rem; color: #c084fc; font-weight: 700;">18.40%</td>
+                    <td style="padding: 0.8rem 1rem; color: #10b981;">98.8% (Active)</td>
+                    <td style="padding: 0.8rem 1rem;">$0.1247 (Router)</td>
+                    <td style="padding: 0.8rem 1rem; color: #ffffff; font-weight: 600;">20.0%</td>
+                  </tr>
+                  <tr style="border-top: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 0.8rem 1rem; color: #ffffff; font-weight: 600;">Defindex Multi-Strategy Vault</td>
+                    <td style="padding: 0.8rem 1rem; font-family: monospace; color: var(--text-dim);">DefindexVaultAdapter</td>
+                    <td style="padding: 0.8rem 1rem;">17.50%</td>
+                    <td style="padding: 0.8rem 1rem;">5.70%</td>
+                    <td style="padding: 0.8rem 1rem;">16.50%</td>
+                    <td style="padding: 0.8rem 1rem; color: #10b981;">99.1% (Standby)</td>
+                    <td style="padding: 0.8rem 1rem;">$0.1245 (Vault)</td>
+                    <td style="padding: 0.8rem 1rem; color: var(--text-dim);">0.0% (Standby)</td>
+                  </tr>
+                  <tr style="border-top: 1px solid rgba(255,255,255,0.05); background: rgba(245, 158, 11, 0.05);">
+                    <td style="padding: 0.8rem 1rem; color: #fbbf24; font-weight: 600;">Liquid Safety Reserve</td>
+                    <td style="padding: 0.8rem 1rem; font-family: monospace; color: #fbbf24;">MeridianVaultContract</td>
+                    <td style="padding: 0.8rem 1rem;">0.00%</td>
+                    <td style="padding: 0.8rem 1rem;">0.00%</td>
+                    <td style="padding: 0.8rem 1rem; color: #fbbf24;">0.00%</td>
+                    <td style="padding: 0.8rem 1rem; color: #10b981;">100.0% (Instant)</td>
+                    <td style="padding: 0.8rem 1rem;">1.000 XLM/XLM</td>
+                    <td style="padding: 0.8rem 1rem; color: #fbbf24; font-weight: 700;">15.0% (Invariant)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Interactive Deposit & Route Simulator Widget -->
+          <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(139, 47, 230, 0.3); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-size: 1.1rem; color: #ffffff; margin: 0;">Deposit &amp; Autonomous Yield Router Calculator</h3>
+              <span class="hikari-badge hakiru-badge" style="background: rgba(139, 47, 230, 0.15); color: #c084fc; font-size: 0.75rem;">
+                Meridian Pluggable Adapter Pattern
+              </span>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+              <div>
+                <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Deposit Amount (XLM)</label>
+                <div style="position: relative;">
+                  <input type="number" id="inputYrDeposit" class="hikari-number-input hakiru-number-input" value="10000" min="10" step="10" style="width: 100%; box-sizing: border-box; text-align: left; padding: 0.75rem 1rem; font-size: 1.1rem; font-weight: 600;">
+                  <span style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 0.85rem; font-weight: 600;">XLM</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                  <button type="button" class="btnYrPreset hikari-btn-max" data-amount="1000">1,000</button>
+                  <button type="button" class="btnYrPreset hikari-btn-max" data-amount="10000">10,000</button>
+                  <button type="button" class="btnYrPreset hikari-btn-max" data-amount="50000">50,000</button>
+                  <button type="button" class="btnYrPreset hikari-btn-max" data-amount="100000">100,000</button>
+                </div>
+              </div>
+
+              <!-- Output Projection Box -->
+              <div style="background: rgba(0, 0, 0, 0.3); border-radius: 10px; padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.2rem;">Estimated Annual Yield</div>
+                  <div style="font-size: 1.5rem; font-weight: 800; color: #10b981;" id="yrCalcAnnualReward">+2,219.00 XLM / yr</div>
+                  <div style="font-size: 0.78rem; color: #c084fc; margin-top: 0.2rem;" id="yrCalcVsNative">
+                    vs. +0.00 XLM holding native XLM (0% inflation)
+                  </div>
+                </div>
+                <div style="font-size: 0.72rem; color: var(--text-dim); border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.5rem; margin-top: 0.5rem;">
+                  Yield continuously accrues into <code style="color: #c084fc;">hXLM</code> exchange rate. Redeemable anytime.
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 1rem; margin-top: 1.25rem; flex-wrap: wrap;">
+              <button id="btnYrStakeAndRoute" class="hikari-btn-primary hakiru-btn-primary" style="flex: 1; margin: 0; padding: 0.75rem 1.5rem; font-size: 0.95rem;">
+                Deposit &amp; Auto-Route to Best Yield (22.19% APY)
+              </button>
+              <button id="btnYrSimulateRebalance" class="hikari-btn-primary hakiru-btn-primary" style="background: rgba(139, 47, 230, 0.15); border: 1px solid rgba(192, 132, 252, 0.4); color: #c084fc; flex: 1; margin: 0; padding: 0.75rem 1.5rem; font-size: 0.95rem;">
+                Simulate Meridian migrate_adapter Keeper
+              </button>
+            </div>
+
+            <!-- Live Telemetry Status -->
+            <div id="yrRebalanceTelemetry" style="display: none; margin-top: 1rem; background: rgba(0, 0, 0, 0.4); border-radius: 8px; padding: 0.8rem 1rem; font-family: monospace; font-size: 0.75rem; color: #10b981; line-height: 1.5;">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 8: TAURIC MULTI-AGENT AI TRADING DESK -->
+      <section id="viewTabTradingAgents" class="hikari-tab-view hakiru-tab-view" style="display: none;">
+        <div class="hikari-card hakiru-card" style="max-width: 980px; margin: 0 auto 2rem; width: 100%;">
+          <div class="hikari-card-header hakiru-card-header" style="text-align: left; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <div class="hikari-token-icon-wrap" style="width: 38px; height: 38px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4);">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
+                  </svg>
+                </div>
+                <div>
+                  <h1 class="hikari-card-title hakiru-card-title" style="margin: 0; font-size: 1.6rem;">Tauric AI Multi-Agent Trading Desk</h1>
+                  <p class="hikari-card-subtitle hakiru-card-subtitle" style="margin: 0; font-size: 0.85rem;">
+                    Autonomous Specialists &bull; Bull vs. Bear Multi-Turn Debate &bull; Risk Committee Invariant Governance &bull; Yield Carry
+                  </p>
+                </div>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button id="btnTdTriggerCycle" class="hikari-btn-primary hakiru-btn-primary" style="margin: 0; padding: 0.4rem 1rem; font-size: 0.78rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none;">
+                  ⚡ Run Agent Cycle
+                </button>
+                <span class="hikari-badge hakiru-badge" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 999px;">
+                  Autonomous Mode
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trading Macro Status Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Stellar XLM Price</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #ffffff; margin: 0.35rem 0;" id="tdXlmPrice">$0.1245</div>
+              <div style="font-size: 0.72rem; color: #10b981;">+3.40% 24h &bull; VWAP: $0.1242</div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Market Regime</div>
+              <div style="font-size: 1.35rem; font-weight: 700; color: #38bdf8; margin: 0.35rem 0;" id="tdMacroRegime">BULLISH_EXPANSION</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);" id="tdRegimeScore">Composite Score: 78/100</div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Zero Cash Drag (Yield Carry)</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #10b981; margin: 0.35rem 0;" id="tdYieldCarryActive">24.70% APY</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">100% Unallocated Cash in Blend</div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem;">
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Committee Consensus</div>
+              <div style="font-size: 1.35rem; font-weight: 700; color: #fbbf24; margin: 0.35rem 0;" id="tdConsensusSignal">MODERATE_LONG</div>
+              <div style="font-size: 0.72rem; color: #10b981;">Confidence: 82% &bull; Max DD Cap: 4.5%</div>
+            </div>
+          </div>
+
+          <!-- Tauric 4 Specialist Analyst Cards -->
+          <div style="margin-bottom: 1.75rem;">
+            <h3 style="font-size: 1rem; color: #ffffff; margin-bottom: 0.75rem;">Specialist Financial Analysts (TauricResearch Framework)</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 1rem;">
+              
+              <!-- Warren: Fundamental Analyst -->
+              <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <div style="font-size: 1.2rem;">🏛️</div>
+                  <div>
+                    <div style="font-weight: 700; color: #ffffff; font-size: 0.88rem;">Warren</div>
+                    <div style="font-size: 0.7rem; color: var(--text-dim);">Fundamental Analyst</div>
+                  </div>
+                </div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.4;" id="tdAnalystWarren">
+                  Stellar network daily payments up +18.4%. Protocol 22 Soroban contract invocations set new all-time high. XLM real valuation remains at attractive 0.72 P/S ratio.
+                </div>
+              </div>
+
+              <!-- George: Technical Analyst -->
+              <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <div style="font-size: 1.2rem;">📈</div>
+                  <div>
+                    <div style="font-weight: 700; color: #ffffff; font-size: 0.88rem;">George</div>
+                    <div style="font-size: 0.7rem; color: var(--text-dim);">Technical Analyst</div>
+                  </div>
+                </div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.4;" id="tdAnalystGeorge">
+                  RSI at 58.4 (bullish neutral). MACD positive histogram divergence. Strong liquidity cluster on SDEX orderbook at $0.1190 defending the lower trend channel.
+                </div>
+              </div>
+
+              <!-- Cathie: Sentiment / Momentum Analyst -->
+              <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <div style="font-size: 1.2rem;">⚡</div>
+                  <div>
+                    <div style="font-weight: 700; color: #ffffff; font-size: 0.88rem;">Cathie</div>
+                    <div style="font-size: 0.7rem; color: var(--text-dim);">Sentiment &amp; News</div>
+                  </div>
+                </div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.4;" id="tdAnalystCathie">
+                  Institutional anchor integrations expanding across LatAm. Stablecoin remittance volume on Stellar up 27% QoQ. Social sentiment score 84/100.
+                </div>
+              </div>
+
+              <!-- Ray: Risk Committee Lead -->
+              <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <div style="font-size: 1.2rem;">🛡️</div>
+                  <div>
+                    <div style="font-weight: 700; color: #ffffff; font-size: 0.88rem;">Ray</div>
+                    <div style="font-size: 0.7rem; color: var(--text-dim);">Risk &amp; Hedging Lead</div>
+                  </div>
+                </div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.4;" id="tdAnalystRay">
+                  Maximum leverage capped at 1.0x. Half-Kelly position sizing enforced. Stop-loss hard bound at $0.1160. Unused cash parked in Blend Backstop earning 24.7%.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bull vs. Bear Debate Arena & Committee Decision -->
+          <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1rem; margin-bottom: 1.75rem;">
+            <!-- Debate Arena -->
+            <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h4 style="margin: 0; font-size: 0.92rem; color: #ffffff;">Tauric Multi-Turn Debate: Bull vs. Bear</h4>
+                <span style="font-size: 0.7rem; color: var(--text-dim);">Turn 3/3 &bull; Consensus Reached</span>
+              </div>
+              
+              <div id="tdDebateFeed" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 280px; overflow-y: auto; padding-right: 0.5rem;">
+                <!-- Bull Turn -->
+                <div style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981; padding: 0.6rem 0.8rem; border-radius: 4px; font-size: 0.78rem;">
+                  <div style="font-weight: 700; color: #10b981; margin-bottom: 0.2rem;">Bullish Agent (Cathie + George):</div>
+                  <div style="color: var(--text-muted); line-height: 1.4;">
+                    "Technical breakout above $0.1220 with SDEX bid volume increasing +32%. Soroban ecosystem growth warrants increasing long exposure to XLM."
+                  </div>
+                </div>
+
+                <!-- Bear Turn -->
+                <div style="background: rgba(244, 63, 94, 0.08); border-left: 3px solid #f43f5e; padding: 0.6rem 0.8rem; border-radius: 4px; font-size: 0.78rem;">
+                  <div style="font-weight: 700; color: #f43f5e; margin-bottom: 0.2rem;">Bearish Agent (Warren + Ray):</div>
+                  <div style="color: var(--text-muted); line-height: 1.4;">
+                    "Macro headwinds in broader crypto markets persist. Full size long is too risky; position size must not exceed 25% with remaining capital earning yield carry."
+                  </div>
+                </div>
+
+                <!-- Trader Proposal -->
+                <div style="background: rgba(56, 189, 248, 0.08); border-left: 3px solid #38bdf8; padding: 0.6rem 0.8rem; border-radius: 4px; font-size: 0.78rem;">
+                  <div style="font-weight: 700; color: #38bdf8; margin-bottom: 0.2rem;">Synthesizing Trader Agent:</div>
+                  <div style="color: var(--text-muted); line-height: 1.4;">
+                    "Proposal: Enter 20% MODERATE_LONG on XLM/USDC at $0.1245. Target: $0.1380. Stop-loss: $0.1160. Route 80% remaining capital to Blend Backstop for 24.7% yield carry."
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Risk Committee Resolution -->
+            <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;" id="tdRiskDecisionBox">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                  <h4 style="margin: 0; font-size: 0.92rem; color: #ffffff;">Risk Committee Approval</h4>
+                  <span style="background: rgba(16, 185, 129, 0.2); color: #10b981; font-size: 0.68rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">APPROVED</span>
+                </div>
+                
+                <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1rem;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                    <span>Action:</span> <strong style="color: #10b981;">MODERATE_LONG (XLM)</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                    <span>Position Size:</span> <strong style="color: #ffffff;">20.00% NAV</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                    <span>Yield Carry:</span> <strong style="color: #c084fc;">80.00% in Blend</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                    <span>Lens Best Route:</span> <strong style="color: #ffffff;">SDEX Orderbook</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                    <span>Slippage Cap:</span> <strong style="color: #ffffff;">&le; 0.25%</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span>On-Chain Sig:</span> <span style="font-family: monospace; color: #38bdf8;">0x8fa3...c491</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background: rgba(255,255,255,0.03); border-radius: 6px; padding: 0.6rem; font-size: 0.72rem; color: var(--text-dim);">
+                🛡️ Dual Invariant: No trade can execute without 3/3 risk committee unanimous consensus.
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-Time Execution Log -->
+          <div>
+            <h3 style="font-size: 1rem; color: #ffffff; margin-bottom: 0.75rem;">Autonomous On-Chain Execution Log (Lens Aggregation)</h3>
+            <div id="tdExecutionLog" style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem; font-family: monospace; font-size: 0.75rem; color: var(--text-muted); max-height: 180px; overflow-y: auto; line-height: 1.6;">
+              <div>[2026-09-14 12:45:00] [WARREN] Evaluated Soroban ledger metrics: 4.2M daily active ops. P/S 0.72. Valuation BUY.</div>
+              <div>[2026-09-14 12:45:01] [GEORGE] Lens Depth Scanner: SDEX XLM/USDC VWAP $0.1242. Orderbook spread: 4 bps.</div>
+              <div>[2026-09-14 12:45:02] [CATHIE] Sentiment momentum: +12% ecosystem builder growth. Signal: ACCUMULATE.</div>
+              <div>[2026-09-14 12:45:03] [RAY] Enforcing Half-Kelly size limit: Max 200,000 XLM. Yield carry allocated to Blend Backstop.</div>
+              <div style="color: #10b981;">[2026-09-14 12:45:04] [HIKARI_DESK] Executed MODERATE_LONG on SDEX. 200,000 XLM filled @ $0.1245. Yield carry: 800,000 XLM deployed in Blend Backstop (24.70% APY).</div>
+            </div>
+          </div>
+        </div>
+      </section>
 
     <!-- DApp Workspace Minimalist Footer -->
     <footer class="app-workspace-footer">
