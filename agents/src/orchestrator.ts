@@ -51,13 +51,21 @@ export class AgentOrchestrator {
     // Step 2: Market Agent gathers market condition
     console.log("\n[2/5] Market Agent gathering on-chain telemetry & market rates...");
     const market = await this.marketAgent.fetchMarketConditions();
-    console.log(`  ✓ XLM Price: $${market.xlmPriceUsd} | Blend APY: ${market.blendSupplyApyBps / 100}% | Volatility: ${market.volatilityIndex}/100`);
+    console.log(`  ✓ XLM Price: $${market.xlmPriceUsd} | Blend Total: ${(market.blendSupplyApyBps + market.blendEmissionApyBps) / 100}% | Phoenix CLAMM: ${market.phoenixFeeApyBps / 100}%`);
+    console.log(`  ✓ Blend Backstop: ${market.blendBackstopApyBps / 100}% | Soroswap: ${(market.soroswapFeeApyBps + market.soroswapFarmApyBps) / 100}% | MEV Boost: +${market.mevStreamApyBps / 100}%`);
 
-    // Step 3: Yield Agent ranks strategies
-    console.log("\n[3/5] Yield Agent ranking candidate strategies...");
+    // Step 3: Yield Agent ranks strategies & optimizes best yield
+    console.log("\n[3/5] Yield Agent ranking candidate strategies for BEST YIELD in Stellar...");
     const ranked = this.yieldAgent.rankStrategies(market);
+    const bestYield = this.yieldAgent.getBestYieldStrategy(market);
+    const blendedApy = this.yieldAgent.calculateBlendedPortfolioApyBps(ranked);
+
+    console.log(`  🏆 #1 BEST YIELD IN STELLAR: ${bestYield.name}`);
+    console.log(`     ↳ Nominal APY: ${(bestYield.nominalApyBps / 100).toFixed(2)}% | Risk-Adjusted Score: ${bestYield.score.toFixed(2)} | Venue: ${bestYield.venue}`);
+    console.log(`     ↳ Target Blended Portfolio APY: ${(blendedApy / 100).toFixed(2)}% net APY across deployed capital`);
+
     for (const s of ranked) {
-      console.log(`  → ${s.name}: Risk-Adjusted Score ${s.score.toFixed(2)} (${s.nominalApyBps / 100}% nominal)`);
+      console.log(`  → ${s.name}: ${(s.nominalApyBps / 100).toFixed(2)}% APY (Net Risk-Adj: ${(s.riskAdjustedApyBps / 100).toFixed(2)}%, Score: ${s.score.toFixed(2)})`);
     }
 
     // Step 4: Risk Agent checks exposure and reserves
@@ -113,12 +121,19 @@ export class AgentOrchestrator {
 async function main() {
   const rules: PolicyRules = {
     allowedAgents: new Set(["agent_execution_01"]),
-    allowedStrategies: new Set(["strat_blend_xlm_01", "strat_soroswap_xlm_usdc_01"]),
-    maxTransactionSizeStroops: 20_000_0000000n, // 20,000 XLM
-    dailySpendCapStroops: 50_000_0000000n,
+    allowedStrategies: new Set([
+      "strat_blend_backstop_01",
+      "strat_phoenix_xlm_usdc_01",
+      "strat_soroswap_xlm_usdc_01",
+      "strat_blend_xlm_lending_01",
+      "strat_blend_xlm_01",
+      "strat_aqua_sdex_01",
+    ]),
+    maxTransactionSizeStroops: 25_000_0000000n, // 25,000 XLM
+    dailySpendCapStroops: 100_000_0000000n,
     maxSlippageBps: 50,
     minIdleReservePercentage: 15,
-    humanApprovalThresholdStroops: 12_000_0000000n, // 12,000 XLM
+    humanApprovalThresholdStroops: 15_000_0000000n, // 15,000 XLM
   };
 
   const state: ProtocolState = {
@@ -126,7 +141,10 @@ async function main() {
     totalAssetsStroops: 100_000_0000000n, // 100,000 XLM
     idleAssetsStroops: 40_000_0000000n,   // 40,000 XLM idle
     allocatedAssetsStroops: 60_000_0000000n,
-    strategyAllocations: new Map([["strat_blend_xlm_01", 60_000_0000000n]]),
+    strategyAllocations: new Map([
+      ["strat_blend_xlm_lending_01", 30_000_0000000n],
+      ["strat_phoenix_xlm_usdc_01", 30_000_0000000n],
+    ]),
   };
 
   const verifier = new PolicyVerifier(rules);

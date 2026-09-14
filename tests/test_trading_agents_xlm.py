@@ -105,7 +105,7 @@ class TestTradingAgentsXLM(unittest.TestCase):
 
         f_rep = fund_analyst.analyze(self.data_feed.get_stellar_fundamentals())
         self.assertIn(f_rep["signal"], ["BULLISH", "BEARISH", "NEUTRAL"])
-        self.assertIn("Stellar Network Fundamentals Report", f_rep["report"])
+        self.assertIn("Stellar Network Fundamentals & Best Yield Report", f_rep["report"])
 
         s_rep = sent_analyst.analyze(self.data_feed.get_sentiment_and_news())
         self.assertIn(s_rep["signal"], ["BULLISH", "BEARISH", "NEUTRAL"])

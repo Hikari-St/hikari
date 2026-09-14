@@ -39,7 +39,8 @@
     "test:suite": "node scripts/verify_hakiru_full_suite.js",
     "test:hakiru": "node scripts/verify_hakiru_full_suite.js",
     "agent:trade": "python scripts/run_xlm_trading_agent.py",
-    "test:trading-agents": "python -m unittest tests/test_trading_agents_xlm.py"
+    "test:trading-agents": "python -m unittest tests/test_trading_agents_xlm.py",
+    "agent:best-yield": "node scripts/simulate_best_yield.js"
   },
   "devDependencies": {
     "puppeteer-core": "^25.10.0"

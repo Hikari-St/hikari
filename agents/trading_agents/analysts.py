@@ -111,21 +111,26 @@ class FundamentalsAnalyst:
         tvl = fundamentals.get("soroban_tvl_usd", 48_500_000)
         payments_vol = fundamentals.get("daily_payments_volume_usd", 68_400_000)
         solvency = fundamentals.get("hikari_solvency_ratio", 1.048)
-        blend_apr = fundamentals.get("blend_money_market_apr", 0.082)
+        blend_total_apr = fundamentals.get("blend_total_apr", 0.142)
+        best_yield_apr = fundamentals.get("best_stellar_yield_apr", 0.247)
+        best_venue = fundamentals.get("best_yield_venue", "Blend Protocol Backstop Module (bBLND-XLM)")
+        mev_boost = fundamentals.get("hikari_mev_boost_apr", 0.032)
 
         # Fundamentals evaluation
         is_strong = (tvl > 25_000_000) and (payments_vol > 30_000_000) and (solvency >= 1.0)
         signal = "BULLISH" if is_strong else "NEUTRAL"
-        confidence = 0.85 if is_strong else 0.60
+        confidence = 0.88 if is_strong else 0.60
 
-        report = f"""### 🏛️ Stellar Network Fundamentals Report
+        report = f"""### 🏛️ Stellar Network Fundamentals & Best Yield Report
 - **Asset**: {fundamentals.get('asset')} ({fundamentals.get('name')})
 - **Runtime**: {fundamentals.get('network')}
 - **Ledger Finality**: {fundamentals.get('average_ledger_close_sec')}s deterministic closes
 - **Circulating Supply**: {fundamentals.get('circulating_supply'):,} XLM
 - **24h Payment Volume**: ${payments_vol:,.2f} USD
 - **Soroban DeFi TVL**: ${tvl:,.2f} USD
-- **Blend Lending APR**: {(blend_apr * 100):.2f}% APY
+- **Blend Money Market APR**: {(blend_total_apr * 100):.2f}% APY (Base + BLND Emissions)
+- **🏆 Best Yield in Stellar**: {(best_yield_apr * 100):.2f}% APY ({best_venue})
+- **⚡ Hikari MEV Yield Stream**: +{(mev_boost * 100):.2f}% APY (100% streamed to depositors)
 - **Hikari Reserve Backing**: {(solvency * 100):.1f}% (Over-collateralized solvent)
 - **Fundamental Bias**: **{signal}** (Confidence: {int(confidence * 100)}%)
 """
@@ -136,6 +141,7 @@ class FundamentalsAnalyst:
             "metrics": fundamentals,
             "report": report.strip()
         }
+
 
 
 class SentimentAnalyst:
