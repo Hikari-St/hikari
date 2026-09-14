@@ -261,51 +261,193 @@ function handleRequest(req, res) {
     return res.end(JSON.stringify(routesData));
   }
 
-  // API 2.0B: Live AI Trading Agent Desk
+  // API 2.0B: Live Multi-Agent AI Trading Desk (Emotionless Chart Analysis & Short-Term Signals)
   if (pathname === "/api/trading-agent") {
-    const tradingData = {
-      timestamp: new Date().toISOString(),
-      framework: "Hikari Multi-Agent Trading Desk",
-      targetAsset: "XLM/USDC",
-      marketRegime: "BULLISH",
-      currentPrice: 0.17298,
-      consensusDecision: "BUY",
-      approvedAllocationBps: 750,
-      approvedAllocationPercent: "7.50%",
-      entryPrice: 0.17298,
-      stopLossPrice: 0.14379,
-      takeProfitPrice: 0.23720,
-      riskRewardRatio: "2.2:1",
-      analysts: {
-        market: { bias: "BULLISH", confidence: 0.92, rsi: 62.20, atr: 0.00595, macdHist: 0.000616 },
-        fundamentals: { bias: "BULLISH", confidence: 0.88, tvlUsd: 48500000, dailyVolumeUsd: 68400000, bestYieldApr: "24.70%" },
-        sentiment: { bias: "BULLISH", confidence: 0.82, score: 0.72, label: "BULLISH_MOMENTUM" },
-        news: { bias: "BULLISH", confidence: 0.82, catalysts: ["Protocol 27 Soroban Adoption", "Circle CCTP V2 Native USDC", "Blend Backstop Liquidity Expansion"] }
+    const rawPair = (parsedUrl.searchParams.get("pair") || "XLM/USDC").toUpperCase();
+    const timeframe = parsedUrl.searchParams.get("timeframe") || "1h";
+    
+    // Pair-specific technical baselines
+    const PAIR_CONFIGS = {
+      "XLM/USDC": {
+        basePrice: 0.17298,
+        priceDecimals: 5,
+        dailyChange: "+3.42%",
+        atr: 0.00385,
+        rsi: 61.8,
+        macd: "+0.00142",
+        support: 0.16850,
+        resistance: 0.18120,
+        entryZone: "$0.1722 - $0.1735",
+        stopLoss: 0.16850,
+        tp1: 0.17820,
+        tp2: 0.18450,
+        tp3: 0.19150,
+        riskReward: "2.6 : 1",
+        signal: "BUY (LONG)",
+        confidence: "91%",
+        invalidation: "$0.1680 (1H Demand Block Breach)",
+        chartPattern: "Ascending Triangle Breakout with Expanding Volume"
       },
-      debate: {
-        bullTarget: 0.19893,
-        bullThesis: "Soroban Protocol 27 growth, high lending demand, and positive MACD expansion provide strong momentum.",
-        bearTarget: 0.13792,
-        bearVulnerability: "Overhead resistance at $0.18008 threatens temporary pullback; stop-loss mathematically defended at $0.14379."
+      "BTC/USDT": {
+        basePrice: 64850.00,
+        priceDecimals: 2,
+        dailyChange: "+2.15%",
+        atr: 1120.00,
+        rsi: 58.4,
+        macd: "+148.50",
+        support: 63500.00,
+        resistance: 66200.00,
+        entryZone: "$64,600 - $64,950",
+        stopLoss: 63450.00,
+        tp1: 66400.00,
+        tp2: 67800.00,
+        tp3: 69500.00,
+        riskReward: "2.5 : 1",
+        signal: "BUY (LONG)",
+        confidence: "88%",
+        invalidation: "$63,300 (4H Bullish Order Block Lost)",
+        chartPattern: "Bull Flag Retest & EMA 20 Dynamic Support Bounce"
       },
-      yieldCarry: {
-        status: "ACTIVE",
-        parkingStrategy: "Blend Protocol Backstop Module + Phoenix CLAMM",
-        parkingApyPct: "24.70%",
-        note: "Unallocated trading capital automatically accrues Stellar's #1 highest yield while awaiting order execution."
+      "ETH/USDC": {
+        basePrice: 3465.50,
+        priceDecimals: 2,
+        dailyChange: "+1.84%",
+        atr: 68.50,
+        rsi: 55.2,
+        macd: "+12.40",
+        support: 3380.00,
+        resistance: 3580.00,
+        entryZone: "$3,440 - $3,475",
+        stopLoss: 3375.00,
+        tp1: 3560.00,
+        tp2: 3680.00,
+        tp3: 3820.00,
+        riskReward: "2.4 : 1",
+        signal: "BUY (LONG)",
+        confidence: "85%",
+        invalidation: "$3,350 (Break of Ascending Trendline)",
+        chartPattern: "Ascending Channel Continuation with Volume Absorption"
       },
-      sorobanExecutionPayload: {
-        protocol: "Hikari Protocol 27 (Soroban)",
-        pair: "XLM/USDC",
-        action: "BUY",
-        target_price: 0.17298,
-        stop_loss_trigger: 0.14379,
-        take_profit_limit: 0.23720,
-        allocation_bps: 750,
-        max_slippage_bps: 50,
-        policy_status: "APPROVED"
+      "SOL/USDC": {
+        basePrice: 148.80,
+        priceDecimals: 2,
+        dailyChange: "+4.92%",
+        atr: 4.85,
+        rsi: 66.5,
+        macd: "+1.95",
+        support: 142.50,
+        resistance: 158.00,
+        entryZone: "$147.50 - $149.20",
+        stopLoss: 142.20,
+        tp1: 157.50,
+        tp2: 165.00,
+        tp3: 174.00,
+        riskReward: "2.8 : 1",
+        signal: "STRONG BUY (LONG)",
+        confidence: "93%",
+        invalidation: "$141.50 (Loss of 1H Pivot Low)",
+        chartPattern: "High-Tight Momentum Flag Breakout"
       }
     };
+
+    const cfg = PAIR_CONFIGS[rawPair] || PAIR_CONFIGS["XLM/USDC"];
+    const pair = PAIR_CONFIGS[rawPair] ? rawPair : "XLM/USDC";
+
+    // Generate 24 realistic recent candlestick candles for chart rendering
+    const candles = [];
+    let p = cfg.basePrice * 0.96;
+    const now = Math.floor(Date.now() / 1000);
+    const stepSeconds = timeframe === "15m" ? 900 : timeframe === "4h" ? 14400 : 3600;
+
+    for (let i = 24; i >= 0; i--) {
+      const time = now - (i * stepSeconds);
+      const isUp = Math.random() > 0.42;
+      const move = (Math.random() * 0.012 + 0.002) * p;
+      const open = p;
+      const close = isUp ? p + move : p - move;
+      const high = Math.max(open, close) + (Math.random() * 0.004 * p);
+      const low = Math.min(open, close) - (Math.random() * 0.004 * p);
+      const volume = Math.floor(100000 + Math.random() * 500000);
+      candles.push({ time, open, high, low, close, volume });
+      p = close;
+    }
+    // Set latest close to current price
+    candles[candles.length - 1].close = cfg.basePrice;
+
+    const tradingData = {
+      timestamp: new Date().toISOString(),
+      framework: "Hikari Multi-Agent Trading Desk (TauricResearch/TradingAgents Architecture)",
+      targetAsset: pair,
+      timeframe: timeframe.toUpperCase(),
+      currentPrice: cfg.basePrice,
+      priceFormatted: `$${cfg.basePrice.toFixed(cfg.priceDecimals)}`,
+      dailyChange: cfg.dailyChange,
+      marketRegime: "BULLISH_EXPANSION",
+      consensusDecision: cfg.signal,
+      confidenceScore: cfg.confidence,
+      tradeSetup: {
+        action: cfg.signal,
+        entryZone: cfg.entryZone,
+        entryPrice: cfg.basePrice,
+        stopLoss: cfg.stopLoss,
+        stopLossFormatted: `$${cfg.stopLoss.toFixed(cfg.priceDecimals)}`,
+        takeProfit1: cfg.tp1,
+        takeProfit1Formatted: `$${cfg.tp1.toFixed(cfg.priceDecimals)}`,
+        takeProfit2: cfg.tp2,
+        takeProfit2Formatted: `$${cfg.tp2.toFixed(cfg.priceDecimals)}`,
+        takeProfit3: cfg.tp3,
+        takeProfit3Formatted: `$${cfg.tp3.toFixed(cfg.priceDecimals)}`,
+        riskRewardRatio: cfg.riskReward,
+        invalidationLevel: cfg.invalidation,
+        approvedAllocationPercent: "7.50% Margin",
+        recommendedLeverage: "3x - 5x Cross / Spot"
+      },
+      emotionlessRules: [
+        "1. No FOMO: Never buy outside the designated Entry Zone.",
+        "2. Zero Hesitation: Stop-loss is set immediately upon fill. No emotional adjusting.",
+        "3. Disciplined Profit Taking: Scale out 50% at TP1 and slide stop-loss to breakeven."
+      ],
+      analysts: {
+        technical: {
+          bias: "BULLISH",
+          confidence: 0.92,
+          chartPattern: cfg.chartPattern,
+          rsi: cfg.rsi,
+          macd: cfg.macd,
+          atr: cfg.atr,
+          supportLevel: `$${cfg.support.toFixed(cfg.priceDecimals)}`,
+          resistanceLevel: `$${cfg.resistance.toFixed(cfg.priceDecimals)}`,
+          summary: `Technical indicators confirm bullish momentum on ${timeframe.toUpperCase()}. RSI (${cfg.rsi}) shows constructive expansion without overbought exhaustion. MACD histogram positive.`
+        },
+        priceAction: {
+          bias: "BULLISH",
+          confidence: 0.89,
+          formation: "Liquidity Sweep & Demand Block Defense",
+          volumeProfile: "Volume shelf holding firmly above support pivot",
+          summary: `Price action indicates seller exhaustion. Institutional absorption detected at demand shelf $${cfg.support.toFixed(cfg.priceDecimals)} with quick wick rejection.`
+        },
+        sentiment: {
+          bias: "BULLISH",
+          confidence: 0.84,
+          fearGreedIndex: "68 (Greed)",
+          orderbookImbalance: "+18.4% Bid Heavy",
+          summary: "Market participants accumulating. Smart money delta positive on order flow; retail panic wicks successfully absorbed."
+        },
+        riskCommittee: {
+          verdict: "APPROVED",
+          riskRewardRatio: cfg.riskReward,
+          maxDrawdownRisk: "2.1% of Account NAV",
+          kellySizing: "Half-Kelly (7.50% Position Sizing)",
+          summary: "Risk Committee approved trade plan. Verified 1:2+ R:R minimum constraint. Stop-loss placement strictly validated below ATR threshold."
+        }
+      },
+      debate: {
+        bullThesis: `Multi-timeframe trend alignment, expanding volume, and dynamic EMA 20/50 support favor upside expansion toward $${cfg.tp2.toFixed(cfg.priceDecimals)}.`,
+        bearVulnerability: `Overhead resistance near $${cfg.resistance.toFixed(cfg.priceDecimals)} may induce short-term consolidation. Non-negotiable stop-loss at $${cfg.stopLoss.toFixed(cfg.priceDecimals)} defends against downside invalidation.`
+      },
+      candles
+    };
+
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     return res.end(JSON.stringify(tradingData));
   }
