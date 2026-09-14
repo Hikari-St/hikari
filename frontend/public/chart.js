@@ -83,9 +83,17 @@ class HikariYieldChart {
   }
 
   setupResize() {
-    window.addEventListener("resize", () => {
+    const handleResize = () => {
       this.render();
-    });
+    };
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("load", handleResize);
+    if (this.canvas && this.canvas.parentElement && typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver(() => {
+        this.render();
+      });
+      ro.observe(this.canvas.parentElement);
+    }
   }
 
   setupThemeWatcher() {
@@ -100,15 +108,36 @@ class HikariYieldChart {
 
     // Handle high DPI displays
     const rect = this.canvas.getBoundingClientRect();
+    const parentRect = this.canvas.parentElement ? this.canvas.parentElement.getBoundingClientRect() : null;
     const dpr = window.devicePixelRatio || 1;
     const isLight = document.documentElement.getAttribute("data-theme") === "light";
 
-    const width = Math.max(300, rect.width || (this.canvas.parentElement ? this.canvas.parentElement.clientWidth : 700) || 700);
-    const height = Math.max(180, rect.height || 210);
+    const width = Math.max(
+      280,
+      (rect && rect.width > 0 ? rect.width : 0) ||
+      (parentRect && parentRect.width > 0 ? parentRect.width : 0) ||
+      (this.canvas.parentElement ? this.canvas.parentElement.clientWidth : 0) ||
+      (this.canvas.parentElement ? this.canvas.parentElement.offsetWidth : 0) ||
+      600
+    );
+    const height = Math.max(
+      180,
+      (rect && rect.height > 0 ? rect.height : 0) ||
+      (parentRect && parentRect.height > 0 ? parentRect.height : 0) ||
+      (this.canvas.parentElement ? this.canvas.parentElement.clientHeight : 0) ||
+      210
+    );
 
-    this.canvas.width = width * dpr;
-    this.canvas.height = height * dpr;
-    this.ctx.resetTransform ? this.ctx.resetTransform() : this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.canvas.width = Math.floor(width * dpr);
+    this.canvas.height = Math.floor(height * dpr);
+    this.canvas.style.width = width + "px";
+    this.canvas.style.height = height + "px";
+
+    if (this.ctx.resetTransform) {
+      this.ctx.resetTransform();
+    } else {
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
     this.ctx.scale(dpr, dpr);
 
     const ctx = this.ctx;

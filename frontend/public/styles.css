@@ -8702,55 +8702,63 @@ html, body {
     display: none !important;
   }
   .app-tabs-nav {
-    display: grid !important;
-    grid-template-columns: repeat(5, 1fr) !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
     width: 100% !important;
-    gap: 3px !important;
-    padding: 3px !important;
-    background: rgba(139, 47, 230, 0.08) !important;
+    gap: 6px !important;
+    padding: 5px 6px !important;
+    background: rgba(139, 47, 230, 0.1) !important;
     border: 1px solid var(--border-subtle) !important;
-    border-radius: 12px !important;
+    border-radius: 14px !important;
     box-sizing: border-box !important;
+  }
+  .app-tabs-nav::-webkit-scrollbar {
+    display: none !important;
   }
   .app-tab-btn {
     display: flex !important;
-    flex-direction: column !important;
+    flex-direction: row !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 2px !important;
-    padding: 0.38rem 0.1rem !important;
-    border-radius: 8px !important;
+    gap: 6px !important;
+    padding: 0.45rem 0.75rem !important;
+    border-radius: 10px !important;
     background: transparent !important;
     color: var(--text-muted) !important;
     border: none !important;
     white-space: nowrap !important;
     text-align: center !important;
+    flex-shrink: 0 !important;
     transition: all 0.15s ease !important;
   }
   .app-tab-btn span {
-    font-size: 0.62rem !important;
+    font-size: 0.78rem !important;
     font-weight: 600 !important;
     line-height: 1 !important;
     letter-spacing: -0.01em !important;
   }
   .app-tab-btn svg {
-    width: 15px !important;
-    height: 15px !important;
+    width: 14px !important;
+    height: 14px !important;
     flex-shrink: 0 !important;
   }
   .app-tab-btn.active {
-    background: rgba(139, 47, 230, 0.22) !important;
-    color: var(--purple-soft) !important;
-    box-shadow: 0 2px 6px rgba(139, 47, 230, 0.18) !important;
+    background: rgba(139, 47, 230, 0.28) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(192, 132, 252, 0.45) !important;
+    box-shadow: 0 2px 8px rgba(139, 47, 230, 0.25) !important;
   }
   .tab-separator {
     display: none !important;
   }
   .tab-badge-new {
-    font-size: 0.5rem !important;
-    padding: 1px 3px !important;
-    border-radius: 3px !important;
-    margin-left: 1px !important;
+    font-size: 0.58rem !important;
+    padding: 2px 5px !important;
+    border-radius: 4px !important;
+    margin-left: 2px !important;
   }
 
   /* 5. Floating Social AI Hub - Docked cleanly at bottom corner without obstructing */
@@ -9231,6 +9239,73 @@ html, body {
   .pro-deck-wrapper .futures-targets-grid {
     grid-template-columns: 1fr !important;
   }
+  .pro-deck-banner-card {
+    border-radius: 14px !important;
+  }
+  .pro-deck-banner-btn {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+    padding: 0.85rem 1rem !important;
+  }
+  .pro-deck-banner-right {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  .pro-deck-banner-right a {
+    flex: 1 !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+  .hakiru-stats-box, .hikari-stats-box {
+    padding: 1.15rem 1rem !important;
+    border-radius: 16px !important;
+    margin-bottom: 1.25rem !important;
+  }
+  .hakiru-stats-header, .hikari-stats-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.35rem !important;
+  }
+  .hakiru-stat-row, .hikari-stat-row {
+    font-size: 0.82rem !important;
+    padding: 0.45rem 0 !important;
+  }
+  .pro-deck-slot .vault-context-banner {
+    padding: 1.15rem 1rem !important;
+  }
+  .pro-deck-slot .vault-context-stats {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+  }
+  .pro-deck-slot .pro-futures-card {
+    padding: 1.15rem 1rem !important;
+  }
+  .pro-deck-slot .pro-futures-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+  .pro-deck-slot .futures-tf-switcher {
+    width: 100% !important;
+    display: flex !important;
+    gap: 0.35rem !important;
+  }
+  .pro-deck-slot .futures-tf-switcher .tf-pill-btn {
+    flex: 1 !important;
+    text-align: center !important;
+    padding: 0.4rem 0.5rem !important;
+    font-size: 0.74rem !important;
+  }
+  .pro-deck-slot a.hikari-btn-primary {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 0.75rem 1rem !important;
+  }
 
   /* 11. Modals & Overlays */
   .hikari-wallet-modal-content, .hakiru-wallet-modal-content, .solvency-modal-content {
@@ -9445,5 +9520,53 @@ html, body {
   align-items: center;
   gap: 0.6rem;
 }
+
+/* ========================================================= */
+/* Chart Containers & High-DPI Canvas Rendering Styles       */
+/* ========================================================= */
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 210px;
+  min-height: 210px;
+  display: block;
+  overflow: hidden;
+}
+
+.chart-container canvas#yieldChartCanvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.chart-container-box {
+  position: relative;
+  width: 100%;
+  height: 340px;
+  min-height: 280px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  display: block;
+}
+
+.chart-container-box canvas#tradingChartCanvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+@media (max-width: 640px) {
+  .chart-container {
+    height: 190px !important;
+    min-height: 190px !important;
+  }
+  .chart-container-box {
+    height: 280px !important;
+    min-height: 260px !important;
+  }
+}
+
 
 

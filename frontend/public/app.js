@@ -832,6 +832,7 @@ initGsapAnimations();
 let yieldChartInstance = null;
 if (typeof HikariYieldChart !== "undefined" && document.getElementById("yieldChartCanvas")) {
   yieldChartInstance = new HikariYieldChart("yieldChartCanvas");
+  window.yieldChartInstance = yieldChartInstance;
 
   document.querySelectorAll(".chart-tab, .tf-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -842,6 +843,12 @@ if (typeof HikariYieldChart !== "undefined" && document.getElementById("yieldCha
         yieldChartInstance.setTimeframe(tf);
       }
     });
+  });
+
+  window.addEventListener("load", () => {
+    if (yieldChartInstance) {
+      yieldChartInstance.render();
+    }
   });
 }
 
@@ -2328,12 +2335,18 @@ function initHakiru5TabApp() {
         slot.appendChild(proDeckWrapper);
       }
       proDeckWrapper.style.display = "block";
+      if (window.yieldChartInstance) {
+        setTimeout(() => window.yieldChartInstance.render(), 50);
+      }
     } else if (tabKey === "wrap") {
       const slot = document.getElementById("proDeckSlotWrap");
       if (slot && !slot.contains(proDeckWrapper)) {
         slot.appendChild(proDeckWrapper);
       }
       proDeckWrapper.style.display = "block";
+      if (window.yieldChartInstance) {
+        setTimeout(() => window.yieldChartInstance.render(), 50);
+      }
     } else {
       proDeckWrapper.style.display = "none";
     }
@@ -2737,6 +2750,9 @@ function initHakiru5TabApp() {
       proDeckContainer.style.display = isHidden ? "block" : "none";
       if (proDeckChevron) {
         proDeckChevron.textContent = isHidden ? "▴" : "▾";
+      }
+      if (isHidden && window.yieldChartInstance) {
+        setTimeout(() => window.yieldChartInstance.render(), 50);
       }
     });
   }
