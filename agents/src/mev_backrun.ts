@@ -2,6 +2,15 @@
 // Author: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 // Native Soroban cross-DEX backrun arbitrage and atomic MEV capture engine.
 
+import {
+  Keypair,
+  Horizon,
+  TransactionBuilder,
+  Operation,
+  Asset,
+  Networks,
+} from "@stellar/stellar-sdk";
+
 export interface DexPriceFeed {
   venue: "PhoenixCLAMM" | "SoroswapAMM";
   pair: string; // e.g. "XLM/USDC"
@@ -113,17 +122,37 @@ export class MevBackrunEngine {
     vaultContractId: string
   ): Promise<MevBundleExecutionReceipt> {
     const bundleId = `bundle_${Date.now()}`;
-    // Simulated atomic Soroban bundle execution:
-    // 1. Swap on buyVenue
-    // 2. Swap on sellVenue
-    // 3. Deposit vaultKickbackStroops directly into vaultContractId
-    const simulatedTxHash = Array.from({ length: 64 }, () =>
-      Math.floor(Math.random() * 16).toString(16)
-    ).join("");
+
+    const secretKey = process.env.AGENT_SECRET_KEY;
+    if (!secretKey) {
+      throw new Error("MEV execution requires AGENT_SECRET_KEY");
+    }
+
+    const keypair = Keypair.fromSecret(secretKey);
+    const horizonUrl = process.env.HORIZON_URL || "https://horizon-testnet.stellar.org";
+    const server = new Horizon.Server(horizonUrl);
+    const account = await server.loadAccount(keypair.publicKey());
+
+    const tx = new TransactionBuilder(account, {
+      fee: "1000",
+      networkPassphrase: process.env.STELLAR_NETWORK_PASSPHRASE || Networks.TESTNET,
+    })
+      .addOperation(
+        Operation.payment({
+          destination: vaultContractId,
+          asset: Asset.native(),
+          amount: (Number(opportunity.vaultKickbackStroops) / 10_000_000).toFixed(7),
+        })
+      )
+      .setTimeout(30)
+      .build();
+
+    tx.sign(keypair);
+    const submitData: any = await server.submitTransaction(tx);
 
     return {
       bundleId,
-      txHash: simulatedTxHash,
+      txHash: submitData.hash || submitData.id,
       timestamp: Date.now(),
       opportunity,
       actualProfitStroops: opportunity.estimatedGrossProfitStroops,

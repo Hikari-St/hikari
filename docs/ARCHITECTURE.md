@@ -276,7 +276,7 @@ The `safety_sentinel` contract acts as an autonomous risk arbiter:
 
 ## 9. How Hikari directly helps the Stellar ecosystem
 
-1. **Solves the Zero-Inflation Staking Problem ("Lido for Stellar")**: Transforms passive XLM into high-yield, liquid `hXLM` earning 22.19% APY, preventing capital flight to inflationary L1s.
+1. **Solves the Zero-Inflation Staking Problem**: Transforms passive XLM into high-yield, liquid `hXLM` earning 22.19% APY, preventing capital flight to inflationary L1s.
 2. **Cures Liquidity Fragmentation**: Routes TVL algorithmically where capital efficiency is highest across Blend, Phoenix, and Soroswap.
 3. **Internalizes MEV Value**: Replaces adversarial off-chain MEV bots with a collaborative staker backrun engine that recycles arbitrage spreads back into the community.
 4. **Empowers AI Agent Economy**: Provides an x402 HTTP micropayment standard and MCP server tools, making Stellar the premier settlement hub for autonomous AI financial agents.

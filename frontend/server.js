@@ -785,23 +785,78 @@ async function handleRequest(req, res) {
 
   // API 6: Live x402 Micropayment Query
   if (pathname === "/api/x402-query" && req.method === "POST") {
-    const txHash = Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
-    const result = {
-      status: "PAID_ACCESS_GRANTED",
-      paymentProof: `0x${txHash}`,
-      service: "StellarRiskOracle /v1/volatility-feed",
-      protocol: "x402 (HTTP 402 + Stellar USDC SAC)",
-      asset: "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
-      costUsdc: "0.001",
-      data: {
-        volatilityIndex: Number((25.5 + Math.random() * 2).toFixed(1)),
-        projectedSlippageBps: 18,
-        recommendationConfidence: 0.95,
-        timestamp: Date.now(),
-      },
-    };
-    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-    return res.end(JSON.stringify(result));
+    const facilitatorUrl = process.env.X402_FACILITATOR_URL;
+    const payerSecret = process.env.X402_PAYER_SECRET;
+    const horizonUrl = process.env.HORIZON_URL || "https://horizon-testnet.stellar.org";
+    const usdcIssuer = "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA";
+
+    // Compute real annualized volatility from Horizon trade aggregations
+    let volatilityIndex = 24.5;
+    try {
+      const aggRes = await fetch(
+        `${horizonUrl}/trade_aggregations?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=USDC&counter_asset_issuer=${usdcIssuer}&resolution=3600000&limit=24&order=desc`
+      );
+      if (aggRes.ok) {
+        const aggData = await aggRes.json();
+        const records = aggData._embedded?.records || [];
+        const closes = records.map((r) => parseFloat(r.close)).filter((p) => !isNaN(p) && p > 0);
+        if (closes.length >= 2) {
+          const mean = closes.reduce((a, b) => a + b, 0) / closes.length;
+          const variance = closes.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (closes.length - 1);
+          const stdDev = Math.sqrt(variance);
+          const annualizedVol = (stdDev / mean) * Math.sqrt(365 * 24) * 100;
+          volatilityIndex = Number(Math.min(100, Math.max(5, annualizedVol)).toFixed(1));
+        }
+      }
+    } catch (err) {
+      console.warn("Notice: x402 Horizon volatility calculation notice:", err.message);
+    }
+
+    if (!facilitatorUrl || !payerSecret) {
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({
+        status: "NOT_CONFIGURED",
+        error: "x402 micropayments facilitator not configured. Set X402_FACILITATOR_URL and X402_PAYER_SECRET.",
+        protocol: "x402 (HTTP 402 + Stellar USDC SAC)",
+        asset: usdcIssuer,
+        costUsdc: "0.001",
+        data: {
+          volatilityIndex,
+          projectedSlippageBps: 18,
+          recommendationConfidence: 0.95,
+          timestamp: Date.now(),
+        },
+      }));
+    }
+
+    // When facilitator is configured, invoke real x402 payment flow
+    try {
+      const { executeX402Micropayment } = require("../services/x402_client.js");
+      const clientResult = await executeX402Micropayment(facilitatorUrl, payerSecret, "0.001");
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({
+        status: "PAID_ACCESS_GRANTED",
+        paymentProof: clientResult.txHash,
+        service: "StellarRiskOracle /v1/volatility-feed",
+        protocol: "x402 (HTTP 402 + Stellar USDC SAC)",
+        asset: usdcIssuer,
+        costUsdc: "0.001",
+        data: {
+          volatilityIndex,
+          projectedSlippageBps: 18,
+          recommendationConfidence: 0.95,
+          timestamp: Date.now(),
+        },
+      }));
+    } catch (err) {
+      res.writeHead(502, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({
+        status: "PAYMENT_FAILED",
+        error: err.message,
+        protocol: "x402 (HTTP 402 + Stellar USDC SAC)",
+        data: { volatilityIndex, timestamp: Date.now() },
+      }));
+    }
   }
 
   // API 7: Hikari Shards Loyalty Points Profile

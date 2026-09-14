@@ -40,7 +40,7 @@ However, Stellar lacks a native Proof-of-Stake consensus layer: native XLM token
 
 **Hikari Protocol** is the decentralized asset management, liquid staking execution layer, and autonomous AI trading desk built natively for Stellar Soroban:
 
-1. **"Lido for Stellar" (`hXLM` / `whXLM`)**: A yield-bearing, SEP-41 compliant liquid staking receipt token that auto-compounds native returns across audited Stellar DeFi strategies while retaining 100% liquidity.
+1. **Native Liquid Staking (`hXLM` / `whXLM`)**: A yield-bearing, SEP-41 compliant liquid staking receipt token that auto-compounds native returns across audited Stellar DeFi strategies while retaining 100% liquidity.
 2. **Advanced Pro Analytics &amp; Risk Telemetry (AI Yield Rerouter)**: Real-time cross-protocol yield aggregation and Pareto allocation engine discovering and directing capital to Stellar's highest yields (Blend Backstop 24.70% APY, Phoenix CLAMM 21.80%, Soroswap 18.40%, Defindex 16.50%). Utilizes Meridian's zero-signature `migrate_adapter` pattern, Lens price/depth aggregation, and Landfall liveness verification.
 3. **Hikari Multi-Agent Trading Desk**: Autonomous financial specialists (Fundamental, Technical, Sentiment, News, Risk Committee) conducting multi-turn Bull vs. Bear debates, executing optimal entries on SDEX/Soroswap with zero-cash-drag **Yield Carry** (parking idle margin in Blend Backstop for 24.70% APY).
 4. **Autonomous Keepers & MEV Capture**: Continuously harvest rewards, rebalance narrow tick bands, and backrun SDEX-Soroswap arbitrage, recycling 100% of atomic MEV spreads (+3.20% APY) directly into staker NAV.
@@ -69,7 +69,7 @@ DeFi composability requires a unified, non-rebasing collateral asset. Without a 
 
 ## 3. The thesis — six load-bearing primitives
 
-### 3.1 hXLM / whXLM Liquid Staking Core ("Lido for Stellar")
+### 3.1 hXLM / whXLM Liquid Staking Core
 `hXLM` is an appreciating receipt token governed by the canonical NAV invariant:
 $$\text{NAV}_t = \frac{\text{Total Reserves Under Management}}{\text{Total Outstanding Shares}}$$
 
@@ -183,7 +183,7 @@ To maintain absolute software excellence, the team rigorously documents and reme
 - **Why this team**: Led by Vincent Ibochi (`@ibochivincent-lang`), who has architected the core building blocks of Stellar's next-generation infrastructure—including `meridian` (yield adapters & atomic migrations), `Lens` (SDEX & AMM orderbook intelligence), `landfall` (settlement liveness), and `orbital_stellar` (reactive events). Every feature is backed by rigorous unit testing, automated CI validation, and open-source code.
 - **Why now**:
   1. Stellar Protocol 27 stabilizes Soroban state archiving and host performance.
-  2. Over $3B in native XLM is idle with no native proof-of-stake yield; Hikari provides the definitive "Lido for Stellar".
+  2. Over $3B in native XLM is idle with no native proof-of-stake yield; Hikari provides the definitive native liquid staking layer.
   3. Blend, Phoenix, and Soroswap have proven liquidity depth, creating the perfect foundation for an aggregation and liquid staking layer.
   4. AI agent micropayments (x402) and autonomous trading desks are exploding in demand, and Stellar’s sub-cent fees provide the ideal infrastructure.
 - **Why Stellar**: Stellar’s deterministic finality (~5 seconds), low gas fees ($0.00001 per tx), and native asset issuance (SEP-41) make high-frequency rebalancing, micro-yield compounding, and sub-cent AI agent micropayments economically viable.

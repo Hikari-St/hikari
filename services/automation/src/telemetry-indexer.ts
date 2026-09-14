@@ -13,6 +13,8 @@ export interface TelemetrySnapshot {
   maxDrawdownBps: number;            // e.g. 120 = 1.2%
   activeDepositors: number;
   twentyFourHourVolumeXlm: number;
+  isSyntheticWarmup?: boolean;
+  dataSource?: "SYNTHETIC_WARMUP" | "CHAIN_INDEXED";
 }
 
 export class HikariTelemetryIndexer {
@@ -22,8 +24,13 @@ export class HikariTelemetryIndexer {
     this.seedHistoricalData();
   }
 
+  /**
+   * Initializes cold-start buffer with synthetic warmup series.
+   * Note: This represents initial synthetic warmup metrics for indexer ring-buffer
+   * bootstrapping prior to live ledger historical replay.
+   */
   private seedHistoricalData() {
-    const baseLedger = 340000;
+    const baseLedger = 4660000;
     const now = Date.now();
     for (let i = 24; i >= 0; i--) {
       const time = new Date(now - i * 3600 * 1000).toISOString();
@@ -31,7 +38,7 @@ export class HikariTelemetryIndexer {
       this.history.push({
         timestamp: time,
         ledger: baseLedger + (24 - i) * 120,
-        tvlXlm: Math.round(480000 + (24 - i) * 210 + Math.random() * 50),
+        tvlXlm: Math.round(480000 + (24 - i) * 210),
         tvlUsd: Math.round(41800 + (24 - i) * 30),
         tvlMultichain: Math.round(18000 + (24 - i) * 17),
         netApyXlm: parseFloat((12.2 + variance).toFixed(2)),
@@ -40,6 +47,8 @@ export class HikariTelemetryIndexer {
         maxDrawdownBps: 45, // 0.45%
         activeDepositors: 142 + Math.floor((24 - i) / 2),
         twentyFourHourVolumeXlm: 28450 + (24 - i) * 120,
+        isSyntheticWarmup: true,
+        dataSource: "SYNTHETIC_WARMUP",
       });
     }
   }
@@ -58,6 +67,8 @@ export class HikariTelemetryIndexer {
       ...latest,
       timestamp: new Date().toISOString(),
       ledger: latest.ledger + 1,
+      isSyntheticWarmup: false,
+      dataSource: "CHAIN_INDEXED",
     };
     if (type === "DEPOSIT" && data.amountXlm) {
       updated.tvlXlm += data.amountXlm;

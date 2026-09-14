@@ -77,6 +77,7 @@ export class HikariDatabaseClient {
   private portfoliosTable: Map<string, Map<string, UserPortfolio>> = new Map(); // address -> (vaultType -> Portfolio)
   private transactionsTable: Map<string, UserTransaction[]> = new Map(); // address -> Transaction[]
   private loyaltyTable: Map<string, UserLoyalty> = new Map(); // address -> Loyalty
+  private lastKnownLedgerSequence: number = 4661344;
 
   constructor() {
     this.dbUrl = process.env.DATABASE_URL;
@@ -94,6 +95,7 @@ export class HikariDatabaseClient {
     }
 
     this.initializeStorage();
+    this.fetchCurrentLedger().catch(() => {});
   }
 
   private initializeStorage() {
@@ -269,7 +271,14 @@ export class HikariDatabaseClient {
     return Array.from(userMap.values());
   }
 
-  public recordDeposit(stellarAddress: string, vaultType: "EARN_XLM" | "EARN_USD" | "EARN_MULTICHAIN", amountStroops: string, sharesReceived: string, txHash: string): UserPortfolio {
+  public recordDeposit(
+    stellarAddress: string,
+    vaultType: "EARN_XLM" | "EARN_USD" | "EARN_MULTICHAIN",
+    amountStroops: string,
+    sharesReceived: string,
+    txHash: string,
+    ledgerSequence?: number
+  ): UserPortfolio {
     if (!this.portfoliosTable.has(stellarAddress)) {
       this.portfoliosTable.set(stellarAddress, new Map());
     }
@@ -301,6 +310,7 @@ export class HikariDatabaseClient {
     userMap.set(vaultType, portfolio);
 
     // Record transaction
+    const resolvedLedger = ledgerSequence || this.lastKnownLedgerSequence;
     this.recordTransaction({
       id: crypto.randomUUID(),
       userAddress: stellarAddress,
@@ -310,12 +320,33 @@ export class HikariDatabaseClient {
       amountStroops,
       sharesDelta: `+${sharesReceived}`,
       status: "CONFIRMED",
-      ledgerSequence: 345100 + Math.floor(Math.random() * 1000),
+      ledgerSequence: resolvedLedger,
       timestamp: new Date().toISOString()
     });
 
     this.persistState();
     return portfolio;
+  }
+
+  /**
+   * Fetches current ledger sequence from Horizon.
+   */
+  public async fetchCurrentLedger(): Promise<number> {
+    try {
+      const horizonUrl = process.env.HORIZON_URL || "https://horizon-testnet.stellar.org";
+      const res = await fetch(`${horizonUrl}/ledgers?order=desc&limit=1`);
+      if (res.ok) {
+        const data: any = await res.json();
+        const records = data._embedded?.records;
+        if (records && records.length > 0 && records[0].sequence) {
+          this.lastKnownLedgerSequence = Number(records[0].sequence);
+          return this.lastKnownLedgerSequence;
+        }
+      }
+    } catch (err: any) {
+      console.warn("Notice: Fetch current ledger notice:", err.message);
+    }
+    return this.lastKnownLedgerSequence;
   }
 
   // --------------------------------------------------------------------------

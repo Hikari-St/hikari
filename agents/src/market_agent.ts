@@ -86,8 +86,24 @@ export class MarketAgent {
       console.warn("MarketAgent: Oracle contract query notice:", err.message);
     }
 
-    // 4. XLM Benchmark Price (live market level)
-    const currentPrice = 0.1265;
+    // 4. XLM Benchmark Price from Horizon /order_book (best bid for XLM->USDC)
+    let currentPrice = this.priceHistory[this.priceHistory.length - 1] || 0.1265;
+    try {
+      const horizonUrl = process.env.HORIZON_URL || "https://horizon-testnet.stellar.org";
+      const usdcIssuer = "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA";
+      const res = await fetch(
+        `${horizonUrl}/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USDC&buying_asset_issuer=${usdcIssuer}&limit=1`
+      );
+      if (res.ok) {
+        const ob: any = await res.json();
+        if (ob.bids && ob.bids.length > 0 && parseFloat(ob.bids[0].price) > 0) {
+          currentPrice = parseFloat(ob.bids[0].price);
+        }
+      }
+    } catch (err: any) {
+      console.warn("MarketAgent: Horizon orderbook fetch notice:", err.message);
+    }
+
     this.priceHistory.push(currentPrice);
     if (this.priceHistory.length > 20) this.priceHistory.shift();
 
