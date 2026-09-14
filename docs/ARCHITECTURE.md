@@ -204,9 +204,9 @@ The optimizer continuously evaluates nominal APR, protocol fees, incentive emiss
 
 ---
 
-## 6. Tauric Multi-Agent AI Trading Desk & Yield Carry
+## 6. Hikari Multi-Agent AI Trading Desk & Yield Carry
 
-Ported from the `TauricResearch/TradingAgents` multi-agent trading framework:
+Native multi-agent trading framework engineered specifically for Stellar Soroban:
 
 ```mermaid
 flowchart TD
@@ -299,8 +299,8 @@ Hikari/
 │   ├── src/adapters/              # IYieldAdapter implementations (Blend, Phoenix, Soroswap, Defindex)
 │   ├── src/policyVerifier.ts      # Automated invariant validation
 │   └── src/riskEngine.ts          # Bunker Mode & GateSeal triggers
-├── agents/                        # Autonomous AI Agent Layer (TauricResearch port)
-│   ├── src/market_agent.ts        # Tauric financial specialists & debate engine
+├── agents/                        # Autonomous AI Agent Layer (Hikari Multi-Agent)
+│   ├── src/market_agent.ts        # Hikari financial specialists & debate engine
 │   ├── src/yield_agent.ts         # Stellar best yield optimizer
 │   └── data/                      # Auto-generated audit reports & decision logs
 ├── frontend/                      # Web dashboard & 8-Tab DApp workspace

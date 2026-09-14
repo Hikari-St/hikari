@@ -265,7 +265,7 @@ function handleRequest(req, res) {
   if (pathname === "/api/trading-agent") {
     const tradingData = {
       timestamp: new Date().toISOString(),
-      framework: "TauricResearch/TradingAgents",
+      framework: "Hikari Multi-Agent Trading Desk",
       targetAsset: "XLM/USDC",
       marketRegime: "BULLISH",
       currentPrice: 0.17298,

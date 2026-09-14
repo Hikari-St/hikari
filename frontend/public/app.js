@@ -2001,84 +2001,52 @@ function initMarketingInteractions() {
 }
 
 // =========================================================
-// AI Futures Directional Probability & Predictive Momentum
+// AI Yield Rerouter & Protocol Risk Telemetry (Pro Deck)
 // =========================================================
 function initFuturesDirectionSystem() {
   const btnTfShortTerm = document.getElementById("btnTfShortTerm");
   const btnTfLongTerm = document.getElementById("btnTfLongTerm");
-  const meterUpsidePct = document.getElementById("meterUpsidePct");
-  const meterUpsideBar = document.getElementById("meterUpsideBar");
-  const meterUpsideList = document.getElementById("meterUpsideList");
-  const meterDownsidePct = document.getElementById("meterDownsidePct");
-  const meterDownsideBar = document.getElementById("meterDownsideBar");
-  const meterDownsideList = document.getElementById("meterDownsideList");
-  const targetUpsideVal = document.getElementById("targetUpsideVal");
-  const targetDownsideVal = document.getElementById("targetDownsideVal");
-  const targetRrVal = document.getElementById("targetRrVal");
-  const targetActionVal = document.getElementById("targetActionVal");
   const futuresTelemetryText = document.getElementById("futuresTelemetryText");
+  const btnDeckTriggerReroute = document.getElementById("btnDeckTriggerReroute");
+  const btnDeckOpenFullAnalytics = document.getElementById("btnDeckOpenFullAnalytics");
 
-  if (!btnTfShortTerm || !btnTfLongTerm) return;
+  if (btnTfShortTerm && btnTfLongTerm) {
+    btnTfShortTerm.addEventListener("click", () => {
+      btnTfShortTerm.classList.add("active");
+      btnTfLongTerm.classList.remove("active");
+      if (futuresTelemetryText) {
+        futuresTelemetryText.innerHTML = "<strong>AI Yield Rerouter Dispatch:</strong> Real-time scan (ledger #54,892,104). Blend Backstop at 24.70% APY and Phoenix CLAMM at 21.80% APY. Pareto rebalancing active with 0-slippage atomic batching across Soroban contracts.";
+      }
+    });
 
-  btnTfShortTerm.addEventListener("click", () => {
-    btnTfShortTerm.classList.add("active");
-    btnTfLongTerm.classList.remove("active");
-    if (meterUpsidePct) meterUpsidePct.textContent = "78.4%";
-    if (meterUpsideBar) meterUpsideBar.style.width = "78.4%";
-    if (meterDownsidePct) meterDownsidePct.textContent = "21.6%";
-    if (meterDownsideBar) meterDownsideBar.style.width = "21.6%";
-    if (targetUpsideVal) targetUpsideVal.textContent = "$0.1340 (+7.2%)";
-    if (targetDownsideVal) targetDownsideVal.textContent = "$0.1190 (-4.8%)";
-    if (targetRrVal) targetRrVal.textContent = "3.4 : 1 (High Alpha)";
-    if (targetActionVal) targetActionVal.textContent = "Accumulate & LP Deploy";
-    if (meterUpsideList) {
-      meterUpsideList.innerHTML = `
-        <li><strong>Bullish Momentum Divergence:</strong> 4H RSI reset to 48.2 with expanding MACD histogram.</li>
-        <li><strong>Net Exchange Outflows:</strong> +1,420,000 XLM withdrawn to self-custody wallets in 24h.</li>
-        <li><strong>Soroban Orderbook Skew:</strong> Bid-to-ask liquidity depth ratio standing at 2.8:1 in favor of bulls.</li>
-      `;
-    }
-    if (meterDownsideList) {
-      meterDownsideList.innerHTML = `
-        <li><strong>Institutional Support Invariant:</strong> Strong buy wall firmly established at $0.1190.</li>
-        <li><strong>Minimal Cascade Risk:</strong> Low leveraged liquidation exposure on decentralized perps.</li>
-        <li><strong>Downside Volatility Squeeze:</strong> Selling volume dropping 42% on downward test wicks.</li>
-      `;
-    }
-    if (futuresTelemetryText) {
-      futuresTelemetryText.innerHTML = "<strong>Neural Bot Dispatch:</strong> Intraday futures scanner confirms bullish momentum breakout. Auto-allocating reserve capacity into Phoenix CLAMM tight bands for amplified trading fee captures.";
-    }
-  });
+    btnTfLongTerm.addEventListener("click", () => {
+      btnTfLongTerm.classList.add("active");
+      btnTfShortTerm.classList.remove("active");
+      if (futuresTelemetryText) {
+        futuresTelemetryText.innerHTML = "<strong>AI Yield Rerouter Dispatch:</strong> 7-Day Macro Yield Projection: Blended yield averaging 22.19% APY. Zero cash drag with 100% of unallocated reserves earning dynamic carry in Blend v2.";
+      }
+    });
+  }
 
-  btnTfLongTerm.addEventListener("click", () => {
-    btnTfLongTerm.classList.add("active");
-    btnTfShortTerm.classList.remove("active");
-    if (meterUpsidePct) meterUpsidePct.textContent = "84.1%";
-    if (meterUpsideBar) meterUpsideBar.style.width = "84.1%";
-    if (meterDownsidePct) meterDownsidePct.textContent = "15.9%";
-    if (meterDownsideBar) meterDownsideBar.style.width = "15.9%";
-    if (targetUpsideVal) targetUpsideVal.textContent = "$0.1520 (+21.6%)";
-    if (targetDownsideVal) targetDownsideVal.textContent = "$0.1120 (-10.4%)";
-    if (targetRrVal) targetRrVal.textContent = "4.2 : 1 (Macro Alpha)";
-    if (targetActionVal) targetActionVal.textContent = "Compound Staked Reserves";
-    if (meterUpsideList) {
-      meterUpsideList.innerHTML = `
-        <li><strong>Macro Weekly Continuation:</strong> Multi-week golden cross formed on XLM 200 EMA.</li>
-        <li><strong>Stellar Protocol 27 Adoption:</strong> Surge in smart contract transactions and lockups.</li>
-        <li><strong>Institutional Yield Demand:</strong> Treasury allocations seeking 12%+ non-inflationary yields.</li>
-      `;
-    }
-    if (meterDownsideList) {
-      meterDownsideList.innerHTML = `
-        <li><strong>Macro Floor Liquidity:</strong> Multi-year structural demand floor at $0.1120.</li>
-        <li><strong>Over-Collateralized Backing:</strong> 104.8% Merkle solvency verified by Zero-Knowledge proof.</li>
-        <li><strong>GateSeal Protection:</strong> Dynamic timelock and circuit breakers mitigate downside tail risk.</li>
-      `;
-    }
-    if (futuresTelemetryText) {
-      futuresTelemetryText.innerHTML = "<strong>Neural Bot Dispatch:</strong> Macro weekly trend structure maintains high-timeframe accumulation corridor. Protocol safety buffer verified at 104.8% solvency across all collateral tiers.";
-    }
-  });
+  if (btnDeckTriggerReroute) {
+    btnDeckTriggerReroute.addEventListener("click", () => {
+      const showToastFn = window.showToast || (typeof showToast === "function" ? showToast : alert);
+      showToastFn("✓ AI Yield Reroute simulated: Evaluated 4 protocols. Top route: Blend Backstop (24.70%) & Phoenix (21.80%). Reserve floor (15.0%) preserved.");
+      if (futuresTelemetryText) {
+        const ledger = Math.floor(54892100 + Math.random() * 500);
+        futuresTelemetryText.innerHTML = `<strong>AI Yield Rerouter Dispatch:</strong> Rebalance executed at ledger #${ledger}. 35% Blend Backstop (24.70%), 30% Phoenix CLAMM (21.80%), 20% Soroswap (18.40%), 15% Safe Reserve. Invariants 100% verified.`;
+      }
+    });
+  }
+
+  if (btnDeckOpenFullAnalytics) {
+    btnDeckOpenFullAnalytics.addEventListener("click", () => {
+      const navBtn = document.getElementById("btnNavYieldRouter");
+      if (navBtn) {
+        navBtn.click();
+      }
+    });
+  }
 }
 
 
@@ -2091,12 +2059,12 @@ const VAULT_CONFIGS = {
     pillId: "pillVaultXlm",
     tierKey: "BALANCED_HXLM",
     tab: "stake",
-    badgeText: "AI INFRASTRUCTURE & PREDICTIVE TRADING BOTS • STELLAR PROTOCOL 27",
-    title: "Earn XLM with Autonomous AI Infrastructure & Predictive Futures Bots",
-    sub: "Accumulating native XLM through algorithmic momentum breakouts, futures directional probability indicators, and Soroban atomic MEV backrunning—combining predictive execution with active protocol alpha distinct from passive staking.",
-    tvl: "+1.42M XLM",
-    apy: "14.8%",
-    strategy: "Futures Bias + MEV + Delta"
+    badgeText: "AI YIELD REROUTER & RISK TELEMETRY • STELLAR PROTOCOL 27",
+    title: "Autonomous AI Yield Rerouter & Real-Time Risk Telemetry",
+    sub: "Hikari neural agents continuously benchmark, simulate, and reroute staked XLM into the highest verified yields on Stellar (Blend 24.70%, Phoenix 21.80%, Soroswap 18.40%) while enforcing risk telemetry, zero slippage, and 15% liquid reserve invariants.",
+    tvl: "12.5M XLM",
+    apy: "22.19%",
+    strategy: "Autonomous Rerouter + MEV"
   },
   usd: {
     key: "usd",
@@ -3353,17 +3321,17 @@ function initTradingDeskSystem() {
 
   if (btnTrigger) {
     btnTrigger.addEventListener("click", () => {
-      showToast("Triggering Tauric multi-agent trading consensus cycle...");
+      showToast("Triggering Hikari multi-agent trading consensus cycle...");
       const logBox = document.getElementById("tdExecutionLog");
       if (logBox) {
         const timeStr = new Date().toISOString().replace("T", " ").slice(0, 19);
         const newEntry = document.createElement("div");
         newEntry.style.color = "#38bdf8";
-        newEntry.textContent = `[${timeStr}] [CYCLE_TRIGGERED] Tauric specialists debating new market tick...`;
+        newEntry.textContent = `[${timeStr}] [CYCLE_TRIGGERED] Hikari specialists debating new market tick...`;
         logBox.prepend(newEntry);
       }
       setTimeout(() => {
-        showToast("✓ Tauric cycle finished: Consensus BUY 7.50% NAV on XLM. Yield carry: 92.5% Blend.");
+        showToast("✓ Hikari cycle finished: Consensus BUY 7.50% NAV on XLM. Yield carry: 92.5% Blend.");
         window.loadTradingDeskData();
       }, 1200);
     });

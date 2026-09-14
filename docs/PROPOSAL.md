@@ -41,8 +41,8 @@ However, Stellar lacks a native Proof-of-Stake consensus layer: native XLM token
 **Hikari Protocol** is the decentralized asset management, liquid staking execution layer, and autonomous AI trading desk built natively for Stellar Soroban:
 
 1. **"Lido for Stellar" (`hXLM` / `whXLM`)**: A yield-bearing, SEP-41 compliant liquid staking receipt token that auto-compounds native returns across audited Stellar DeFi strategies while retaining 100% liquidity.
-2. **AI Yield Rerouter & Cross-Protocol Pareto Optimizer**: Real-time cross-protocol yield aggregation and Pareto allocation engine discovering and directing capital to Stellar's highest yields (Blend Backstop 24.70% APY, Phoenix CLAMM 21.80%, Soroswap 18.40%, Defindex 16.50%). Utilizes Meridian's zero-signature `migrate_adapter` pattern, Lens price/depth aggregation, and Landfall liveness verification.
-3. **Tauric AI Multi-Agent Trading Desk**: Autonomous financial specialists (Fundamental, Technical, Sentiment, News, Risk Committee) conducting multi-turn Bull vs. Bear debates, executing optimal entries on SDEX/Soroswap with zero-cash-drag **Yield Carry** (parking idle margin in Blend Backstop for 24.70% APY).
+2. **Advanced Pro Analytics &amp; Risk Telemetry (AI Yield Rerouter)**: Real-time cross-protocol yield aggregation and Pareto allocation engine discovering and directing capital to Stellar's highest yields (Blend Backstop 24.70% APY, Phoenix CLAMM 21.80%, Soroswap 18.40%, Defindex 16.50%). Utilizes Meridian's zero-signature `migrate_adapter` pattern, Lens price/depth aggregation, and Landfall liveness verification.
+3. **Hikari Multi-Agent Trading Desk**: Autonomous financial specialists (Fundamental, Technical, Sentiment, News, Risk Committee) conducting multi-turn Bull vs. Bear debates, executing optimal entries on SDEX/Soroswap with zero-cash-drag **Yield Carry** (parking idle margin in Blend Backstop for 24.70% APY).
 4. **Autonomous Keepers & MEV Capture**: Continuously harvest rewards, rebalance narrow tick bands, and backrun SDEX-Soroswap arbitrage, recycling 100% of atomic MEV spreads (+3.20% APY) directly into staker NAV.
 5. **Formal Invariant & Safety Sentinel**: Mathematically proved solvency ($R_t \ge S_t \times P_t$), a mandatory 15% liquid buffer, and automated Bunker Mode circuit breakers.
 6. **x402 Micropayments & MCP Surface**: Machine-to-machine HTTP 402 payment facilitation enabling AI agents and algorithmic keepers to stake, query, and rebalance without human intervention.
@@ -80,7 +80,7 @@ When a user deposits native XLM, the protocol mints `hXLM` based on current NAV.
   - **Instant DEX Swap**: Sub-10 second liquidation via Soroban AMM liquidity pools with market-determined slippage.
 - **whXLM Static Wrapper**: A non-rebasing, ERC-4626-aligned wrapper designed specifically for external Soroban lending collateral and concentrated liquidity pairs.
 
-### 3.2 AI Yield Rerouter & Cross-Protocol Pareto Optimizer
+### 3.2 Advanced Pro Analytics &amp; Risk Telemetry (AI Yield Rerouter)
 Hikari acts as an autonomous AI router showing and migrating users to the best yield on Stellar in real-time.
 - **Venue Discovery & Rating**:
   - **Blend Protocol Backstop Module (bBLND-XLM)**: **24.70% APY** (Base 8.50% + BLND emissions 13.00% + MEV alpha 3.20%, calculated via `RATE_SCALAR = 1e12`).
@@ -92,8 +92,8 @@ Hikari acts as an autonomous AI router showing and migrating users to the best y
   Yielding the balanced production weights: **35% Blend Backstop, 30% Phoenix CLAMM, 20% Soroswap AMM, and 15% Safe Liquid Reserve**, producing a net composite **22.19% APY**.
 - **Atomic Zero-Signature Migration (`migrate_adapter`)**: Inherited from Vincent Ibochi's `meridian` architecture, aggregate vault funds can be migrated from one strategy adapter to another in a single atomic transaction without requiring user signatures or liquidation events, bounded by strict slippage limits ($S \le 50\text{ bps}$).
 
-### 3.3 Tauric Multi-Agent AI Trading Desk & Yield Carry
-Ported from the `TauricResearch/TradingAgents` framework and tailored natively for Stellar:
+### 3.3 Hikari Multi-Agent Trading Desk &amp; Yield Carry
+Native multi-agent trading framework engineered specifically for Stellar Soroban:
 - **Specialist Multi-Agent Consensus**:
   1. **Fundamental Analyst (Warren)**: Analyzes on-chain ledger metrics, Soroban contract call growth, P/S ratios, and inflation burns.
   2. **Technical Analyst (George)**: Scans RSI, MACD histograms, Bollinger Bands, and Lens orderbook depth clusters.
@@ -139,9 +139,9 @@ All components are live in the repository on branch `main` under the MIT License
 | Area                     | Shipped Capability                                                                    | Status & Evidence                                       |
 | ------------------------ | ------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | **Soroban Contracts**    | Dual Vaults (`hXLM` & `hUSDC`), Linear Streamer (`hikari_streamer`), Sentinel, Factory, Strategy Adapters | Rust contracts compiling to wasm, 30/30 unit tests pass |
-| **8-Tab DApp Workspace** | Dedicated responsive views for Stake, Wrap, Withdrawals, Rewards, Earn, AI Yield Router, AI Trading Desk, and Governance | `frontend/public/app.html`, verified on desktop & mobile|
+| **8-Tab DApp Workspace** | Dedicated responsive views for Stake, Wrap, Withdrawals, Rewards, Earn, Pro Analytics & Risk, Hikari Trading Desk, and Governance | `frontend/public/app.html`, verified on desktop & mobile|
 | **AI Yield Rerouter**    | Real-time venue discovery (Blend 24.70%, Phoenix 21.80%, Soroswap 18.40%, Defindex 16.50%), Pareto optimizer, Meridian `migrate_adapter` simulation | `engine/src/adapters/`, `scripts/simulate_best_yield.js`, passing |
-| **Tauric Trading Desk**  | TauricResearch multi-agent engine: 4 specialists (Warren, George, Cathie, Ray), Bull vs Bear debate, Risk committee consensus, Yield carry | `agents/src/`, `scripts/run_xlm_trading_agent.py`, 6/6 unit tests passing |
+| **Hikari Trading Desk**  | Hikari Multi-Agent engine: 4 specialists (Warren, George, Cathie, Ray), Bull vs Bear debate, Risk committee consensus, Yield carry | `agents/src/`, `scripts/run_xlm_trading_agent.py`, 6/6 unit tests passing |
 | **TypeScript SDK**       | `@hikari/sdk` with NAV estimators, deposit builders, and ticket status formatters    | `sdk/src/client.ts`, 10/10 unit tests passing (100% cov)|
 | **Policy & Risk Engine** | Deterministic Policy Engine (15% velocity delta, 50 bps slippage, 15% reserve floor)   | `engine/src/`, 21/21 tests passing                      |
 | **Agentic & x402 Suite** | HTTP 402 Micropayment Client (`x402_client.ts`), Blend & DeFindex Agent Providers     | `agents/src/`, `services/x402-gateway/`, passing tests  |
@@ -167,7 +167,7 @@ To maintain absolute software excellence, the team rigorously documents and reme
 
 | Wave | Milestone | Deliverables | Verification Gate |
 | ---- | --------- | ------------ | ----------------- |
-| **v1.0 Executable** (✅ Shipped) | Functional Liquid Staking MVP + AI Rerouter + AI Trading Desk | `hXLM` mint/redeem, 8-tab DApp, SDK v0.1, AI yield router, Tauric trading desk | Current submission |
+| **v1.0 Executable** (✅ Shipped) | Functional Liquid Staking MVP + Pro Analytics Yield Rerouter + Hikari Trading Desk | `hXLM` mint/redeem, 8-tab DApp, SDK v0.1, Pro Analytics AI yield router, Hikari Multi-Agent trading desk | Current submission |
 | **v1.1 Hardening** | Mainnet Contracts & Security | Formal invariant proofs, security audit remediation, multisig setup | 30 days post-grant |
 | **v1.2 Keeper Network** | Decentralized Rebalancing | Open-source keeper bot daemon, MEV backrun simulation on SDEX | 60 days post-grant |
 | **v1.3 AI Agent Hub** | x402 Micropayments & MCP GA | Production x402 facilitator on testnet, MCP server npm package | 90 days post-grant |

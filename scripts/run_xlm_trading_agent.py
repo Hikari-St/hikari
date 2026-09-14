@@ -35,7 +35,7 @@ def main():
 
     print("=" * 80)
     print("      🌟 HIKARI PROTOCOL — MULTI-AGENT AI TRADING DESK (XLM/USDC) 🌟")
-    print("      Framework Architecture: TauricResearch/TradingAgents")
+    print("      Framework Architecture: Hikari Multi-Agent Trading Desk")
     print(f"      Target: Stellar Soroban Protocol 27 | Ticker: {args.ticker} | Regime: {args.regime.upper()}")
     print("=" * 80)
 

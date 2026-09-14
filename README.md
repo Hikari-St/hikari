@@ -7,12 +7,12 @@
 [![Deployed on Vercel](https://img.shields.io/badge/deploy-vercel-000?style=flat-square&logo=vercel)](https://hikari-protocol.vercel.app)
 [![Conventional Commits](https://img.shields.io/badge/commits-conventional-fe5196?style=flat-square&logo=conventionalcommits)](https://www.conventionalcommits.org)
 
-**"Lido for Stellar": Autonomous Liquid Staking (`hXLM`), AI Yield Rerouter & Tauric Multi-Agent Trading Desk on Stellar Protocol 27 (Soroban).**
+**"Lido for Stellar": Autonomous Liquid Staking (`hXLM`), AI Yield Rerouter &amp; Hikari Multi-Agent Trading Desk on Stellar Protocol 27 (Soroban).**
 
 Hikari is the decentralized asset management, liquid staking execution layer, and autonomous AI trading desk built natively for Stellar:
 1. **Lido for Stellar (`hXLM` / `whXLM`)**: Tokenizes staked XLM into an appreciating, SEP-41 compliant receipt token auto-compounding native returns across audited Stellar DeFi strategies while retaining 100% liquidity.
-2. **AI Yield Rerouter & Cross-Protocol Pareto Optimizer**: Real-time cross-protocol yield aggregation and Pareto allocation engine discovering and directing capital to Stellar's highest yields (Blend Backstop 24.70% APY, Phoenix CLAMM 21.80%, Soroswap 18.40%, Defindex 16.50%). Utilizes Meridian's zero-signature `migrate_adapter` pattern, Lens price/depth aggregation, and Landfall liveness verification.
-3. **Tauric AI Multi-Agent Trading Desk**: Autonomous financial specialists (Fundamental, Technical, Sentiment, News, Risk Committee) conducting multi-turn Bull vs. Bear debates, executing optimal entries on SDEX/Soroswap with zero-cash-drag **Yield Carry** (parking idle margin in Blend Backstop for 24.70% APY).
+2. **Advanced Pro Analytics &amp; Risk Telemetry (AI Yield Rerouter)**: Real-time cross-protocol yield aggregation and Pareto allocation engine discovering and directing capital to Stellar's highest yields (Blend Backstop 24.70% APY, Phoenix CLAMM 21.80%, Soroswap 18.40%, Defindex 16.50%). Utilizes Meridian's zero-signature `migrate_adapter` pattern, Lens price/depth aggregation, and Landfall liveness verification.
+3. **Hikari Multi-Agent Trading Desk**: Autonomous financial specialists (Fundamental, Technical, Sentiment, News, Risk Committee) conducting multi-turn Bull vs. Bear debates, executing optimal entries on SDEX/Soroswap with zero-cash-drag **Yield Carry** (parking idle margin in Blend Backstop for 24.70% APY).
 4. **Autonomous Keepers & MEV Capture**: Continuously harvest rewards, rebalance narrow tick bands, and backrun SDEX-Soroswap arbitrage, recycling 100% of atomic MEV spreads (+3.20% APY) directly into staker NAV.
 5. **Formal Invariant & Safety Sentinel**: Mathematically proved solvency ($R_t \ge S_t \times P_t$), a mandatory 15% liquid buffer, and automated Bunker Mode circuit breakers.
 6. **x402 Micropayments & MCP Surface**: Machine-to-machine HTTP 402 payment facilitation enabling AI agents and algorithmic keepers to stake, query, and rebalance without human intervention.
@@ -67,11 +67,11 @@ Hikari is purpose-built for Stellar and could not exist with the same guarantees
    - SEP-41 compliant receipt token whose Net Asset Value (NAV) appreciates monotonically against XLM.
    - Dual-exit liquidity: 0% protocol fee queue unbonding (1–3 days) or instant DEX swap (~10s).
    - `whXLM` static wrapper for external money market collateral (Blend).
-2. **AI Yield Rerouter & Cross-Protocol Pareto Optimizer**:
+2. **Advanced Pro Analytics &amp; Risk Telemetry (AI Yield Rerouter)**:
    - Real-time venue discovery: Blend Backstop (24.70% APY), Phoenix CLAMM (21.80%), Soroswap Farm (18.40%), Defindex Vault (16.50%).
    - Pareto-optimal allocation engine computing optimal risk-adjusted weights (35% Blend, 30% Phoenix, 20% Soroswap, 15% Safe Liquid Reserve Floor) delivering **22.19% net APY**.
    - Meridian `migrate_adapter` integration for atomic zero-user-signature migrations.
-3. **Tauric Multi-Agent AI Trading Desk & Yield Carry**:
+3. **Hikari Multi-Agent Trading Desk &amp; Yield Carry**:
    - 4 Financial Specialists: Fundamental (Warren), Technical (George), Sentiment (Cathie), and Risk Committee Lead (Ray).
    - Multi-turn Bull vs. Bear debate with verifiable stop-loss and take-profit bounds.
    - Zero-Cash-Drag **Yield Carry**: 100% of unallocated trading margin parked in Blend Backstop earning 24.70% APY while awaiting trade signals.
@@ -94,7 +94,7 @@ Hikari is purpose-built for Stellar and could not exist with the same guarantees
 | ----- | ---------- |
 | **Smart Contracts** | Soroban Rust (`wasm32-unknown-unknown`), Stellar Protocol 27 |
 | **Client SDK** | `@hikari/sdk` (TypeScript, `@stellar/stellar-sdk` v13+) |
-| **AI Trading & Routing** | TauricResearch Multi-Agent Framework, Meridian Yield Adapters, Lens Depth Aggregator |
+| **AI Trading & Routing** | Hikari Multi-Agent Framework, Meridian Yield Adapters, Lens Depth Aggregator |
 | **Frontend** | Vanilla CSS Design System, HTML5, 8-Tab Reactive DApp Workspace |
 | **Backend & DB** | Node.js, Express, Anti-Mixup Resilient Multi-Tenant Storage |
 | **Agent Protocols** | Model Context Protocol (MCP), HTTP 402 (x402) CAIP-2 Micropayments |
@@ -119,7 +119,7 @@ npm install --prefix engine
 # Run AI Yield Rerouter & Venue Discovery Simulation
 npm run agent:best-yield
 
-# Run Tauric Multi-Agent AI Trading Desk Cycle
+# Run Hikari Multi-Agent Trading Desk Cycle
 npm run agent:trade
 
 # Run unit test suites
