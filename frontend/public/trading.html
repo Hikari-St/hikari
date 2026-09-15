@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="js/freighter-loader.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -1256,7 +1257,8 @@
         }
 
       } catch (err) {
-        console.warn("Notice: Using instant live fallback data for trading desk:", err);
+        console.warn("Notice: Live market feed notice:", err);
+        showToast("Market feed offline — displaying cached fallback", "⚠");
         const fallback = getFallbackData(pair, tf);
         window.lastCandles = fallback.candles;
         window.lastSetup = fallback.tradeSetup;
@@ -1376,20 +1378,35 @@
       });
     });
 
-    // Wallet Connect Mock for both desktop and mobile buttons
-    function mockWalletConnect(btn) {
-      btn.textContent = "GCJSD...BQN";
-      btn.style.background = "rgba(16, 185, 129, 0.2)";
-      btn.style.color = "#10b981";
-      btn.style.borderColor = "rgba(16, 185, 129, 0.5)";
-      showToast("Connected to Stellar Network (Freighter Wallet)", "✓");
+    // Real Freighter Wallet Connect for both desktop and mobile buttons
+    async function realWalletConnect(btn) {
+      try {
+        if (!window.freighterApi || !(await window.freighterApi.isConnected())) {
+          showToast("Install Freighter wallet extension (freighter.app)", "⚠");
+          return;
+        }
+        const access = await window.freighterApi.requestAccess();
+        const address = typeof access === "object" ? access.address : access;
+        if (!address) {
+          showToast("Freighter connection rejected", "⚠");
+          return;
+        }
+        const short = address.slice(0, 4) + "..." + address.slice(-4);
+        btn.textContent = short;
+        btn.style.background = "rgba(16, 185, 129, 0.2)";
+        btn.style.color = "#10b981";
+        btn.style.borderColor = "rgba(16, 185, 129, 0.5)";
+        showToast(`Connected: ${short}`, "✓");
+      } catch (err) {
+        showToast(err.message || "Failed to connect Freighter", "⚠");
+      }
     }
 
     const btnConnect = document.getElementById("btnConnectWallet");
-    if (btnConnect) btnConnect.addEventListener("click", () => mockWalletConnect(btnConnect));
+    if (btnConnect) btnConnect.addEventListener("click", () => realWalletConnect(btnConnect));
 
     const btnConnectMob = document.getElementById("btnConnectWalletMobile");
-    if (btnConnectMob) btnConnectMob.addEventListener("click", () => mockWalletConnect(btnConnectMob));
+    if (btnConnectMob) btnConnectMob.addEventListener("click", () => realWalletConnect(btnConnectMob));
 
     // Initialize chart immediately with instant fallback data
     const initData = getFallbackData(currentPair, currentTimeframe);

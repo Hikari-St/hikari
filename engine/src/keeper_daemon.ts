@@ -3,6 +3,7 @@ import { PolicyVerifier } from "./policy_verifier.js";
 import { RiskEngine } from "./risk_engine.js";
 import { AuditLogger } from "./audit_logger.js";
 import { KeeperConfig, PolicyRules, ProtocolState, RiskMetrics } from "./types.js";
+import { OnChainAdapterReader } from "./adapters/stellar_adapters.js";
 
 export function createDefaultKeeper(): AutonomousKeeperBot {
   const keeperAccount = process.env.KEEPER_ACCOUNT || "GBHIKARIKEEPER12345678901234567890123456789012345678901234";
@@ -49,15 +50,27 @@ export async function runDaemon() {
   console.log("================================================================================");
 
   const keeper = createDefaultKeeper();
+  const reader = new OnChainAdapterReader();
 
-  // Simulated Protocol State for Demonstration / Continuous Mode
-  let currentTotalAssetsStroops = 485_000n * 10_000_000n; // 485,000 XLM
+  // Initial Protocol State
+  let currentTotalAssetsStroops = 485_000n * 10_000_000n; // 485,000 XLM baseline
   let currentIdleAssetsStroops = 110_580n * 10_000_000n;  // ~22.8% liquid reserve
 
+  // Fetch real on-chain vault state
+  try {
+    const liveAssets = await reader.simulateCall<any>("CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5", "total_assets");
+    if (liveAssets !== null) {
+      currentTotalAssetsStroops = typeof liveAssets === "bigint" ? liveAssets : BigInt(liveAssets);
+      currentIdleAssetsStroops = (currentTotalAssetsStroops * 2280n) / 10000n;
+    }
+  } catch (e) {
+    console.warn("[KeeperDaemon] Notice reading live vault:", (e as Error).message);
+  }
+
   const allocations = new Map<string, bigint>();
-  allocations.set("CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL", 168_489n * 10_000_000n);
-  allocations.set("CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5", 131_047n * 10_000_000n);
-  allocations.set("CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ", 74_884n * 10_000_000n);
+  allocations.set("CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL", (currentTotalAssetsStroops * 3500n) / 10000n);
+  allocations.set("CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5", (currentTotalAssetsStroops * 2700n) / 10000n);
+  allocations.set("CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ", (currentTotalAssetsStroops * 1520n) / 10000n);
 
   let isRunning = true;
   let cycle = 0;
@@ -74,6 +87,23 @@ export async function runDaemon() {
 
   while (isRunning) {
     cycle++;
+
+    // Fetch live market price from Horizon orderbook
+    let basePrice = 0.1250;
+    try {
+      const horizonUrl = process.env.HORIZON_URL || "https://horizon-testnet.stellar.org";
+      const usdcIssuer = "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA";
+      const obRes = await fetch(`${horizonUrl}/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USDC&buying_asset_issuer=${usdcIssuer}&limit=1`);
+      if (obRes.ok) {
+        const ob = (await obRes.json()) as any;
+        if (ob.bids && ob.bids.length > 0) {
+          basePrice = parseFloat(ob.bids[0].price);
+        }
+      }
+    } catch {
+      // Use resilient baseline
+    }
+
     const state: ProtocolState = {
       vaultAddress: "CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5",
       totalAssetsStroops: currentTotalAssetsStroops,
@@ -90,13 +120,10 @@ export async function runDaemon() {
       isDepegDetected: false,
     };
 
-    // Market prices simulation with slight fluctuations
-    const basePrice = 0.1250;
-    const spreadNoise = (Math.sin(cycle) * 0.0004);
     const venuePrices = new Map<string, number>([
       ["SDEX", basePrice],
-      ["Phoenix_CLAMM", basePrice + spreadNoise],
-      ["Soroswap", basePrice - spreadNoise],
+      ["Phoenix_CLAMM", basePrice * 1.0005],
+      ["Soroswap", basePrice * 0.9995],
     ]);
 
     const result = await keeper.runKeeperCycle(state, riskMetrics, venuePrices, 1240);

@@ -108,6 +108,172 @@ async function handleRequest(req, res) {
     return res.end(JSON.stringify({ status: "HEALTHY", timestamp: new Date().toISOString(), database: "ONLINE", protocol: "HIKARI" }));
   }
 
+  // API: Token Balance Query (reads SAC token balance via ContractReader)
+  if (pathname === "/api/token-balance") {
+    const address = parsedUrl.searchParams.get("address");
+    const tokenId = parsedUrl.searchParams.get("token") || parsedUrl.searchParams.get("contractId");
+    if (!address || !tokenId) {
+      res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({ error: "Missing address or token parameter" }));
+    }
+    try {
+      const reader = getContractReader();
+      if (!reader) throw new Error("ContractReader not available");
+      const balanceBig = await reader.readTokenBalance(tokenId, address);
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({ balance: Number(balanceBig) / 1e7, balanceStroops: balanceBig.toString(), address, token: tokenId }));
+    } catch (e) {
+      res.writeHead(503, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({ error: "Token balance read failed: " + e.message, balance: 0, address, token: tokenId }));
+    }
+  }
+
+  // API: Build Vault Deposit Invocation
+  if (pathname === "/api/build-deposit" && req.method === "POST") {
+    let body = "";
+    req.on("data", chunk => { body += chunk; });
+    req.on("end", () => {
+      try {
+        const { userAddress, amountXlm, vaultId } = JSON.parse(body || "{}");
+        if (!userAddress || !amountXlm) {
+          res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+          return res.end(JSON.stringify({ error: "Missing userAddress or amountXlm" }));
+        }
+        let rawContracts = {};
+        if (fs.existsSync(CONTRACTS_FILE)) {
+          try { rawContracts = JSON.parse(fs.readFileSync(CONTRACTS_FILE, "utf-8")); } catch (_) {}
+        }
+        const targetVault = vaultId || rawContracts.contracts?.vault?.id || "CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5";
+        const stroops = BigInt(Math.floor(parseFloat(amountXlm) * 1e7)).toString();
+
+        const invocation = {
+          contractId: targetVault,
+          functionName: "deposit",
+          args: {
+            from: userAddress,
+            amount: stroops,
+          },
+          network: "Test SDF Network ; September 2015",
+        };
+
+        res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+        return res.end(JSON.stringify({
+          ok: true,
+          status: "AWAITING_SIGNATURE",
+          requiresSignature: true,
+          vaultId: targetVault,
+          userAddress,
+          amountXlm,
+          amountStroops: stroops,
+          invocation,
+          instructions: "Sign invocation with Freighter wallet and submit to /api/submit-tx",
+        }));
+      } catch (e) {
+        res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+        return res.end(JSON.stringify({ error: "Build deposit failed: " + e.message }));
+      }
+    });
+    return;
+  }
+
+  // API: Build Withdrawal Invocation
+  if (pathname === "/api/build-withdraw" && req.method === "POST") {
+    let body = "";
+    req.on("data", chunk => { body += chunk; });
+    req.on("end", () => {
+      try {
+        const { userAddress, sharesAmount, queueId } = JSON.parse(body || "{}");
+        if (!userAddress || !sharesAmount) {
+          res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+          return res.end(JSON.stringify({ error: "Missing userAddress or sharesAmount" }));
+        }
+        let rawContracts = {};
+        if (fs.existsSync(CONTRACTS_FILE)) {
+          try { rawContracts = JSON.parse(fs.readFileSync(CONTRACTS_FILE, "utf-8")); } catch (_) {}
+        }
+        const targetQueue = queueId || rawContracts.contracts?.withdrawalQueue?.id || "CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ";
+        const sharesStroops = BigInt(Math.floor(parseFloat(sharesAmount) * 1e7)).toString();
+
+        const invocation = {
+          contractId: targetQueue,
+          functionName: "request_withdrawal",
+          args: {
+            user: userAddress,
+            shares: sharesStroops,
+          },
+          network: "Test SDF Network ; September 2015",
+        };
+
+        res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+        return res.end(JSON.stringify({
+          ok: true,
+          status: "AWAITING_SIGNATURE",
+          requiresSignature: true,
+          queueId: targetQueue,
+          userAddress,
+          sharesAmount,
+          sharesStroops,
+          invocation,
+          instructions: "Sign invocation with Freighter wallet and submit to /api/submit-tx",
+        }));
+      } catch (e) {
+        res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+        return res.end(JSON.stringify({ error: "Build withdraw failed: " + e.message }));
+      }
+    });
+    return;
+  }
+
+  // API: Withdrawal Tickets for User
+  if (pathname === "/api/withdrawal-tickets") {
+    const address = parsedUrl.searchParams.get("address");
+    if (!address) {
+      res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({ error: "Missing address parameter" }));
+    }
+    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+    return res.end(JSON.stringify({ ok: true, address, tickets: [] }));
+  }
+
+  // API: Submit Signed Transaction to Soroban RPC
+  if (pathname === "/api/submit-tx" && req.method === "POST") {
+    let body = "";
+    req.on("data", chunk => { body += chunk; });
+    req.on("end", async () => {
+      try {
+        const { signedXdr } = JSON.parse(body || "{}");
+        if (!signedXdr) {
+          res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+          return res.end(JSON.stringify({ error: "Missing signedXdr in request body" }));
+        }
+        const rpcUrl = process.env.SOROBAN_RPC_URL || "https://soroban-testnet.stellar.org";
+        const submitRes = await fetch(`${rpcUrl}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: Date.now(),
+            method: "sendTransaction",
+            params: { transaction: signedXdr },
+          }),
+        });
+        const submitData = await submitRes.json();
+        if (submitData.error) {
+          res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+          return res.end(JSON.stringify({ error: submitData.error.message || "Transaction submission failed", details: submitData.error }));
+        }
+        const txHash = submitData.result?.hash || "";
+        const status = submitData.result?.status || "PENDING";
+        res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+        return res.end(JSON.stringify({ ok: true, txHash, status, result: submitData.result }));
+      } catch (e) {
+        res.writeHead(500, { "Content-Type": "application/json; charset=utf-8" });
+        return res.end(JSON.stringify({ error: "Transaction submission failed: " + e.message }));
+      }
+    });
+    return;
+  }
+
   // API 1: Live Agent Telemetry & MEV Metrics (Read live from Soroban RPC)
   if (pathname === "/api/telemetry") {
     let rawContracts = {};
@@ -122,24 +288,10 @@ async function handleRequest(req, res) {
     const gateSealId = c.gateSeal?.id || "CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ";
     const withdrawalQueueId = c.withdrawalQueue?.id || "CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ";
 
-    let totalAssetsStroops = "3000000000";
-    let totalSharesStroops = "3000000000000";
-    let oracleTel = {
-      navStroops: "10000000",
-      aprBps: 1240,
-      totalReservesStroops: "3000000000",
-      liquidReserveRatioBps: 2280,
-      bunkerActive: false,
-      proofHash: "0x0000000000000000000000000000000000000000000000000000000000000000",
-    };
-    let circuitBreaker = {
-      isGateSealed: false,
-      isBunkerMode: false,
-      sealedAtLedger: 0,
-      durationLedgers: 120960,
-      haircutBps: 0,
-      drawdownBps: 0,
-    };
+    let totalAssetsStroops = null;
+    let totalSharesStroops = null;
+    let oracleTel = null;
+    let circuitBreaker = null;
     let isLiveRpc = false;
 
     const reader = getContractReader();
@@ -180,13 +332,17 @@ async function handleRequest(req, res) {
             bunkerActive: tel.bunkerActive,
             proofHash: tel.proofHash ? (tel.proofHash.startsWith("0x") ? tel.proofHash : "0x" + tel.proofHash) : "0x00",
           };
-          circuitBreaker.isBunkerMode = tel.bunkerActive;
           isLiveRpc = true;
         }
         if (seal !== null) {
-          circuitBreaker.isGateSealed = seal.isSealed;
-          circuitBreaker.sealedAtLedger = seal.sealedAtLedger;
-          circuitBreaker.durationLedgers = seal.durationLedgers;
+          circuitBreaker = {
+            isGateSealed: seal.isSealed,
+            isBunkerMode: tel ? tel.bunkerActive : false,
+            sealedAtLedger: seal.sealedAtLedger,
+            durationLedgers: seal.durationLedgers,
+            haircutBps: 0,
+            drawdownBps: 0,
+          };
           isLiveRpc = true;
         }
       } catch (err) {
@@ -194,17 +350,32 @@ async function handleRequest(req, res) {
       }
     }
 
+    // If RPC failed entirely, return error status instead of fake data
+    if (!isLiveRpc) {
+      res.writeHead(503, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({
+        status: "RPC_UNAVAILABLE",
+        dataSource: "NONE",
+        error: "Could not connect to Soroban RPC. No live data available.",
+        contracts: { vault: vaultId, oracle: oracleId, gateSeal: gateSealId, withdrawalQueue: withdrawalQueueId },
+      }));
+    }
+
     const totalAssetsBig = BigInt(totalAssetsStroops);
-    const reserveRatioBps = BigInt(oracleTel.liquidReserveRatioBps || 2280);
-    const idleAssetsBig = (totalAssetsBig * reserveRatioBps) / 10000n;
+    const totalSharesBig = BigInt(totalSharesStroops);
+    const reserveRatioBps = BigInt(oracleTel.liquidReserveRatioBps || 0);
+    const idleAssetsBig = reserveRatioBps > 0n ? (totalAssetsBig * reserveRatioBps) / 10000n : 0n;
     const allocatedAssetsBig = totalAssetsBig > idleAssetsBig ? totalAssetsBig - idleAssetsBig : 0n;
+
+    const cbState = circuitBreaker || {
+      isGateSealed: false, isBunkerMode: false, sealedAtLedger: 0,
+      durationLedgers: 0, haircutBps: 0, drawdownBps: 0,
+    };
 
     const data = {
       status: "ONLINE",
-      dataSource: isLiveRpc ? "LIVE_SOROBAN_RPC" : "CACHE_FALLBACK",
+      dataSource: "LIVE_SOROBAN_RPC",
       lastCycleTimestamp: Date.now(),
-      totalCycles: 142,
-      activeStrategies: ["Blend XLM Reserve", "Phoenix CLAMM Pool", "Soroban MEV Backrun"],
       vaultState: {
         totalAssetsStroops,
         totalSharesStroops,
@@ -213,11 +384,7 @@ async function handleRequest(req, res) {
         reservePercentage: Number(reserveRatioBps) / 100,
       },
       oracleTelemetry: oracleTel,
-      mevMetrics: {
-        totalCapturedStroops: "8420000000",
-        vaultBoostStroops: "4210000000",
-      },
-      circuitBreaker,
+      circuitBreaker: cbState,
       contracts: {
         vault: vaultId,
         oracle: oracleId,
@@ -228,7 +395,7 @@ async function handleRequest(req, res) {
         "Hikari Agent Layer connected to Stellar Testnet (Protocol 27 Soroban).",
         `Live on-chain Vault Total Assets: ${Number(totalAssetsBig) / 1e7} XLM.`,
         `Real Oracle Telemetry NAV: ${Number(BigInt(oracleTel.navStroops)) / 1e7} XLM (APR: ${(oracleTel.aprBps / 100).toFixed(2)}%).`,
-        `GateSeal Circuit Breaker Status: ${circuitBreaker.isGateSealed ? "SEALED" : "NORMAL (UNSEALED)"}.`,
+        `GateSeal Circuit Breaker Status: ${cbState.isGateSealed ? "SEALED" : "NORMAL (UNSEALED)"}.`,
       ],
     };
 
@@ -269,295 +436,307 @@ async function handleRequest(req, res) {
     return res.end(JSON.stringify(contracts));
   }
 
-  // API 2.0A: Live AI Yield Rerouter
+  // API 2.0A: Live AI Yield Rerouter — reads real yield data from on-chain adapters
   if (pathname === "/api/yield-routes") {
+    const reader = getContractReader();
+    let routes = [];
+    let isLive = false;
+
+    let rawContracts = {};
+    if (fs.existsSync(CONTRACTS_FILE)) {
+      try { rawContracts = JSON.parse(fs.readFileSync(CONTRACTS_FILE, "utf-8")); } catch (_) {}
+    }
+    const yc = rawContracts.contracts || {};
+
+    // Adapter definitions with their on-chain contract IDs
+    const adapterDefs = [
+      { id: "route_blend_backstop", name: "Blend Protocol Backstop Module (bBLND-XLM)", protocol: "Blend Protocol 27", category: "BACKSTOP_STAKING", contractId: yc.blendAdapter?.id, riskTier: "MODERATE_FIRST_LOSS", allocationPct: 35 },
+      { id: "route_phoenix_clamm", name: "Phoenix XLM-USDC Concentrated Liquidity (CLAMM ±2%)", protocol: "Phoenix CLAMM", category: "CONCENTRATED_AMM", contractId: yc.phoenixAdapter?.id, riskTier: "CONCENTRATED_IL_MANAGED", allocationPct: 30 },
+      { id: "route_soroswap_farm", name: "Soroswap XLM-USDC Dynamic AMM Pool & Farm", protocol: "Soroswap", category: "CONSTANT_PRODUCT_FARM", contractId: yc.soroswapAdapter?.id, riskTier: "LOW_TO_MODERATE", allocationPct: 20 },
+    ];
+
+    if (reader) {
+      try {
+        const routePromises = adapterDefs.map(async (def) => {
+          const contractId = def.contractId || yc[def.id]?.id;
+          if (!contractId) return null;
+          try {
+            // Read adapter's current yield metrics via simulateTransaction
+            const yieldData = await reader.simulateCall(contractId, "get_yield_metrics").catch(() => null);
+            const tvlData = await reader.simulateCall(contractId, "get_total_assets").catch(() => null);
+
+            const baseApyBps = yieldData ? Number(yieldData.base_apy_bps || 0) : 0;
+            const emissionBps = yieldData ? Number(yieldData.emission_apy_bps || 0) : 0;
+            const mevBps = yieldData ? Number(yieldData.mev_boost_bps || 0) : 0;
+            const grossBps = baseApyBps + emissionBps + mevBps;
+            const penaltyBps = yieldData ? Number(yieldData.risk_penalty_bps || 0) : 0;
+            const tvlStroops = tvlData ? BigInt(tvlData).toString() : "0";
+
+            return {
+              id: def.id,
+              name: def.name,
+              protocol: def.protocol,
+              category: def.category,
+              baseApyPct: baseApyBps / 100,
+              emissionsApyPct: emissionBps / 100,
+              mevBoostPct: mevBps / 100,
+              grossApyPct: grossBps / 100,
+              netRiskAdjustedPct: (grossBps - penaltyBps) / 100,
+              allocationPct: def.allocationPct,
+              tvlStroops,
+              riskTier: def.riskTier,
+              settlementStatus: "VERIFIED",
+              dataSource: "LIVE_SOROBAN_RPC",
+            };
+          } catch (e) {
+            console.warn(`Notice: Adapter ${def.id} read notice:`, e.message);
+            return null;
+          }
+        });
+
+        const results = await Promise.all(routePromises);
+        routes = results.filter(Boolean);
+        isLive = routes.length > 0;
+      } catch (err) {
+        console.warn("Notice: Yield routes batch read notice:", err.message);
+      }
+    }
+
+    if (!isLive || routes.length === 0) {
+      res.writeHead(503, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({
+        error: "Yield adapter contracts not reachable. No live data available.",
+        dataSource: "NONE",
+        routes: [],
+      }));
+    }
+
+    // Compute blended APY from live routes
+    let weightedSum = 0;
+    let totalWeight = 0;
+    routes.forEach((r) => { weightedSum += r.netRiskAdjustedPct * r.allocationPct; totalWeight += r.allocationPct; });
+    const blendedNet = totalWeight > 0 ? weightedSum / totalWeight : 0;
+    const topRoute = routes.reduce((a, b) => (a.grossApyPct > b.grossApyPct ? a : b), routes[0]);
+
     const routesData = {
       timestamp: new Date().toISOString(),
       runtime: "Stellar Protocol 27 (Soroban)",
       benchmarkAsset: "XLM",
-      routes: [
-        {
-          id: "route_blend_backstop",
-          name: "Blend Protocol Backstop Module (bBLND-XLM)",
-          protocol: "Blend Protocol 27",
-          category: "BACKSTOP_STAKING",
-          baseApyPct: 8.50,
-          emissionsApyPct: 13.00,
-          mevBoostPct: 3.20,
-          grossApyPct: 24.70,
-          netRiskAdjustedPct: 23.10,
-          allocationPct: 35,
-          tvlUsd: 14200000,
-          riskTier: "MODERATE_FIRST_LOSS",
-          landfallLivenessScore: 98,
-          settlementStatus: "VERIFIED"
-        },
-        {
-          id: "route_phoenix_clamm",
-          name: "Phoenix XLM-USDC Concentrated Liquidity (CLAMM ±2%)",
-          protocol: "Phoenix CLAMM",
-          category: "CONCENTRATED_AMM",
-          baseApyPct: 18.60,
-          emissionsApyPct: 0.00,
-          mevBoostPct: 3.20,
-          grossApyPct: 21.80,
-          netRiskAdjustedPct: 20.07,
-          allocationPct: 30,
-          tvlUsd: 8900000,
-          riskTier: "CONCENTRATED_IL_MANAGED",
-          landfallLivenessScore: 96,
-          settlementStatus: "VERIFIED"
-        },
-        {
-          id: "route_soroswap_farm",
-          name: "Soroswap XLM-USDC Dynamic AMM Pool & Farm",
-          protocol: "Soroswap",
-          category: "CONSTANT_PRODUCT_FARM",
-          baseApyPct: 10.40,
-          emissionsApyPct: 4.80,
-          mevBoostPct: 3.20,
-          grossApyPct: 18.40,
-          netRiskAdjustedPct: 17.06,
-          allocationPct: 20,
-          tvlUsd: 11500000,
-          riskTier: "LOW_TO_MODERATE",
-          landfallLivenessScore: 95,
-          settlementStatus: "VERIFIED"
-        },
-        {
-          id: "route_aqua_sdex",
-          name: "Aqua Liquidity Bribes & SDEX Automated Market Making",
-          protocol: "Stellar SDEX",
-          category: "SDEX_INCENTIVES",
-          baseApyPct: 9.20,
-          emissionsApyPct: 4.60,
-          mevBoostPct: 3.20,
-          grossApyPct: 17.00,
-          netRiskAdjustedPct: 15.90,
-          allocationPct: 0,
-          tvlUsd: 6400000,
-          riskTier: "ORDERBOOK_LOW_RISK",
-          landfallLivenessScore: 99,
-          settlementStatus: "STANDBY"
-        },
-        {
-          id: "route_blend_senior",
-          name: "Blend Senior Overcollateralized XLM Lending",
-          protocol: "Blend Protocol 27",
-          category: "LENDING_EMISSIONS",
-          baseApyPct: 6.80,
-          emissionsApyPct: 7.40,
-          mevBoostPct: 0.00,
-          grossApyPct: 14.20,
-          netRiskAdjustedPct: 13.80,
-          allocationPct: 0,
-          tvlUsd: 22500000,
-          riskTier: "SENIOR_OVERCOLLATERALIZED",
-          landfallLivenessScore: 98,
-          settlementStatus: "STANDBY"
-        }
-      ],
+      dataSource: "LIVE_SOROBAN_RPC",
+      routes,
       aiRecommendation: {
-        topVenue: "Blend Protocol Backstop Module (bBLND-XLM)",
-        topGrossApyPct: 24.70,
-        blendedNetApyPct: 22.19,
-        mevAlphaStreamApyPct: 3.20,
+        topVenue: topRoute.name,
+        topGrossApyPct: topRoute.grossApyPct,
+        blendedNetApyPct: Number(blendedNet.toFixed(2)),
         reserveFloorPct: 15.0,
         rebalanceTriggerSpreadBps: 50,
-        rationale: "AI yield rerouter solved the Pareto-optimal capital frontier: 35% Blend Backstop (24.7%) + 30% Phoenix CLAMM (21.8%) + 20% Soroswap (18.4%) + 15% Unencumbered Reserve Floor. 100% of atomic MEV backrun profit is streamed directly into vault shares."
-      }
+        rationale: `Live yield rerouter: ${routes.map(r => `${r.allocationPct}% ${r.protocol} (${r.grossApyPct.toFixed(1)}%)`).join(" + ")} + 15% Reserve Floor.`,
+      },
     };
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     return res.end(JSON.stringify(routesData));
   }
 
-  // API 2.0B: Live Multi-Agent AI Trading Desk (Emotionless Chart Analysis & Short-Term Signals)
+  // API 2.0B: Live Multi-Agent AI Trading Desk — real Horizon trade aggregations
   if (pathname === "/api/trading-agent") {
     const rawPair = (parsedUrl.searchParams.get("pair") || "XLM/USDC").toUpperCase();
     const timeframe = parsedUrl.searchParams.get("timeframe") || "1h";
-    
-    // Pair-specific technical baselines
-    const PAIR_CONFIGS = {
-      "XLM/USDC": {
-        basePrice: 0.17298,
-        priceDecimals: 5,
-        dailyChange: "+3.42%",
-        atr: 0.00385,
-        rsi: 61.8,
-        macd: "+0.00142",
-        support: 0.16850,
-        resistance: 0.18120,
-        entryZone: "$0.1722 - $0.1735",
-        stopLoss: 0.16850,
-        tp1: 0.17820,
-        tp2: 0.18450,
-        tp3: 0.19150,
-        riskReward: "2.6 : 1",
-        signal: "BUY (LONG)",
-        confidence: "91%",
-        invalidation: "$0.1680 (1H Demand Block Breach)",
-        chartPattern: "Ascending Triangle Breakout with Expanding Volume"
-      },
-      "BTC/USDT": {
-        basePrice: 64850.00,
-        priceDecimals: 2,
-        dailyChange: "+2.15%",
-        atr: 1120.00,
-        rsi: 58.4,
-        macd: "+148.50",
-        support: 63500.00,
-        resistance: 66200.00,
-        entryZone: "$64,600 - $64,950",
-        stopLoss: 63450.00,
-        tp1: 66400.00,
-        tp2: 67800.00,
-        tp3: 69500.00,
-        riskReward: "2.5 : 1",
-        signal: "BUY (LONG)",
-        confidence: "88%",
-        invalidation: "$63,300 (4H Bullish Order Block Lost)",
-        chartPattern: "Bull Flag Retest & EMA 20 Dynamic Support Bounce"
-      },
-      "ETH/USDC": {
-        basePrice: 3465.50,
-        priceDecimals: 2,
-        dailyChange: "+1.84%",
-        atr: 68.50,
-        rsi: 55.2,
-        macd: "+12.40",
-        support: 3380.00,
-        resistance: 3580.00,
-        entryZone: "$3,440 - $3,475",
-        stopLoss: 3375.00,
-        tp1: 3560.00,
-        tp2: 3680.00,
-        tp3: 3820.00,
-        riskReward: "2.4 : 1",
-        signal: "BUY (LONG)",
-        confidence: "85%",
-        invalidation: "$3,350 (Break of Ascending Trendline)",
-        chartPattern: "Ascending Channel Continuation with Volume Absorption"
-      },
-      "SOL/USDC": {
-        basePrice: 148.80,
-        priceDecimals: 2,
-        dailyChange: "+4.92%",
-        atr: 4.85,
-        rsi: 66.5,
-        macd: "+1.95",
-        support: 142.50,
-        resistance: 158.00,
-        entryZone: "$147.50 - $149.20",
-        stopLoss: 142.20,
-        tp1: 157.50,
-        tp2: 165.00,
-        tp3: 174.00,
-        riskReward: "2.8 : 1",
-        signal: "STRONG BUY (LONG)",
-        confidence: "93%",
-        invalidation: "$141.50 (Loss of 1H Pivot Low)",
-        chartPattern: "High-Tight Momentum Flag Breakout"
+    const horizonUrl = process.env.HORIZON_URL || "https://horizon-testnet.stellar.org";
+    const usdcIssuer = "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5";
+
+    // Resolution map: timeframe -> milliseconds for Horizon trade_aggregations
+    const resolutionMap = { "15m": 900000, "1h": 3600000, "4h": 14400000, "1d": 86400000 };
+    const resolution = resolutionMap[timeframe] || 3600000;
+
+    let candles = [];
+    let currentPrice = 0;
+    let dataSource = "NONE";
+
+    // Fetch real OHLCV from Horizon for XLM/USDC (the native pair on Stellar)
+    if (rawPair === "XLM/USDC" || rawPair === "XLM/USD") {
+      try {
+        const aggRes = await fetch(
+          `${horizonUrl}/trade_aggregations?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=USDC&counter_asset_issuer=${usdcIssuer}&resolution=${resolution}&limit=25&order=desc`
+        );
+        if (aggRes.ok) {
+          const aggData = await aggRes.json();
+          const records = (aggData._embedded?.records || []).reverse();
+          candles = records.map((r) => ({
+            time: Math.floor(new Date(parseInt(r.timestamp)).getTime() / 1000),
+            open: parseFloat(r.open),
+            high: parseFloat(r.high),
+            low: parseFloat(r.low),
+            close: parseFloat(r.close),
+            volume: parseInt(r.base_volume) || 0,
+          }));
+          if (candles.length > 0) {
+            currentPrice = candles[candles.length - 1].close;
+            dataSource = "LIVE_HORIZON";
+          }
+        }
+      } catch (err) {
+        console.warn("Notice: Horizon trade_aggregations fetch notice:", err.message);
       }
-    };
 
-    const cfg = PAIR_CONFIGS[rawPair] || PAIR_CONFIGS["XLM/USDC"];
-    const pair = PAIR_CONFIGS[rawPair] ? rawPair : "XLM/USDC";
-
-    // Generate 24 realistic recent candlestick candles for chart rendering
-    const candles = [];
-    let p = cfg.basePrice * 0.96;
-    const now = Math.floor(Date.now() / 1000);
-    const stepSeconds = timeframe === "15m" ? 900 : timeframe === "4h" ? 14400 : 3600;
-
-    for (let i = 24; i >= 0; i--) {
-      const time = now - (i * stepSeconds);
-      const isUp = Math.random() > 0.42;
-      const move = (Math.random() * 0.012 + 0.002) * p;
-      const open = p;
-      const close = isUp ? p + move : p - move;
-      const high = Math.max(open, close) + (Math.random() * 0.004 * p);
-      const low = Math.min(open, close) - (Math.random() * 0.004 * p);
-      const volume = Math.floor(100000 + Math.random() * 500000);
-      candles.push({ time, open, high, low, close, volume });
-      p = close;
+      // If Horizon has insufficient trade records, fall back to CoinGecko stellar market data
+      if (candles.length === 0 || currentPrice === 0) {
+        try {
+          const priceRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd&include_24hr_change=true");
+          if (priceRes.ok) {
+            const priceData = await priceRes.json();
+            currentPrice = priceData.stellar?.usd || 0;
+            dataSource = "LIVE_COINGECKO";
+          }
+          const ohlcRes = await fetch("https://api.coingecko.com/api/v3/coins/stellar/ohlc?vs_currency=usd&days=1");
+          if (ohlcRes.ok) {
+            const ohlcData = await ohlcRes.json();
+            candles = ohlcData.map((d) => ({
+              time: Math.floor(d[0] / 1000),
+              open: d[1], high: d[2], low: d[3], close: d[4],
+              volume: 0,
+            }));
+          }
+        } catch (cgErr) {
+          console.warn("Notice: CoinGecko stellar fallback notice:", cgErr.message);
+        }
+      }
+    } else {
+      // For non-Stellar pairs, fetch from CoinGecko public API
+      const geckoMap = { "BTC/USDT": "bitcoin", "ETH/USDC": "ethereum", "SOL/USDC": "solana" };
+      const geckoId = geckoMap[rawPair];
+      if (geckoId) {
+        try {
+          const priceRes = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${geckoId}&vs_currencies=usd&include_24hr_change=true`);
+          if (priceRes.ok) {
+            const priceData = await priceRes.json();
+            currentPrice = priceData[geckoId]?.usd || 0;
+            dataSource = "LIVE_COINGECKO";
+          }
+          // Fetch OHLC candles from CoinGecko
+          const ohlcRes = await fetch(`https://api.coingecko.com/api/v3/coins/${geckoId}/ohlc?vs_currency=usd&days=1`);
+          if (ohlcRes.ok) {
+            const ohlcData = await ohlcRes.json();
+            candles = ohlcData.map((d) => ({
+              time: Math.floor(d[0] / 1000),
+              open: d[1], high: d[2], low: d[3], close: d[4],
+              volume: 0,
+            }));
+          }
+        } catch (err) {
+          console.warn("Notice: CoinGecko price fetch notice:", err.message);
+        }
+      }
     }
-    // Set latest close to current price
-    candles[candles.length - 1].close = cfg.basePrice;
+
+    if (candles.length === 0 || currentPrice === 0) {
+      res.writeHead(503, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({
+        error: `No live market data available for ${rawPair}. Horizon or price feed unreachable.`,
+        dataSource: "NONE",
+        targetAsset: rawPair,
+      }));
+    }
+
+    // Compute real technical indicators from candle data
+    const closes = candles.map((c) => c.close);
+    const highs = candles.map((c) => c.high);
+    const lows = candles.map((c) => c.low);
+
+    // RSI (14-period)
+    function computeRsi(data, period = 14) {
+      if (data.length < period + 1) return 50;
+      let gains = 0, losses = 0;
+      for (let i = data.length - period; i < data.length; i++) {
+        const diff = data[i] - data[i - 1];
+        if (diff >= 0) gains += diff; else losses -= diff;
+      }
+      if (losses === 0) return 100;
+      const rs = (gains / period) / (losses / period);
+      return Number((100 - 100 / (1 + rs)).toFixed(1));
+    }
+
+    // ATR (14-period)
+    function computeAtr(highs, lows, closes, period = 14) {
+      if (highs.length < period + 1) return 0;
+      let sum = 0;
+      for (let i = highs.length - period; i < highs.length; i++) {
+        const tr = Math.max(highs[i] - lows[i], Math.abs(highs[i] - closes[i - 1]), Math.abs(lows[i] - closes[i - 1]));
+        sum += tr;
+      }
+      return Number((sum / period).toFixed(closes[0] > 100 ? 2 : 5));
+    }
+
+    const rsi = computeRsi(closes);
+    const atr = computeAtr(highs, lows, closes);
+    const priceDecimals = currentPrice > 100 ? 2 : currentPrice > 1 ? 2 : 5;
+    const support = Math.min(...lows.slice(-14));
+    const resistance = Math.max(...highs.slice(-14));
+
+    // Simple signal logic based on RSI
+    let signal, bias, confidence;
+    if (rsi > 70) { signal = "SELL (SHORT)"; bias = "BEARISH"; confidence = `${Math.min(95, 50 + rsi - 50).toFixed(0)}%`; }
+    else if (rsi > 55) { signal = "BUY (LONG)"; bias = "BULLISH"; confidence = `${Math.min(95, 50 + (rsi - 40)).toFixed(0)}%`; }
+    else if (rsi > 45) { signal = "NEUTRAL (HOLD)"; bias = "NEUTRAL"; confidence = `${(50 + Math.abs(rsi - 50)).toFixed(0)}%`; }
+    else if (rsi > 30) { signal = "BUY (LONG)"; bias = "BULLISH"; confidence = `${Math.min(95, 50 + (50 - rsi)).toFixed(0)}%`; }
+    else { signal = "STRONG BUY (LONG)"; bias = "BULLISH"; confidence = `${Math.min(98, 60 + (30 - rsi)).toFixed(0)}%`; }
+
+    const stopLoss = Number((currentPrice - atr * 2).toFixed(priceDecimals));
+    const tp1 = Number((currentPrice + atr * 2).toFixed(priceDecimals));
+    const tp2 = Number((currentPrice + atr * 3.5).toFixed(priceDecimals));
+    const tp3 = Number((currentPrice + atr * 5).toFixed(priceDecimals));
+    const rrRatio = atr > 0 ? `${((tp2 - currentPrice) / (currentPrice - stopLoss)).toFixed(1)} : 1` : "N/A";
+
+    // Daily change
+    const firstClose = closes.length > 1 ? closes[0] : currentPrice;
+    const dailyChangePct = firstClose > 0 ? (((currentPrice - firstClose) / firstClose) * 100) : 0;
+    const dailyChange = `${dailyChangePct >= 0 ? "+" : ""}${dailyChangePct.toFixed(2)}%`;
 
     const tradingData = {
       timestamp: new Date().toISOString(),
       framework: "Hikari Multi-Agent Autonomous Trading Desk Architecture",
-      targetAsset: pair,
+      targetAsset: rawPair,
       timeframe: timeframe.toUpperCase(),
-      currentPrice: cfg.basePrice,
-      priceFormatted: `$${cfg.basePrice.toFixed(cfg.priceDecimals)}`,
-      dailyChange: cfg.dailyChange,
-      marketRegime: "BULLISH_EXPANSION",
-      consensusDecision: cfg.signal,
-      confidenceScore: cfg.confidence,
+      currentPrice,
+      priceFormatted: `$${currentPrice.toFixed(priceDecimals)}`,
+      dailyChange,
+      marketRegime: rsi > 65 ? "BULLISH_EXPANSION" : rsi > 45 ? "RANGE_BOUND" : "BEARISH_PULLBACK",
+      consensusDecision: signal,
+      confidenceScore: confidence,
       tradeSetup: {
-        action: cfg.signal,
-        entryZone: cfg.entryZone,
-        entryPrice: cfg.basePrice,
-        stopLoss: cfg.stopLoss,
-        stopLossFormatted: `$${cfg.stopLoss.toFixed(cfg.priceDecimals)}`,
-        takeProfit1: cfg.tp1,
-        takeProfit1Formatted: `$${cfg.tp1.toFixed(cfg.priceDecimals)}`,
-        takeProfit2: cfg.tp2,
-        takeProfit2Formatted: `$${cfg.tp2.toFixed(cfg.priceDecimals)}`,
-        takeProfit3: cfg.tp3,
-        takeProfit3Formatted: `$${cfg.tp3.toFixed(cfg.priceDecimals)}`,
-        riskRewardRatio: cfg.riskReward,
-        invalidationLevel: cfg.invalidation,
+        action: signal,
+        entryZone: `$${(currentPrice * 0.998).toFixed(priceDecimals)} - $${(currentPrice * 1.002).toFixed(priceDecimals)}`,
+        entryPrice: currentPrice,
+        stopLoss,
+        stopLossFormatted: `$${stopLoss.toFixed(priceDecimals)}`,
+        takeProfit1: tp1,
+        takeProfit1Formatted: `$${tp1.toFixed(priceDecimals)}`,
+        takeProfit2: tp2,
+        takeProfit2Formatted: `$${tp2.toFixed(priceDecimals)}`,
+        takeProfit3: tp3,
+        takeProfit3Formatted: `$${tp3.toFixed(priceDecimals)}`,
+        riskRewardRatio: rrRatio,
         approvedAllocationPercent: "7.50% Margin",
-        recommendedLeverage: "3x - 5x Cross / Spot"
       },
-      emotionlessRules: [
-        "1. No FOMO: Never buy outside the designated Entry Zone.",
-        "2. Zero Hesitation: Stop-loss is set immediately upon fill. No emotional adjusting.",
-        "3. Disciplined Profit Taking: Scale out 50% at TP1 and slide stop-loss to breakeven."
-      ],
       analysts: {
         technical: {
-          bias: "BULLISH",
-          confidence: 0.92,
-          chartPattern: cfg.chartPattern,
-          rsi: cfg.rsi,
-          macd: cfg.macd,
-          atr: cfg.atr,
-          supportLevel: `$${cfg.support.toFixed(cfg.priceDecimals)}`,
-          resistanceLevel: `$${cfg.resistance.toFixed(cfg.priceDecimals)}`,
-          summary: `Technical indicators confirm bullish momentum on ${timeframe.toUpperCase()}. RSI (${cfg.rsi}) shows constructive expansion without overbought exhaustion. MACD histogram positive.`
-        },
-        priceAction: {
-          bias: "BULLISH",
-          confidence: 0.89,
-          formation: "Liquidity Sweep & Demand Block Defense",
-          volumeProfile: "Volume shelf holding firmly above support pivot",
-          summary: `Price action indicates seller exhaustion. Institutional absorption detected at demand shelf $${cfg.support.toFixed(cfg.priceDecimals)} with quick wick rejection.`
-        },
-        sentiment: {
-          bias: "BULLISH",
-          confidence: 0.84,
-          fearGreedIndex: "68 (Greed)",
-          orderbookImbalance: "+18.4% Bid Heavy",
-          summary: "Market participants accumulating. Smart money delta positive on order flow; retail panic wicks successfully absorbed."
+          bias,
+          confidence: parseFloat(confidence) / 100,
+          rsi,
+          atr,
+          supportLevel: `$${support.toFixed(priceDecimals)}`,
+          resistanceLevel: `$${resistance.toFixed(priceDecimals)}`,
+          summary: `Live indicators on ${timeframe.toUpperCase()}: RSI ${rsi}, ATR ${atr}. Support $${support.toFixed(priceDecimals)}, Resistance $${resistance.toFixed(priceDecimals)}.`,
         },
         riskCommittee: {
-          verdict: "APPROVED",
-          riskRewardRatio: cfg.riskReward,
-          maxDrawdownRisk: "2.1% of Account NAV",
-          kellySizing: "Half-Kelly (7.50% Position Sizing)",
-          summary: "Risk Committee approved trade plan. Verified 1:2+ R:R minimum constraint. Stop-loss placement strictly validated below ATR threshold."
-        }
-      },
-      debate: {
-        bullThesis: `Multi-timeframe trend alignment, expanding volume, and dynamic EMA 20/50 support favor upside expansion toward $${cfg.tp2.toFixed(cfg.priceDecimals)}.`,
-        bearVulnerability: `Overhead resistance near $${cfg.resistance.toFixed(cfg.priceDecimals)} may induce short-term consolidation. Non-negotiable stop-loss at $${cfg.stopLoss.toFixed(cfg.priceDecimals)} defends against downside invalidation.`
+          verdict: signal.includes("BUY") ? "APPROVED" : "CAUTION",
+          riskRewardRatio: rrRatio,
+          maxDrawdownRisk: `${((currentPrice - stopLoss) / currentPrice * 100).toFixed(1)}% of Position`,
+          summary: `Risk assessment based on live ATR (${atr}) and RSI (${rsi}).`,
+        },
       },
       candles,
-      dataSource: "SIMULATED_DEMO",
-      disclaimer: "Off-chain algorithmic analysis desk simulation for research and demonstration. Not financial advice."
+      dataSource,
+      disclaimer: "Algorithmic analysis based on live market data. Not financial advice.",
     };
 
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
@@ -693,22 +872,20 @@ async function handleRequest(req, res) {
           network: "Test SDF Network ; September 2015"
         };
 
-        const txHash = `soroban_${Date.now()}_${Buffer.from(String(pId) + voterAddress).toString("hex").slice(0, 12)}`;
-
+        // Return the invocation payload for client-side signing — no fake txHash
         res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
         return res.end(JSON.stringify({
           ok: true,
           success: true,
-          status: "INVOCATION_BUILT",
+          status: "AWAITING_SIGNATURE",
           requiresSignature: true,
           proposalId: pId,
           voter: voterAddress,
-          action: isVeto ? "STAKER_VETO_RECORDED" : "VOTE_CAST_RECORDED",
+          action: isVeto ? "STAKER_VETO" : "CAST_VOTE",
           voteType: voteType || "For",
           votingPowerStroops: votingPowerStroops || "1000000000",
           invocation,
-          txHash,
-          ledger: 4661344,
+          instructions: "Sign this invocation with your wallet and submit via /api/submit-tx",
           timestamp: new Date().toISOString()
         }));
       } catch (e) {
@@ -861,7 +1038,11 @@ async function handleRequest(req, res) {
 
   // API 7: Hikari Shards Loyalty Points Profile
   if (pathname.startsWith("/api/points")) {
-    const address = pathname.split("/").pop() || "GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN";
+    const address = pathname.split("/").pop() || "";
+    if (!address || address === "points") {
+      res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({ error: "Missing user address" }));
+    }
     try {
       const { HikariPointsEngine } = require("../engine/dist/points_engine.js");
       const engine = new HikariPointsEngine();
@@ -869,15 +1050,10 @@ async function handleRequest(req, res) {
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
       return res.end(JSON.stringify(profile));
     } catch (err) {
-      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      res.writeHead(503, { "Content-Type": "application/json; charset=utf-8" });
       return res.end(JSON.stringify({
+        error: "Points engine unavailable: " + err.message,
         userAddress: address,
-        totalShards: 42500,
-        baseRatePerDay: 1416,
-        activeMultiplier: 2.81,
-        rank: 42,
-        tier: "Luminescent Guardian",
-        badges: ["Early Testnet Pioneer", "Blend Integrator"]
       }));
     }
   }
@@ -951,16 +1127,11 @@ async function handleRequest(req, res) {
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
       return res.end(JSON.stringify({ report, userProof: proof }));
     } catch (e) {
-      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      res.writeHead(503, { "Content-Type": "application/json; charset=utf-8" });
       return res.end(JSON.stringify({
-        report: {
-          timestamp: new Date().toISOString(),
-          verifiedLedger: 341890,
-          merkleRoot: "69a7a6a881c5422ad787ac2b6154813569665477e0514cdf3dda59c66152ad2e",
-          reserveRatioPercent: 104.8,
-          isFullySolvent: true
-        },
-        userProof: null
+        error: "Solvency engine unavailable: " + e.message,
+        report: null,
+        userProof: null,
       }));
     }
   }
@@ -1253,3 +1424,5 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+module.exports = { handleRequest, bootstrap, startServerOnPort };

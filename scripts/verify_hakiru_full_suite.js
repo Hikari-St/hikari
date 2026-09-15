@@ -165,6 +165,16 @@ async function runMasterVerification() {
 
   // 8. Verify REST Gateway Endpoints on Live Dev Server
   console.log("\n[8/10] Testing REST Endpoints on Dev Server...");
+  let testServer = null;
+  try {
+    await fetch("http://localhost:3000/api/v1/social/status");
+  } catch (_) {
+    const http = require("http");
+    const { handleRequest } = require("../frontend/server.js");
+    testServer = http.createServer(handleRequest);
+    await new Promise((resolve) => testServer.listen(3000, "127.0.0.1", resolve));
+  }
+
   const resStatus = await fetch("http://localhost:3000/api/v1/social/status");
   const resFeed = await fetch("http://localhost:3000/api/v1/social/feed");
   const resSolvency = await fetch("http://localhost:3000/api/v1/solvency/proof?address=GIBO1V7L9900CDEF");
@@ -172,6 +182,10 @@ async function runMasterVerification() {
   const jsonStatus = await resStatus.json();
   const jsonFeed = await resFeed.json();
   const jsonSolvency = await resSolvency.json();
+
+  if (testServer) {
+    await new Promise((resolve) => testServer.close(resolve));
+  }
 
   results.restGateway = {
     statusEndpoint200: resStatus.ok && jsonStatus.status === "ONLINE",

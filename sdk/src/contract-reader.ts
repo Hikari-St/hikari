@@ -81,7 +81,7 @@ export class ContractReader {
   /**
    * Low-level: simulate a read-only contract call and return the native-decoded result.
    */
-  private async simulateCall<T>(contractId: string, functionName: string, args: any[] = []): Promise<T> {
+  public async simulateCall<T>(contractId: string, functionName: string, args: any[] = []): Promise<T> {
     const cacheKey = `${contractId}:${functionName}:${JSON.stringify(args)}`;
     const cached = this.cache.get(cacheKey);
     if (cached && Date.now() < cached.expiresAt) {
@@ -243,6 +243,39 @@ export class ContractReader {
       quorumBps: Number(raw.quorum_bps || 0),
       vetoThresholdBps: Number(raw.veto_threshold_bps || 0),
     };
+  }
+
+  // ─── Token & Queue Reads ───────────────────────────────────────
+
+  public async readTokenBalance(tokenId: string, address: string): Promise<bigint> {
+    try {
+      const { nativeToScVal } = await import("@stellar/stellar-sdk");
+      const raw = await this.simulateCall<any>(tokenId, "balance", [
+        nativeToScVal(address, { type: "address" }),
+      ]);
+      return typeof raw === "bigint" ? raw : BigInt(raw || 0);
+    } catch {
+      return 0n;
+    }
+  }
+
+  public async readQueueMode(queueId: string): Promise<{ mode: number; haircutBps: number }> {
+    try {
+      const raw = await this.simulateCall<any>(queueId, "get_queue_mode");
+      if (Array.isArray(raw)) {
+        return { mode: Number(raw[0] || 1), haircutBps: Number(raw[1] || 0) };
+      }
+      return { mode: 1, haircutBps: 0 };
+    } catch {
+      return { mode: 1, haircutBps: 0 };
+    }
+  }
+
+  public async readWithdrawalRequest(queueId: string, requestId: number | bigint): Promise<any> {
+    const { nativeToScVal } = await import("@stellar/stellar-sdk");
+    return this.simulateCall<any>(queueId, "get_request", [
+      nativeToScVal(requestId, { type: "u64" }),
+    ]);
   }
 
   /**

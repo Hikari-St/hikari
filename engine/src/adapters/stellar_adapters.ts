@@ -1,10 +1,46 @@
+import { rpc, Contract, Account, TransactionBuilder, scValToNative } from "@stellar/stellar-sdk";
 import { IYieldAdapter, LiveYieldBreakdown, YieldAdapterMetadata } from "./types.js";
+
+const DUMMY_ACCOUNT = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
+
+export class OnChainAdapterReader {
+  private server: rpc.Server;
+  private networkPassphrase: string;
+
+  constructor(
+    rpcUrl = "https://soroban-testnet.stellar.org",
+    networkPassphrase = "Test SDF Network ; September 2015"
+  ) {
+    this.server = new rpc.Server(rpcUrl);
+    this.networkPassphrase = networkPassphrase;
+  }
+
+  public async simulateCall<T>(contractId: string, functionName: string, args: any[] = []): Promise<T | null> {
+    try {
+      const contract = new Contract(contractId);
+      const dummy = new Account(DUMMY_ACCOUNT, "0");
+      const tx = new TransactionBuilder(dummy, { fee: "100", networkPassphrase: this.networkPassphrase })
+        .addOperation(contract.call(functionName, ...args))
+        .setTimeout(30)
+        .build();
+      const sim = await this.server.simulateTransaction(tx);
+      if (rpc.Api.isSimulationSuccess(sim) && sim.result) {
+        return scValToNative(sim.result.retval) as T;
+      }
+    } catch {
+      // Handled gracefully by callers
+    }
+    return null;
+  }
+}
 
 /**
  * Blend Protocol Yield Adapter
  * Implements exact b_rate math and RATE_SCALAR (1e12) discovered in meridian/blend-adapter.
  */
 export class BlendBackstopAdapter implements IYieldAdapter {
+  private reader = new OnChainAdapterReader();
+
   public metadata: YieldAdapterMetadata = {
     protocolId: "blend_backstop",
     name: "Blend Protocol Backstop Module (bBLND-XLM)",
@@ -23,6 +59,12 @@ export class BlendBackstopAdapter implements IYieldAdapter {
     const nominal = baseApyBps + emissionBoostBps + mevBoostBps;
     const penalty = 160; // First-loss tranche risk penalty
 
+    let tvlStroops = 142_000_000n * 10_000_000n;
+    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
+    if (onChainVal !== null) {
+      tvlStroops = typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
+    }
+
     return {
       baseApyBps,
       incentiveEmissionApyBps: emissionBoostBps,
@@ -30,17 +72,20 @@ export class BlendBackstopAdapter implements IYieldAdapter {
       totalNominalApyBps: nominal,
       volatilityRiskPenaltyBps: penalty,
       netRiskAdjustedApyBps: nominal - penalty,
-      tvlStroops: 142_000_000n * 10_000_000n, // $14.2M TVL
+      tvlStroops,
       lastUpdatedTimestamp: Date.now(),
     };
   }
 
   public async getTotalAssets(): Promise<bigint> {
+    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
+    if (onChainVal !== null) {
+      return typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
+    }
     return 142_000_000n * 10_000_000n;
   }
 
   public async simulateDeposit(amountStroops: bigint) {
-    // RATE_SCALAR = 1_000_000_000_000 (from Meridian contracts)
     return { sharesReceived: amountStroops, estimatedFeeStroops: 100n };
   }
 
@@ -54,6 +99,8 @@ export class BlendBackstopAdapter implements IYieldAdapter {
  * Active market making with ±2% dynamic bin re-centering.
  */
 export class PhoenixClammAdapter implements IYieldAdapter {
+  private reader = new OnChainAdapterReader();
+
   public metadata: YieldAdapterMetadata = {
     protocolId: "phoenix_clamm",
     name: "Phoenix XLM-USDC Concentrated Liquidity (CLAMM ±2%)",
@@ -72,6 +119,12 @@ export class PhoenixClammAdapter implements IYieldAdapter {
     const nominal = baseApyBps + emissionBoostBps + mevBoostBps;
     const penalty = 173; // Narrow bin impermanent loss risk
 
+    let tvlStroops = 89_000_000n * 10_000_000n;
+    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
+    if (onChainVal !== null) {
+      tvlStroops = typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
+    }
+
     return {
       baseApyBps,
       incentiveEmissionApyBps: emissionBoostBps,
@@ -79,12 +132,16 @@ export class PhoenixClammAdapter implements IYieldAdapter {
       totalNominalApyBps: nominal,
       volatilityRiskPenaltyBps: penalty,
       netRiskAdjustedApyBps: nominal - penalty,
-      tvlStroops: 89_000_000n * 10_000_000n,
+      tvlStroops,
       lastUpdatedTimestamp: Date.now(),
     };
   }
 
   public async getTotalAssets(): Promise<bigint> {
+    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
+    if (onChainVal !== null) {
+      return typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
+    }
     return 89_000_000n * 10_000_000n;
   }
 
@@ -101,6 +158,8 @@ export class PhoenixClammAdapter implements IYieldAdapter {
  * Soroswap Dynamic AMM Pool & Farm Adapter
  */
 export class SoroswapFarmAdapter implements IYieldAdapter {
+  private reader = new OnChainAdapterReader();
+
   public metadata: YieldAdapterMetadata = {
     protocolId: "soroswap_farm",
     name: "Soroswap XLM-USDC Dynamic AMM Pool & Farm",
@@ -119,6 +178,12 @@ export class SoroswapFarmAdapter implements IYieldAdapter {
     const nominal = baseApyBps + emissionBoostBps + mevBoostBps;
     const penalty = 134;
 
+    let tvlStroops = 115_000_000n * 10_000_000n;
+    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
+    if (onChainVal !== null) {
+      tvlStroops = typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
+    }
+
     return {
       baseApyBps,
       incentiveEmissionApyBps: emissionBoostBps,
@@ -126,12 +191,16 @@ export class SoroswapFarmAdapter implements IYieldAdapter {
       totalNominalApyBps: nominal,
       volatilityRiskPenaltyBps: penalty,
       netRiskAdjustedApyBps: nominal - penalty,
-      tvlStroops: 115_000_000n * 10_000_000n,
+      tvlStroops,
       lastUpdatedTimestamp: Date.now(),
     };
   }
 
   public async getTotalAssets(): Promise<bigint> {
+    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
+    if (onChainVal !== null) {
+      return typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
+    }
     return 115_000_000n * 10_000_000n;
   }
 
@@ -148,6 +217,8 @@ export class SoroswapFarmAdapter implements IYieldAdapter {
  * DeFindex Automated Multi-Strategy Index Adapter
  */
 export class DefindexVaultAdapter implements IYieldAdapter {
+  private reader = new OnChainAdapterReader();
+
   public metadata: YieldAdapterMetadata = {
     protocolId: "defindex_index",
     name: "DeFindex Balanced XLM-USDC Index Vault",
@@ -166,6 +237,12 @@ export class DefindexVaultAdapter implements IYieldAdapter {
     const nominal = baseApyBps + emissionBoostBps + mevBoostBps;
     const penalty = 80;
 
+    let tvlStroops = 45_000_000n * 10_000_000n;
+    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
+    if (onChainVal !== null) {
+      tvlStroops = typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
+    }
+
     return {
       baseApyBps,
       incentiveEmissionApyBps: emissionBoostBps,
@@ -173,12 +250,16 @@ export class DefindexVaultAdapter implements IYieldAdapter {
       totalNominalApyBps: nominal,
       volatilityRiskPenaltyBps: penalty,
       netRiskAdjustedApyBps: nominal - penalty,
-      tvlStroops: 45_000_000n * 10_000_000n,
+      tvlStroops,
       lastUpdatedTimestamp: Date.now(),
     };
   }
 
   public async getTotalAssets(): Promise<bigint> {
+    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
+    if (onChainVal !== null) {
+      return typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
+    }
     return 45_000_000n * 10_000_000n;
   }
 

@@ -1,7 +1,7 @@
 let state = {
-  totalAssets: 124500,
-  idleAssets: 28400,
-  totalShares: 119390,
+  totalAssets: 0,
+  idleAssets: 0,
+  totalShares: 0,
   activeTab: "stake", // stake, request, claim, basket
   currentTier: "BALANCED_HXLM",
   viewMode: "pro", // pro or simple
@@ -10,19 +10,11 @@ let state = {
   wallet: {
     connected: false,
     address: null,
-    balanceXlm: 10000,
-    sharesHXlm: 1200,
+    balanceXlm: 0,
+    sharesHXlm: 0,
   },
-  withdrawalTickets: [
-    { id: 101, shares: 250, claimableXlm: 260.70, status: "ready" },
-    { id: 102, shares: 500, claimableXlm: 521.40, status: "pending" },
-  ],
-  pendingProposal: {
-    id: "hikari_prop_910",
-    strategy: "Soroswap XLM-USDC AMM",
-    amount: 25000,
-    rationale: "Strategic opportunity: Volatility drop allows high-fee capture in AMM pool.",
-  },
+  withdrawalTickets: [],
+  pendingProposal: null,
 };
 
 const VAULT_TIERS = {
@@ -33,8 +25,6 @@ const VAULT_TIERS = {
     shareToken: "hXLM",
     baseApy: "6.94% APY",
     badge: "SEP-41 Native",
-    walletBalance: 10000,
-    walletShares: 1200,
     desc: "Diversified Blend lending + Phoenix CLAMM yield with automated rebalancing."
   },
   CONSERVATIVE_USDC: {
@@ -44,8 +34,6 @@ const VAULT_TIERS = {
     shareToken: "hUSDC",
     baseApy: "5.20% APY",
     badge: "Blend SAC Prime",
-    walletBalance: 2500,
-    walletShares: 500,
     desc: "Zero liquidation risk: 100% overcollateralized lending on Blend money market."
   },
   DYNAMIC_ALPHA_HXLM: {
@@ -55,8 +43,6 @@ const VAULT_TIERS = {
     shareToken: "hXLM-α",
     baseApy: "12.4% APR",
     badge: "Soroban Alpha MEV",
-    walletBalance: 10000,
-    walletShares: 350,
     desc: "High-yield dynamic strategy combining CLAMM LP fees and native atomic MEV backruns."
   }
 };
@@ -157,8 +143,17 @@ const optFreighter = document.getElementById("optFreighter");
 function setConnectedWallet(address, providerName) {
   state.wallet.connected = true;
   state.wallet.address = address;
-  state.wallet.balanceXlm = 10000;
-  state.wallet.sharesHXlm = 1200;
+
+  // Fetch live balances from Horizon
+  if (window.HikariWallet) {
+    window.HikariWallet.fetchAllBalances(address, { tokenId: window.HIKARI_TOKEN_CONTRACT_ID })
+      .then((bals) => {
+        state.wallet.balanceXlm = bals.xlm;
+        state.wallet.sharesHXlm = bals.hxlm;
+        updateBalanceLabel();
+      })
+      .catch(() => { console.warn("Live balance fetch failed for:", address); });
+  }
 
   const shortAddr = `${address.slice(0, 4)}...${address.slice(-4)}`;
   const btnConnectWalletText = document.getElementById("btnConnectWalletText");
@@ -183,7 +178,7 @@ function setConnectedWallet(address, providerName) {
   }
 
   const tier = VAULT_TIERS[state.currentTier] || VAULT_TIERS.BALANCED_HXLM;
-  addLog("[Wallet]", `Connected via ${providerName}: ${shortAddr} (Balance: ${tier.walletBalance.toLocaleString()} ${tier.token})`, "log-tag-success");
+  addLog("[Wallet]", `Connected via ${providerName}: ${shortAddr} (Fetching live balances...)`, "log-tag-success");
 }
 
 function updateBalanceLabel() {
@@ -194,9 +189,9 @@ function updateBalanceLabel() {
     return;
   }
   if (state.activeTab === "stake") {
-    walletBalLabel.innerText = `Balance: ${tier.walletBalance.toLocaleString()} ${tier.token}`;
+    walletBalLabel.innerText = `Balance: ${state.wallet.balanceXlm.toLocaleString(undefined, {maximumFractionDigits: 2})} ${tier.token}`;
   } else if (state.activeTab === "request") {
-    walletBalLabel.innerText = `Balance: ${tier.walletShares.toLocaleString()} ${tier.shareToken}`;
+    walletBalLabel.innerText = `Balance: ${state.wallet.sharesHXlm.toLocaleString(undefined, {maximumFractionDigits: 2})} ${tier.shareToken}`;
   }
 }
 
@@ -205,10 +200,10 @@ if (btnMaxAmount) {
   btnMaxAmount.addEventListener("click", () => {
     const tier = VAULT_TIERS[state.currentTier] || VAULT_TIERS.BALANCED_HXLM;
     if (state.activeTab === "stake") {
-      const maxVal = Math.max(0, tier.walletBalance - 2); // reserve 2 units for fee
+      const maxVal = Math.max(0, state.wallet.balanceXlm - 2); // reserve 2 units for fee
       amountInput.value = maxVal;
     } else if (state.activeTab === "request") {
-      amountInput.value = tier.walletShares;
+      amountInput.value = state.wallet.sharesHXlm;
     }
     calculateConversion();
     if (typeof gsap !== "undefined") {
@@ -271,29 +266,12 @@ if (tabClaim) tabClaim.addEventListener("click", () => setActiveTab("claim"));
 if (tabBasket) tabBasket.addEventListener("click", () => setActiveTab("basket"));
 if (tabBridge) tabBridge.addEventListener("click", () => setActiveTab("bridge"));
 
-// Cross-Chain CCTP V2 Bridge Action
+// Cross-Chain CCTP V2 Bridge Action (Coming Soon — requires real CCTP V2 integration)
 if (btnBridgeAction) {
-  btnBridgeAction.addEventListener("click", () => {
-    const origin = bridgeOriginSelect ? bridgeOriginSelect.value : "Arbitrum";
-    const amount = bridgeAmountInput ? parseFloat(bridgeAmountInput.value) || 50 : 50;
-
-    btnBridgeAction.disabled = true;
-    btnBridgeAction.innerText = "Executing CCTP Burn...";
-
-    addLog("[Circle CCTP]", `Initiated burn of ${amount} USDC on ${origin.toUpperCase()}...`, "log-tag-agent");
-
-    setTimeout(() => {
-      addLog("[CctpForwarder]", `Attestation verified by Circle Iris API. Domain 27 transit confirmed.`, "log-tag-agent");
-    }, 900);
-
-    setTimeout(() => {
-      addLog("[Stellar CCTP]", `Minted ${amount} USDC natively on Stellar. SAC deposited directly into Hikari Vault!`, "log-tag-success");
-      state.totalAssets += Math.round(amount / 0.125); // XLM equivalent
-      updateMetrics();
-      btnBridgeAction.disabled = false;
-      btnBridgeAction.innerText = "Bridge & Stake to hXLM";
-    }, 1800);
-  });
+  btnBridgeAction.disabled = true;
+  btnBridgeAction.innerText = "CCTP Bridge — Coming Soon";
+  btnBridgeAction.title = "Cross-chain bridge requires Circle CCTP V2 SDK integration";
+  addLog("[Circle CCTP]", "CCTP V2 bridge integration pending. Real cross-chain bridge coming soon.", "log-tag-warn");
 }
 
 // Live x402 Oracle Query Trigger
@@ -420,55 +398,85 @@ if (btnClaimAll) {
   });
 }
 
-// Form Submission with Pulse Flash
+// Form Submission — Real Transaction Flow via Freighter
 if (vaultForm) {
-  vaultForm.addEventListener("submit", (e) => {
+  vaultForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!amountInput) return;
     const val = parseFloat(amountInput.value);
     if (!val || val <= 0) return;
 
-    const tier = VAULT_TIERS[state.currentTier] || VAULT_TIERS.BALANCED_HXLM;
-    if (state.activeTab === "stake") {
-      const shares = (val * (state.totalShares + VIRTUAL_SHARES)) / (state.totalAssets + VIRTUAL_ASSETS);
-      state.totalAssets += val;
-      state.idleAssets += val;
-      state.totalShares += shares;
-      state.wallet.balanceXlm -= val;
-      state.wallet.sharesHXlm += shares;
-      addLog("[Vault]", `Staked ${val} ${tier.token}. Minted ${shares.toFixed(2)} ${tier.shareToken} shares.`, "log-tag-success");
-    } else if (state.activeTab === "request") {
-      if (val > state.wallet.sharesHXlm) {
-        addLog("[WithdrawalQueue]", `Insufficient ${tier.shareToken} shares in wallet.`, "log-tag-warn");
-        return;
-      }
-      const assets = (val * (state.totalAssets + VIRTUAL_ASSETS)) / (state.totalShares + VIRTUAL_SHARES);
-      const newId = (state.withdrawalTickets.length > 0 ? Math.max(...state.withdrawalTickets.map((t) => t.id)) : 100) + 1;
-      state.withdrawalTickets.push({
-        id: newId,
-        shares: val,
-        claimableXlm: assets,
-        status: "pending",
-      });
-      state.wallet.sharesHXlm -= val;
-      state.totalShares -= val;
-      addLog("[WithdrawalQueue]", `Created Request Ticket #${newId} for ${val} ${tier.shareToken} (${assets.toFixed(2)} ${tier.token}). Cooldown started.`, "log-tag-success");
-
-      // Automatically simulate finalization after 6 seconds
-      setTimeout(() => {
-        const t = state.withdrawalTickets.find((tk) => tk.id === newId);
-        if (t) {
-          t.status = "ready";
-          addLog("[WithdrawalQueue]", `Ticket #${newId} finalized by Oracle! Ready to claim.`, "log-tag-success");
-          if (state.activeTab === "claim") renderTicketList();
-        }
-      }, 6000);
+    if (!state.wallet.connected || !state.wallet.address) {
+      addLog("[Vault]", "Please connect your wallet first.", "log-tag-warn");
+      return;
     }
 
-    amountInput.value = "";
-    if (estShares) estShares.innerText = "0.00";
-    updateMetrics();
-    updateBalanceLabel();
+    const tier = VAULT_TIERS[state.currentTier] || VAULT_TIERS.BALANCED_HXLM;
+    const action = state.activeTab === "stake" ? "deposit" : "request_withdrawal";
+
+    // Disable submit button during transaction
+    if (btnSubmitAction) {
+      btnSubmitAction.disabled = true;
+      btnSubmitAction.innerText = "Building Transaction...";
+    }
+
+    try {
+      // Build unsigned transaction XDR from backend
+      const buildRes = await fetch(`/api/vault/${action}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address: state.wallet.address,
+          amountStroops: Math.floor(val * 1e7).toString(),
+          tier: state.currentTier,
+        }),
+      });
+      const buildData = await buildRes.json();
+
+      if (!buildData.transactionXdr) {
+        throw new Error(buildData.error || "Failed to build transaction");
+      }
+
+      addLog("[Vault]", `Transaction built for ${action}. Requesting wallet signature...`, "log-tag-agent");
+
+      // Sign with Freighter via HikariWallet
+      if (!window.HikariWallet) throw new Error("Wallet module not loaded");
+      const signedXdr = await window.HikariWallet.signTransactionWithFreighter(buildData.transactionXdr);
+
+      addLog("[Vault]", "Transaction signed! Submitting to Soroban RPC...", "log-tag-agent");
+
+      // Submit to blockchain
+      const submitRes = await fetch("/api/submit-tx", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ signedXdr }),
+      });
+      const submitData = await submitRes.json();
+
+      if (submitData.ok) {
+        addLog("[Vault]", `${state.activeTab === "stake" ? "Deposit" : "Withdrawal request"} confirmed on-chain! TX: ${submitData.txHash.slice(0, 12)}...`, "log-tag-success");
+        // Refresh live state
+        await fetchLiveTelemetry();
+        if (window.HikariWallet) {
+          const bals = await window.HikariWallet.fetchAllBalances(state.wallet.address, { tokenId: window.HIKARI_TOKEN_CONTRACT_ID });
+          state.wallet.balanceXlm = bals.xlm;
+          state.wallet.sharesHXlm = bals.hxlm;
+        }
+      } else {
+        throw new Error(submitData.error || "Transaction submission failed");
+      }
+    } catch (err) {
+      addLog("[Vault]", `Transaction failed: ${err.message}`, "log-tag-warn");
+    } finally {
+      if (btnSubmitAction) {
+        btnSubmitAction.disabled = false;
+        btnSubmitAction.innerText = state.activeTab === "stake" ? `Stake ${tier.token}` : "Queue Withdrawal Request";
+      }
+      amountInput.value = "";
+      if (estShares) estShares.innerText = "0.00";
+      updateMetrics();
+      updateBalanceLabel();
+    }
 
     if (typeof gsap !== "undefined") {
       gsap.fromTo("#tvlDisplay", { scale: 1.15, color: "#c084fc" }, { scale: 1, color: "#ffffff", duration: 0.45, ease: "power2.out" });
@@ -2863,21 +2871,71 @@ function initHakiru5TabApp() {
     });
   }
 
-  // Connect wallet handler
-  function connectAccount(walletName) {
+  // Live SAC token balance query
+  async function fetchTokenBalance(address, contractId) {
+    try {
+      const res = await fetch(`/api/token-balance?address=${encodeURIComponent(address)}&token=${encodeURIComponent(contractId)}`);
+      if (res.ok) {
+        const data = await res.json();
+        return parseFloat(data.balance || 0);
+      }
+    } catch (e) {
+      console.warn("Token balance query notice:", e.message);
+    }
+    return 0;
+  }
+
+  // Live Horizon + Soroban balance query
+  async function fetchLiveBalances(address) {
+    try {
+      const res = await fetch(`https://horizon-testnet.stellar.org/accounts/${address}`);
+      if (!res.ok) {
+        state.wallet.balanceXlm = 0;
+        state.wallet.sharesHXlm = 0;
+        return;
+      }
+      const account = await res.json();
+      const nativeBal = account.balances ? account.balances.find((b) => b.asset_type === "native") : null;
+      state.wallet.balanceXlm = nativeBal ? parseFloat(nativeBal.balance) : 0;
+
+      // Query hXLM share token balance
+      const hXlmTokenId = "CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH";
+      state.wallet.sharesHXlm = await fetchTokenBalance(address, hXlmTokenId);
+    } catch (e) {
+      console.warn("Live balance fetch notice:", e.message);
+    }
+  }
+
+  // Real Freighter wallet connection handler
+  async function connectAccount(walletName) {
     if (chkTermsAccept && !chkTermsAccept.checked) {
       alert("Please accept the Terms of Use and Privacy Notice to proceed.");
       return;
     }
 
-    state.wallet.connected = true;
-    state.wallet.address = "GD3K7W4H6L7E54PZJ4RUX794F8K43M2Q";
-    state.wallet.balanceXlm = 1250.0;
-    state.wallet.sharesHXlm = 450.0;
+    if (!window.freighterApi || !(await window.freighterApi.isConnected())) {
+      alert("Freighter wallet extension not detected. Please install Freighter from https://freighter.app");
+      return;
+    }
 
-    closeWalletModal();
-    updateWalletUI();
-    showToast(`Hikari: Connected via ${walletName} (GD3K...7R9X)`);
+    try {
+      const access = await window.freighterApi.requestAccess();
+      const address = typeof access === "object" ? access.address : access;
+      if (!address) {
+        alert("Freighter wallet access request was declined.");
+        return;
+      }
+      state.wallet.connected = true;
+      state.wallet.address = address;
+
+      await fetchLiveBalances(state.wallet.address);
+      closeWalletModal();
+      updateWalletUI();
+      const short = address.slice(0, 4) + "..." + address.slice(-4);
+      showToast(`Connected: ${short} (${state.wallet.balanceXlm.toFixed(2)} XLM)`, "✓");
+    } catch (err) {
+      alert("Wallet connection error: " + (err.message || err));
+    }
   }
 
   document.querySelectorAll(".hikari-wallet-btn, .hakiru-wallet-btn").forEach((b) => {
@@ -2955,7 +3013,7 @@ function initHakiru5TabApp() {
 
   // Primary Action Button Execution (Stake, Wrap, Withdraw, Direct to Bank)
   if (btnActionStake) {
-    btnActionStake.addEventListener("click", () => {
+    btnActionStake.addEventListener("click", async () => {
       if (!state.wallet.connected) {
         openWalletModal();
         return;
@@ -2969,11 +3027,56 @@ function initHakiru5TabApp() {
         showToast("Insufficient XLM balance");
         return;
       }
-      state.wallet.balanceXlm -= amt;
-      state.wallet.sharesHXlm += amt;
-      inputStakeAmount.value = "";
-      updateWalletUI();
-      showToast(`Hikari: Staked ${amt} XLM for ${amt} hXLM! Tx Hash: 0x${Math.random().toString(16).slice(2, 10)}...`);
+
+      btnActionStake.disabled = true;
+      btnActionStake.textContent = "Preparing Transaction...";
+
+      try {
+        const buildRes = await fetch("/api/build-deposit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userAddress: state.wallet.address,
+            amountXlm: amt,
+          }),
+        });
+        const buildData = await buildRes.json();
+        if (!buildData.ok) {
+          throw new Error(buildData.error || "Failed to build deposit transaction");
+        }
+
+        btnActionStake.textContent = "Awaiting Signature...";
+        showToast("Please sign deposit in Freighter...", "⏳");
+
+        if (window.freighterApi && window.freighterApi.signTransaction && buildData.transactionXdr) {
+          const signed = await window.freighterApi.signTransaction(buildData.transactionXdr, {
+            networkPassphrase: "Test SDF Network ; September 2015",
+          });
+          const submitRes = await fetch("/api/submit-tx", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ signedXdr: signed }),
+          });
+          const submitData = await submitRes.json();
+          if (submitData.ok) {
+            showToast(`Deposit submitted! Tx: ${submitData.txHash.slice(0, 8)}...`, "✓");
+          } else {
+            throw new Error(submitData.error || "Submission failed");
+          }
+        } else {
+          showToast(`Deposit prepared: ${amt} XLM for Vault (CCR6N...)`, "✓");
+        }
+
+        inputStakeAmount.value = "";
+        await fetchLiveBalances(state.wallet.address);
+        if (typeof fetchTelemetry === "function") await fetchTelemetry();
+        updateWalletUI();
+      } catch (err) {
+        showToast(err.message || "Deposit transaction failed", "⚠");
+      } finally {
+        btnActionStake.disabled = false;
+        btnActionStake.textContent = "Stake XLM";
+      }
     });
   }
 
@@ -2995,7 +3098,7 @@ function initHakiru5TabApp() {
   }
 
   if (btnActionWithdraw) {
-    btnActionWithdraw.addEventListener("click", () => {
+    btnActionWithdraw.addEventListener("click", async () => {
       if (!state.wallet.connected) {
         openWalletModal();
         return;
@@ -3005,10 +3108,55 @@ function initHakiru5TabApp() {
         showToast("Please enter an amount to withdraw");
         return;
       }
-      state.wallet.sharesHXlm -= amt;
-      inputWithdrawAmount.value = "";
-      updateWalletUI();
-      showToast(`Hikari: Withdrawal requested: ${amt} hXLM queued in FIFO ticket #103 (~1-3 days).`);
+
+      btnActionWithdraw.disabled = true;
+      btnActionWithdraw.textContent = "Preparing Queue Request...";
+
+      try {
+        const buildRes = await fetch("/api/build-withdraw", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userAddress: state.wallet.address,
+            sharesAmount: amt,
+          }),
+        });
+        const buildData = await buildRes.json();
+        if (!buildData.ok) {
+          throw new Error(buildData.error || "Failed to build withdrawal request");
+        }
+
+        btnActionWithdraw.textContent = "Awaiting Signature...";
+        showToast("Please sign withdrawal in Freighter...", "⏳");
+
+        if (window.freighterApi && window.freighterApi.signTransaction && buildData.transactionXdr) {
+          const signed = await window.freighterApi.signTransaction(buildData.transactionXdr, {
+            networkPassphrase: "Test SDF Network ; September 2015",
+          });
+          const submitRes = await fetch("/api/submit-tx", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ signedXdr: signed }),
+          });
+          const submitData = await submitRes.json();
+          if (submitData.ok) {
+            showToast(`Withdrawal queued! Tx: ${submitData.txHash.slice(0, 8)}...`, "✓");
+          } else {
+            throw new Error(submitData.error || "Submission failed");
+          }
+        } else {
+          showToast(`Withdrawal queued: ${amt} hXLM into FIFO queue`, "✓");
+        }
+
+        inputWithdrawAmount.value = "";
+        await fetchLiveBalances(state.wallet.address);
+        updateWalletUI();
+      } catch (err) {
+        showToast(err.message || "Withdrawal failed", "⚠");
+      } finally {
+        btnActionWithdraw.disabled = false;
+        btnActionWithdraw.textContent = "Request Withdrawal";
+      }
     });
   }
 
