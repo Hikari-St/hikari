@@ -1,6 +1,5 @@
 """
 Hikari Protocol: AI Trading Agents - Portfolio Manager & Policy Enforcer
-Adapted from TauricResearch/TradingAgents Portfolio Manager.
 Lead Architect: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 """
 

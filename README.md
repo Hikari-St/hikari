@@ -4,21 +4,21 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/ibochivincent-lang/hikari/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/ibochivincent-lang/hikari/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square)](https://github.com/ibochivincent-lang/hikari)
 [![SDK](https://img.shields.io/badge/%40hikari%2Fsdk-v0.1.0-blue?style=flat-square&logo=typescript)](sdk)
-[![Deployed on Vercel](https://img.shields.io/badge/deploy-vercel-000?style=flat-square&logo=vercel)](https://hikari-protocol.vercel.app)
+[![Deployed on Vercel](https://img.shields.io/badge/deploy-vercel-000?style=flat-square&logo=vercel)](https://hikari-ebon.vercel.app)
 [![Conventional Commits](https://img.shields.io/badge/commits-conventional-fe5196?style=flat-square&logo=conventionalcommits)](https://www.conventionalcommits.org)
 
 **Autonomous Liquid Staking (`hXLM`), AI Yield Rerouter &amp; Hikari Multi-Agent Trading Desk on Stellar Protocol 27 (Soroban).**
 
 Hikari is the decentralized asset management, liquid staking execution layer, and autonomous AI trading desk built natively for Stellar:
 1. **Native Liquid Staking (`hXLM` / `whXLM`)**: Tokenizes staked XLM into an appreciating, SEP-41 compliant receipt token auto-compounding native returns across audited Stellar DeFi strategies while retaining 100% liquidity.
-2. **Advanced Pro Analytics &amp; Risk Telemetry (AI Yield Rerouter)**: Real-time cross-protocol yield aggregation and Pareto allocation engine discovering and directing capital to Stellar's highest yields (Blend Backstop 24.70% APY, Phoenix CLAMM 21.80%, Soroswap 18.40%, Defindex 16.50%). Utilizes Meridian's zero-signature `migrate_adapter` pattern, Lens price/depth aggregation, and Landfall liveness verification.
+2. **Advanced Pro Analytics &amp; Risk Telemetry (AI Yield Rerouter)**: Real-time cross-protocol yield aggregation and Pareto allocation engine discovering and directing capital to Stellar's highest yields (Blend Backstop 24.70% APY, Phoenix CLAMM 21.80%, Soroswap 18.40%, Defindex 16.50%). Utilizes native zero-signature `migrate_adapter` execution, multi-venue depth aggregation, and settlement liveness verification.
 3. **Hikari Multi-Agent Trading Desk**: Autonomous financial specialists (Fundamental, Technical, Sentiment, News, Risk Committee) conducting multi-turn Bull vs. Bear debates, executing optimal entries on SDEX/Soroswap with zero-cash-drag **Yield Carry** (parking idle margin in Blend Backstop for 24.70% APY).
 4. **Autonomous Keepers & MEV Capture**: Continuously harvest rewards, rebalance narrow tick bands, and backrun SDEX-Soroswap arbitrage, recycling 100% of atomic MEV spreads (+3.20% APY) directly into staker NAV.
 5. **Formal Invariant & Safety Sentinel**: Mathematically proved solvency ($R_t \ge S_t \times P_t$), a mandatory 15% liquid buffer, and automated Bunker Mode circuit breakers.
 6. **x402 Micropayments & MCP Surface**: Machine-to-machine HTTP 402 payment facilitation enabling AI agents and algorithmic keepers to stake, query, and rebalance without human intervention.
 
 <p align="center">
-  <em>Live demo → <a href="https://hikari-protocol.vercel.app">hikari-protocol.vercel.app</a></em>
+  <em>Live demo → <a href="https://hikari-ebon.vercel.app">hikari-ebon.vercel.app</a></em>
 </p>
 
 ---
@@ -26,6 +26,7 @@ Hikari is the decentralized asset management, liquid staking execution layer, an
 ## Table of contents
 
 - [Why this exists](#why-this-exists)
+- [How Hikari helps Stellar](#how-hikari-helps-stellar)
 - [Why Stellar Protocol 27](#why-stellar-protocol-27)
 - [The six load-bearing primitives](#the-six-load-bearing-primitives)
 - [Tech stack](#tech-stack)
@@ -52,6 +53,18 @@ Stellar is the world's most battle-tested public blockchain for cross-border rem
 
 ---
 
+## How Hikari helps Stellar
+
+Hikari directly reinforces Stellar's network economy and drives on-chain adoption:
+
+- **Accelerates Total Value Locked (TVL)**: Mobilizes idle XLM from centralized exchanges and offline wallets into Soroban contracts, increasing Stellar's on-chain TVL metrics.
+- **Deepens Liquidity Across Corridors**: Routes pooled capital across Phoenix concentrated tick bands and Soroswap AMM pairs, reducing trading slippage for real-world payment corridors and remittances.
+- **Increases Soroban Transaction Velocity**: Hikari's autonomous keeper bots, rebalancing algorithms, and multi-agent trading cycles generate constant, deterministic on-chain activity and contract call volume on Protocol 27.
+- **Recycles MEV into the Ecosystem**: Replaces extractive MEV bots with internal atomic arbitrage backruns, returning 100% of captured profits directly into staker NAV.
+- **Pioneers AI Agent Infrastructure on Stellar**: Integrates HTTP 402 (x402) micropayments and Model Context Protocol (MCP) tooling, positioning Stellar as the leading network for machine-to-machine AI agent commerce.
+
+---
+
 ## Why Stellar Protocol 27
 
 Hikari is purpose-built for Stellar and could not exist with the same guarantees on another chain:
@@ -70,7 +83,7 @@ Hikari is purpose-built for Stellar and could not exist with the same guarantees
 2. **Advanced Pro Analytics &amp; Risk Telemetry (AI Yield Rerouter)**:
    - Real-time venue discovery: Blend Backstop (24.70% APY), Phoenix CLAMM (21.80%), Soroswap Farm (18.40%), Defindex Vault (16.50%).
    - Pareto-optimal allocation engine computing optimal risk-adjusted weights (35% Blend, 30% Phoenix, 20% Soroswap, 15% Safe Liquid Reserve Floor) delivering **22.19% net APY**.
-   - Meridian `migrate_adapter` integration for atomic zero-user-signature migrations.
+   - Native `migrate_adapter` integration for atomic zero-user-signature migrations.
 3. **Hikari Multi-Agent Trading Desk &amp; Yield Carry**:
    - 4 Financial Specialists: Fundamental (Warren), Technical (George), Sentiment (Cathie), and Risk Committee Lead (Ray).
    - Multi-turn Bull vs. Bear debate with verifiable stop-loss and take-profit bounds.
@@ -91,10 +104,10 @@ Hikari is purpose-built for Stellar and could not exist with the same guarantees
 ## Tech stack
 
 | Layer | Technology |
-| ----- | ---------- |
+| :--- | :--- |
 | **Smart Contracts** | Soroban Rust (`wasm32-unknown-unknown`), Stellar Protocol 27 |
 | **Client SDK** | `@hikari/sdk` (TypeScript, `@stellar/stellar-sdk` v13+) |
-| **AI Trading & Routing** | Hikari Multi-Agent Framework, Meridian Yield Adapters, Lens Depth Aggregator |
+| **AI Trading & Routing** | Hikari Multi-Agent Framework, Native Yield Adapters, VWAP Depth Aggregator |
 | **Frontend** | Vanilla CSS Design System, HTML5, 8-Tab Reactive DApp Workspace |
 | **Backend & DB** | Node.js, Express, Anti-Mixup Resilient Multi-Tenant Storage |
 | **Agent Protocols** | Model Context Protocol (MCP), HTTP 402 (x402) CAIP-2 Micropayments |
@@ -193,8 +206,8 @@ The complete architectural and governance suite lives under [`docs/`](docs/):
 | **hXLM Share Token (SEP-41)** | `CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH) |
 | **Strategy Registry** | `CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ) |
 | **Withdrawal Queue** | `CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ) |
-| **Blend Protocol Adapter** | `CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL) |
-| **Phoenix CLAMM Adapter** | `CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5) |
+| **Blend Protocol Adapter (Simulated)** | `CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL) |
+| **Phoenix CLAMM Adapter (Simulated)** | `CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5) |
 | **GateSeal Circuit Breaker** | `CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ) |
 | **Native XLM SAC** | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC) |
 

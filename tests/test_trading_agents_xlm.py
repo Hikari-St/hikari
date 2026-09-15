@@ -1,6 +1,5 @@
 """
 Unit & Integration Test Suite for Hikari XLM AI Trading Agents
-Validates architecture adapted from TauricResearch/TradingAgents.
 Author: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 """
 

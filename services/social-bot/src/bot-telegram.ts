@@ -89,11 +89,11 @@ export class HikariTelegramBot {
           "🏦 *Hikari Active Multi-Strategy Vaults*",
           "----------------------------------------",
           "1. *EarnXLM Vault (Native XLM)*",
-          "   • Strategies: Blend Protocol (40%), Phoenix DEX (30%), Soroswap (15%), Liquidity Buffer (15%)",
+          "   • Strategies: Blend Protocol (Simulated) (40%), Phoenix DEX (Simulated) (30%), Soroswap (Simulated) (15%), Liquidity Buffer (15%)",
           "   • Receipt: hXLM (SEP-41 Fungible)",
           "",
           "2. *EarnUSD Vault (USDC)*",
-          "   • Strategies: Phoenix CLAMM Lending & Arbitrage",
+          "   • Strategies: Phoenix CLAMM (Simulated) Lending & Arbitrage",
           "   • Receipt: hUSD (SEP-41 Fungible)",
           "",
           "3. *Earn Multichain (Cross-Chain Index)*",
@@ -128,7 +128,7 @@ export class HikariTelegramBot {
           "• *Cumulative Yield Earned:* +84.18 XLM",
           "• *Solvency Status:* Verified in Merkle Tree Leaf #42 ✅",
           "----------------------------------------",
-          "🚀 Compounding active across Blend & Phoenix strategies.",
+          "🚀 Compounding active across Blend (Simulated) & Phoenix (Simulated) strategies.",
         ].join("\n");
 
       case "/deposit":

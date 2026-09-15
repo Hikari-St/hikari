@@ -55,9 +55,10 @@ export class ExecutionAgent {
     proposal: ActionProposal,
     vaultContractId: string = "CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5"
   ): Promise<string> {
-    const agentSecret =
-      process.env.AGENT_SECRET_KEY ||
-      "SD75U26VVDDCAAXVSY22AMXYQGREEVC5WSOWYALUG3V3SBEIKMIW2NOY";
+    const agentSecret = process.env.AGENT_SECRET_KEY;
+    if (!agentSecret) {
+      throw new Error("AGENT_SECRET_KEY environment variable is required to execute on-chain proposals.");
+    }
     const keypair = Keypair.fromSecret(agentSecret);
 
     const targetStrategyAddress =

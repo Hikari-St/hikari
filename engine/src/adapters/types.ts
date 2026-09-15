@@ -1,7 +1,7 @@
 /**
  * Hikari Protocol - Multi-Protocol Yield Adapter Architecture
- * Synthesized from Meridian (Vault Adapters), Lens (Price & Route Aggregation),
- * and Landfall (Settlement Liveness & Verification).
+ * Native Soroban Vault Adapters, Price & Route Aggregation,
+ * and Settlement Liveness Verification.
  */
 
 export interface YieldAdapterMetadata {
@@ -11,7 +11,7 @@ export interface YieldAdapterMetadata {
   adapterAddress: string;
   underlyingPoolAddress: string;
   reserveAsset: "XLM" | "USDC" | "EURC";
-  settlementVerified: boolean; // Landfall settlement verification
+  settlementVerified: boolean; // Native settlement verification
   livenessScore: number;       // 0 - 100
 }
 

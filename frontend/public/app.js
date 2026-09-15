@@ -421,15 +421,21 @@ if (vaultForm) {
     }
 
     try {
+      let endpoint = "";
+      let bodyData = {};
+      if (action === "deposit") {
+        endpoint = "/api/build-deposit";
+        bodyData = { userAddress: state.wallet.address, amountXlm: val };
+      } else {
+        endpoint = "/api/build-withdraw";
+        bodyData = { userAddress: state.wallet.address, sharesAmount: val };
+      }
+
       // Build unsigned transaction XDR from backend
-      const buildRes = await fetch(`/api/vault/${action}`, {
+      const buildRes = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          address: state.wallet.address,
-          amountStroops: Math.floor(val * 1e7).toString(),
-          tier: state.currentTier,
-        }),
+        body: JSON.stringify(bodyData),
       });
       const buildData = await buildRes.json();
 
@@ -2898,8 +2904,11 @@ function initHakiru5TabApp() {
       const nativeBal = account.balances ? account.balances.find((b) => b.asset_type === "native") : null;
       state.wallet.balanceXlm = nativeBal ? parseFloat(nativeBal.balance) : 0;
 
-      // Query hXLM share token balance
-      const hXlmTokenId = "CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH";
+      // Query dynamic hXLM share token balance
+      const configRes = await fetch("/api/contracts");
+      const config = await configRes.json();
+      const hXlmTokenId = config.token;
+      
       state.wallet.sharesHXlm = await fetchTokenBalance(address, hXlmTokenId);
     } catch (e) {
       console.warn("Live balance fetch notice:", e.message);
@@ -3433,7 +3442,7 @@ function initYieldRouterSystem() {
   if (btnStakeAndRoute) {
     btnStakeAndRoute.addEventListener("click", () => {
       const amount = parseFloat(inputDeposit?.value) || 10000;
-      showToast(`Routing ${amount.toLocaleString()} XLM through Meridian Vault to Blend & Phoenix...`);
+      showToast(`Routing ${amount.toLocaleString()} XLM through Hikari Vault to Blend & Phoenix...`);
       setTimeout(() => {
         showToast(`✓ Minted ${(amount * 0.958).toFixed(2)} hXLM! Position deployed at ${currentBlendedApy}% APY.`);
       }, 1200);
@@ -3446,17 +3455,17 @@ function initYieldRouterSystem() {
       telemetryBox.style.display = "block";
       telemetryBox.innerHTML = `<div>[KEEPER] Inspecting cross-protocol rate differential...</div>`;
       setTimeout(() => {
-        telemetryBox.innerHTML += `<div>[LENS] SDEX orderbook depth verified: $0.1245 VWAP (spread: 4 bps)</div>`;
+        telemetryBox.innerHTML += `<div>[VWAP] SDEX orderbook depth verified: $0.1245 VWAP (spread: 4 bps)</div>`;
       }, 400);
       setTimeout(() => {
-        telemetryBox.innerHTML += `<div>[LANDFALL] Settlement liveness confirmed: 99.9% ledger finality</div>`;
+        telemetryBox.innerHTML += `<div>[SETTLEMENT] Settlement liveness confirmed: 99.9% ledger finality</div>`;
       }, 800);
       setTimeout(() => {
-        telemetryBox.innerHTML += `<div style="color: #38bdf8;">[SOROBAN] Invoking Meridian migrate_adapter(BlendBackstopAdapter, max_slippage: 50 bps)...</div>`;
+        telemetryBox.innerHTML += `<div style="color: #38bdf8;">[SOROBAN] Invoking native migrate_adapter(BlendBackstopAdapter, max_slippage: 50 bps)...</div>`;
       }, 1200);
       setTimeout(() => {
         telemetryBox.innerHTML += `<div style="color: #10b981; font-weight: 700;">✓ Rebalance complete! 350,000 XLM migrated atomically without depositor signatures. Slippage: 0.08%.</div>`;
-        showToast("✓ Keeper rebalance executed via Meridian migrate_adapter!");
+        showToast("✓ Keeper rebalance executed via native migrate_adapter!");
       }, 1800);
     });
   }

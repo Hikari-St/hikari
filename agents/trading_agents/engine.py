@@ -1,6 +1,5 @@
 """
 Hikari Protocol: AI Trading Agents Orchestration Engine
-Adapted from TauricResearch/TradingAgents framework for Stellar XLM.
 Lead Architect: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 """
 
@@ -17,7 +16,7 @@ from .portfolio_manager import PortfolioManager
 class XLMTradingAgentsEngine:
     """
     Main Orchestration Engine coordinating the full hierarchical multi-agent workflow
-    for Stellar Lumens (XLM), exactly implementing TauricResearch/TradingAgents architecture.
+    for Stellar Lumens (XLM), executing disciplined market analyses and risk consensus.
     """
 
     def __init__(self, data_feed: Optional[StellarMarketDataFeed] = None):
@@ -92,7 +91,6 @@ class XLMTradingAgentsEngine:
 
         # Step 7: Format Full Comprehensive Report Tree
         full_report_markdown = f"""# 🌟 HIKARI PROTOCOL — AI TRADING AGENTS REPORT
-> **Framework Source**: [TauricResearch/TradingAgents](https://github.com/TauricResearch/TradingAgents)  
 > **Target Asset**: Stellar Lumens (`XLM/USDC`)  
 > **Execution Timestamp**: {start_time}  
 > **Market Regime**: {market_regime.upper()}  

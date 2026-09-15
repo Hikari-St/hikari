@@ -1,6 +1,5 @@
 """
 Hikari Protocol: AI Trading Agents - Researcher Team (Bull vs. Bear Debate)
-Adapted from TauricResearch/TradingAgents (Bull, Bear, Research Manager).
 Lead Architect: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 """
 

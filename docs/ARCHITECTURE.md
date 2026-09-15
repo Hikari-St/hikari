@@ -24,7 +24,7 @@
 Hikari operates across three unified planes sharing a common mathematical invariant and non-custodial execution model:
 
 - **Control Plane**: Modern web frontend (`frontend/public/`), developer client SDK (`@hikari/sdk`), and Model Context Protocol (MCP) server for autonomous AI agents.
-- **Execution Plane**: Soroban smart contracts on Stellar Protocol 27 (`contracts/hikari_core`, `strategy_blend`, `strategy_phoenix`, `strategy_soroswap`, `safety_sentinel`). All asset movements are strictly signed by users or triggered by verified on-chain invariants.
+- **Execution Plane**: Soroban smart contracts on Stellar Protocol 27 (`contracts/hikari_core`, `strategy_blend` (simulated), `strategy_phoenix` (simulated), `strategy_soroswap` (simulated), `safety_sentinel`). All asset movements are strictly signed by users or triggered by verified on-chain invariants.
 - **Optimization Plane**: Autonomous off-chain keeper robots (`engine/src/`) and an atomic MEV backrunner that monitors SDEX and Soroban orderbooks, capturing cross-venue arbitrage and compounding 100% of proceeds into staker NAV.
 
 ```mermaid
@@ -50,9 +50,9 @@ flowchart TB
   end
 
   subgraph Strategies["Stellar Strategy Adapters"]
-    StratBlend["strategy_blend.wasm\nBlend Money Market Lending"]
-    StratPhoenix["strategy_phoenix.wasm\nPhoenix CLAMM Narrow-Band LP"]
-    StratSoroswap["strategy_soroswap.wasm\nSoroswap AMM Pools"]
+    StratBlend["strategy_blend.wasm\nBlend Money Market Lending (Simulated)"]
+    StratPhoenix["strategy_phoenix.wasm\nPhoenix CLAMM Narrow-Band LP (Simulated)"]
+    StratSoroswap["strategy_soroswap.wasm\nSoroswap AMM Pools (Simulated)"]
     SDEXBuffer["SDEX Arbitrage Buffer\nAtomic MEV Backrun Buffer"]
   end
 
@@ -138,12 +138,12 @@ sequenceDiagram
 The central accounting vault and share registry:
 - Implements the SEP-41 token standard for `hXLM`.
 - Tracks global reserves: $R_{\text{liquid}} + \sum A_{\text{strategy}} = R_{\text{total}}$.
-- Virtual Shares Offset: Implements an $OFFSET = 1000$ virtual shares mechanism (inspired by Vincent Ibochi's `meridian` vault) to mathematically neutralize the ERC-4626 first-depositor inflation attack.
+- Virtual Shares Offset: Implements an $OFFSET = 1000$ virtual shares mechanism to mathematically neutralize the ERC-4626 first-depositor inflation attack.
 - Manages the unbonding FIFO ticket queue and cooldown epochs.
 - Strictly enforces the mandatory 15% liquid reserve floor before any strategy allocation.
 
 ### 4.2 Pluggable Strategy Adapters (`IYieldAdapter`)
-Following the `YieldAdapterInterface` pattern from `meridian`, each strategy implements a uniform interface:
+Following the native `YieldAdapterInterface` pattern, each strategy implements a uniform interface:
 ```rust
 pub trait YieldAdapterInterface {
     fn deposit(e: Env, amount: i128) -> Result<i128, Error>;
@@ -152,21 +152,22 @@ pub trait YieldAdapterInterface {
     fn harvest(e: Env) -> i128;
 }
 ```
-- **`strategy_blend` (BlendBackstopAdapter)**:
+- **`strategy_blend` (BlendBackstopAdapter - Simulated)**:
   - Supplies XLM to Blend money markets and backstop pools.
   - Converts Blend's fixed-point b_rate into standard nominal rates using `RATE_SCALAR = 1_000_000_000_000` (1e12).
   - Produces **24.70% APY** (highest yield in Stellar).
-- **`strategy_phoenix` (PhoenixClammAdapter)**:
-  - Deploys concentrated liquidity in dynamic narrow bands (±2% tick range) around XLM/USDC.
-  - Captures dynamic trading fees delivering **21.80% APY**.
-- **`strategy_soroswap` (SoroswapFarmAdapter)**:
-  - Supplies constant-product liquidity to Soroswap AMMs and stakes LP tokens into active farm contracts.
-  - Delivers **18.40% APY**.
-- **`strategy_defindex` (DefindexVaultAdapter)**:
+- **`strategy_phoenix` (PhoenixClammAdapter - Simulated)**:
+  - Provides concentrated liquidity (CLAMM) into Phoenix XLM/USDC or XLM/EURC pools.
+  - Targets high-fee tick bands for yield harvesting.
+
+- **`strategy_soroswap` (SoroswapFarmAdapter - Simulated)**:
+  - Classic XYK liquidity provisioning into Soroswap dynamically incentivized pools.
+
+- **`strategy_defindex` (DefindexVaultAdapter - Simulated)**:
   - Diversifies capital across multi-asset automated index rebalancing vaults (**16.50% APY**).
 
 ### 4.3 Atomic Zero-Signature Migration (`migrate_adapter`)
-Inherited from `meridian`, when the AI Yield Rerouter discovers a higher-yielding protocol venue:
+When the AI Yield Rerouter discovers a higher-yielding protocol venue:
 1. The Keeper calls `migrate_adapter(old_adapter, new_adapter, max_slippage_bps)`.
 2. The contract unwinds capital from the old adapter, verifies that slippage is within bounds ($\le 50\text{ bps}$), and deposits into the new adapter in the exact same ledger transaction.
 3. **Zero Depositor Transactions**: Individual stakers do not need to sign transactions, approve allowances, or incur tax events.
@@ -180,9 +181,9 @@ Hikari acts as an autonomous AI router continuously scanning, rating, and reallo
 ```mermaid
 flowchart LR
     Scan["1. Real-Time Yield Scanner\nBlend (24.7%) | Phoenix (21.8%)\nSoroswap (18.4%) | Defindex (16.5%)"]
-    Filter["2. Landfall Liveness & Lens Depth\nSettlement Finality >= 99.9%\nVWAP Depth >= $500k"]
+    Filter["2. Settlement Liveness & Depth\nSettlement Finality >= 99.9%\nVWAP Depth >= $500k"]
     Pareto["3. Pareto Optimal Optimizer\nMaximize Yield - lambda * Risk\ns.t. Reserve Floor >= 15%"]
-    Migrate["4. Meridian migrate_adapter\nAtomic Execution\nSlippage <= 50 bps"]
+    Migrate["4. Native migrate_adapter\nAtomic Execution\nSlippage <= 50 bps"]
 
     Scan --> Filter --> Pareto --> Migrate
 ```
@@ -195,12 +196,12 @@ The optimizer continuously evaluates nominal APR, protocol fees, incentive emiss
 | **Blend Protocol Backstop** | `BlendBackstopAdapter` | 26.00% | 5.00% | **24.70%** | **35%** |
 | **Phoenix CLAMM Concentrated** | `PhoenixClammAdapter` | 23.20% | 6.00% | **21.80%** | **30%** |
 | **Soroswap Dynamic Farm** | `SoroswapFarmAdapter` | 19.80% | 7.00% | **18.40%** | **20%** |
-| **Liquid Safety Reserve** | `MeridianVaultContract` | 0.00% | 0.00% | **0.00%** | **15% (Floor)** |
+| **Liquid Safety Reserve** | `HikariReserveVault` | 0.00% | 0.00% | **0.00%** | **15% (Floor)** |
 | **Composite Portfolio** | **Hikari Vault Core** | **23.95%** | **4.20%** | **22.19%** | **100%** |
 
-### 5.2 Cross-Repo Synergy: Lens & Landfall Integration
-- **`Lens` Integration**: The AI rerouter queries Lens multi-venue orderbook depth aggregation across SDEX and Soroban AMMs. It computes Volume-Weighted Average Price (VWAP) to guarantee that rebalancing swaps incur less than 50 bps slippage.
-- **`landfall` Integration**: Before capital is routed to any pool, Landfall settlement intelligence verifies the pool's ledger finality rate ($\ge 99.9\%$) and active transaction volume, ensuring capital is never routed into dormant contracts.
+### 5.2 Depth Aggregation & Settlement Liveness Verification
+- **Multi-Venue VWAP & Depth Aggregation**: The AI rerouter queries multi-venue orderbook depth aggregation across SDEX and Soroban AMMs. It computes Volume-Weighted Average Price (VWAP) to guarantee that rebalancing swaps incur less than 50 bps slippage.
+- **Settlement Liveness Verification**: Before capital is routed to any pool, settlement intelligence verifies the pool's ledger finality rate ($\ge 99.9\%$) and active transaction volume, ensuring capital is never routed into dormant contracts.
 
 ---
 
@@ -289,8 +290,8 @@ The `safety_sentinel` contract acts as an autonomous risk arbiter:
 Hikari/
 ├── contracts/                     # Soroban Rust smart contracts
 │   ├── hikari_core/               # Vault, share minting, unbonding queue
-│   ├── strategy_blend/            # Blend money market adapter (RATE_SCALAR = 1e12)
-│   ├── strategy_phoenix/          # Phoenix CLAMM concentrated LP adapter
+│   ├── strategy_blend/            # Blend money market adapter (Simulated)
+│   ├── strategy_phoenix/          # Phoenix CLAMM concentrated LP adapter (Simulated)
 │   └── safety_sentinel/           # Circuit breakers & Bunker Mode
 ├── sdk/                           # @hikari/sdk TypeScript package
 │   ├── src/client.ts              # Core HikariClient methods

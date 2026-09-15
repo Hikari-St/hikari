@@ -38,9 +38,9 @@
 - [x] `#010` Multi-wallet connection support (Freighter, Lobstr, xBull).
 
 ### Wave 1.2 Multi-Strategy Adapters (✅ Shipped)
-- [x] `#011` Blend money market lending adapter (`strategy_blend`).
-- [x] `#012` Phoenix CLAMM concentrated liquidity adapter (`strategy_phoenix`).
-- [x] `#013` Soroswap constant-product liquidity adapter (`strategy_soroswap`).
+- [x] `#011` Blend money market lending adapter (`strategy_blend`) - Simulated.
+- [x] `#012` Phoenix CLAMM concentrated liquidity adapter (`strategy_phoenix`) - Simulated.
+- [x] `#013` Soroswap constant-product liquidity adapter (`strategy_soroswap`) - Simulated.
 - [x] `#014` Mandatory 15% liquid native XLM reserve floor.
 
 ---

@@ -70,7 +70,7 @@ const wrapTx = await client.buildWrapTx({
 
 ```bash
 # Get live protocol statistics
-curl -s https://hikari-protocol.vercel.app/api/vault | jq
+curl -s https://hikari-ebon.vercel.app/api/vault | jq
 
 # Sample Response:
 # {

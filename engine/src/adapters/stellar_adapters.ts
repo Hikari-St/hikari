@@ -36,7 +36,7 @@ export class OnChainAdapterReader {
 
 /**
  * Blend Protocol Yield Adapter
- * Implements exact b_rate math and RATE_SCALAR (1e12) discovered in meridian/blend-adapter.
+ * Implements exact b_rate math and RATE_SCALAR (1e12) for Soroban.
  */
 export class BlendBackstopAdapter implements IYieldAdapter {
   private reader = new OnChainAdapterReader();

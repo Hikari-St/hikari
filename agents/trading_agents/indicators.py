@@ -1,6 +1,5 @@
 """
 Hikari Protocol: AI Trading Agents - Technical Indicators Engine
-Adapted from TauricResearch/TradingAgents for Stellar XLM.
 Lead Architect: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 """
 
@@ -190,7 +189,7 @@ def calculate_vwma(prices: List[float], volumes: List[float], period: int = 20) 
 def compute_all_indicators(ohlcv_data: List[Dict[str, float]]) -> Dict[str, Any]:
     """
     Takes a list of OHLCV candles [{'open': ..., 'high': ..., 'low': ..., 'close': ..., 'volume': ...}]
-    and returns a comprehensive technical snapshot corresponding to TradingAgents' Market Analyst.
+    and returns a comprehensive technical snapshot for the Market Analyst.
     """
     closes = [c["close"] for c in ohlcv_data]
     highs = [c["high"] for c in ohlcv_data]

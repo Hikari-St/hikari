@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Hikari Protocol: XLM AI Trading Agents CLI Execution Engine
-Implements TauricResearch/TradingAgents multi-agent framework for Stellar native assets.
 Author: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 """
 

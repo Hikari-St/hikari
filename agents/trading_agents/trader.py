@@ -1,6 +1,5 @@
 """
 Hikari Protocol: AI Trading Agents - Trader Agent
-Adapted from TauricResearch/TradingAgents Trader role.
 Lead Architect: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 """
 

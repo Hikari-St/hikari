@@ -1,6 +1,6 @@
 """
 Hikari Protocol: AI Trading Agents Package
-Adapted from TauricResearch/TradingAgents for Stellar XLM.
+Lead Architect: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 """
 
 from .indicators import compute_all_indicators

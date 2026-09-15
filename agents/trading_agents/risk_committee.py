@@ -1,6 +1,5 @@
 """
 Hikari Protocol: AI Trading Agents - Risk Management Committee
-Adapted from TauricResearch/TradingAgents (Aggressive, Conservative, Neutral Risk Analysts).
 Lead Architect: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 """
 

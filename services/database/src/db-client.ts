@@ -385,7 +385,7 @@ export class HikariDatabaseClient {
       rank: 58,
       tier: "Luminescent Guardian",
       multiplier: 2.25,
-      badges: ["Early Testnet Pioneer", "Zero-Knowledge Solvency Verified"]
+      badges: ["Early Testnet Pioneer (Simulated)", "Zero-Knowledge Solvency Verified (Simulated)"]
     };
 
     this.loyaltyTable.set(stellarAddress, defaultLoyalty);

@@ -79,7 +79,8 @@ export class X402Client {
       const requirement = (await res.json()) as X402PaymentRequirement;
 
       // In real deployment, signs SAC token transfer on Stellar testnet
-      const simulatedTxHash = `tx_${Date.now()}_stellar_${requirement.asset.slice(0, 6)}`;
+      console.warn("[X402 Client] (Simulated) Bypassing real Soroban SAC transfer for testnet demo.");
+      const simulatedTxHash = `tx_${Date.now()}_stellar_${requirement.asset.slice(0, 6)}_SIMULATED`;
 
       // 3. Retry request with payment proof
       res = await fetch(url, {

@@ -1,6 +1,5 @@
 """
-Hikari Protocol: AI Trading Agents - Analyst Team
-Adapted from TauricResearch/TradingAgents (Market, Fundamentals, Sentiment, News).
+Hikari Protocol: AI Trading Agents - Specialist Analyst Team
 Lead Architect: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 """
 

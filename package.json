@@ -44,5 +44,8 @@
   },
   "devDependencies": {
     "puppeteer-core": "^25.10.0"
+  },
+  "dependencies": {
+    "@stellar/stellar-sdk": "^17.1.0"
   }
 }

@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { exec } = require("child_process");
+const { rpc, Contract, Address, nativeToScVal, TransactionBuilder, Networks } = require("@stellar/stellar-sdk");
 
 const PRIMARY_PORT = parseInt(process.env.PORT || "3000", 10);
 const BACKUP_PORTS = [8080, 3001, 80];
@@ -128,11 +129,11 @@ async function handleRequest(req, res) {
     }
   }
 
-  // API: Build Vault Deposit Invocation
+  // API: Build Vault Deposit Invocation (Real XDR)
   if (pathname === "/api/build-deposit" && req.method === "POST") {
     let body = "";
     req.on("data", chunk => { body += chunk; });
-    req.on("end", () => {
+    req.on("end", async () => {
       try {
         const { userAddress, amountXlm, vaultId } = JSON.parse(body || "{}");
         if (!userAddress || !amountXlm) {
@@ -146,15 +147,26 @@ async function handleRequest(req, res) {
         const targetVault = vaultId || rawContracts.contracts?.vault?.id || "CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5";
         const stroops = BigInt(Math.floor(parseFloat(amountXlm) * 1e7)).toString();
 
-        const invocation = {
-          contractId: targetVault,
-          functionName: "deposit",
-          args: {
-            from: userAddress,
-            amount: stroops,
-          },
-          network: "Test SDF Network ; September 2015",
-        };
+        const serverInstance = new rpc.Server(process.env.SOROBAN_RPC_URL || "https://soroban-testnet.stellar.org");
+        const account = await serverInstance.getAccount(userAddress);
+        const contract = new Contract(targetVault);
+
+        const tx = new TransactionBuilder(account, {
+          fee: "2000",
+          networkPassphrase: Networks.TESTNET,
+        })
+          .addOperation(
+            contract.call(
+              "deposit",
+              new Address(userAddress).toScVal(),
+              nativeToScVal(stroops, { type: "i128" })
+            )
+          )
+          .setTimeout(300)
+          .build();
+        
+        const preparedTx = await serverInstance.prepareTransaction(tx);
+        const transactionXdr = preparedTx.toXDR();
 
         res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
         return res.end(JSON.stringify({
@@ -165,8 +177,8 @@ async function handleRequest(req, res) {
           userAddress,
           amountXlm,
           amountStroops: stroops,
-          invocation,
-          instructions: "Sign invocation with Freighter wallet and submit to /api/submit-tx",
+          transactionXdr,
+          instructions: "Sign transactionXdr with Freighter wallet and submit to /api/submit-tx",
         }));
       } catch (e) {
         res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
@@ -176,11 +188,11 @@ async function handleRequest(req, res) {
     return;
   }
 
-  // API: Build Withdrawal Invocation
+  // API: Build Withdrawal Invocation (Real XDR)
   if (pathname === "/api/build-withdraw" && req.method === "POST") {
     let body = "";
     req.on("data", chunk => { body += chunk; });
-    req.on("end", () => {
+    req.on("end", async () => {
       try {
         const { userAddress, sharesAmount, queueId } = JSON.parse(body || "{}");
         if (!userAddress || !sharesAmount) {
@@ -194,15 +206,26 @@ async function handleRequest(req, res) {
         const targetQueue = queueId || rawContracts.contracts?.withdrawalQueue?.id || "CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ";
         const sharesStroops = BigInt(Math.floor(parseFloat(sharesAmount) * 1e7)).toString();
 
-        const invocation = {
-          contractId: targetQueue,
-          functionName: "request_withdrawal",
-          args: {
-            user: userAddress,
-            shares: sharesStroops,
-          },
-          network: "Test SDF Network ; September 2015",
-        };
+        const serverInstance = new rpc.Server(process.env.SOROBAN_RPC_URL || "https://soroban-testnet.stellar.org");
+        const account = await serverInstance.getAccount(userAddress);
+        const contract = new Contract(targetQueue);
+
+        const tx = new TransactionBuilder(account, {
+          fee: "2000",
+          networkPassphrase: Networks.TESTNET,
+        })
+          .addOperation(
+            contract.call(
+              "request_withdrawal",
+              new Address(userAddress).toScVal(),
+              nativeToScVal(sharesStroops, { type: "i128" })
+            )
+          )
+          .setTimeout(300)
+          .build();
+        
+        const preparedTx = await serverInstance.prepareTransaction(tx);
+        const transactionXdr = preparedTx.toXDR();
 
         res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
         return res.end(JSON.stringify({
@@ -213,8 +236,8 @@ async function handleRequest(req, res) {
           userAddress,
           sharesAmount,
           sharesStroops,
-          invocation,
-          instructions: "Sign invocation with Freighter wallet and submit to /api/submit-tx",
+          transactionXdr,
+          instructions: "Sign transactionXdr with Freighter wallet and submit to /api/submit-tx",
         }));
       } catch (e) {
         res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
@@ -231,8 +254,40 @@ async function handleRequest(req, res) {
       res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
       return res.end(JSON.stringify({ error: "Missing address parameter" }));
     }
-    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-    return res.end(JSON.stringify({ ok: true, address, tickets: [] }));
+    try {
+      const reader = getContractReader();
+      const CONTRACTS = readJsonSafe(CONTRACTS_FILE);
+      const queueId = CONTRACTS?.contracts?.withdrawalQueue?.id;
+      
+      const tickets = [];
+      if (reader && queueId) {
+        // Attempt to read recent withdrawal requests (e.g. IDs 1 to 20 for this user)
+        // In a production app, an indexer would provide the exact IDs to query
+        for (let i = 1; i <= 20; i++) {
+          try {
+            const reqData = await reader.readWithdrawalRequest(queueId, i);
+            if (reqData && reqData.user === address) {
+              tickets.push({
+                id: i,
+                shares: Number(reqData.shares) / 1e7,
+                claimableXlm: Number(reqData.amount || 0) / 1e7,
+                status: reqData.ready ? "ready" : "pending"
+              });
+            }
+          } catch (e) {
+            // Stop if we hit an invalid request ID
+            if (e.message.includes("simulation did not return a success result")) {
+              break;
+            }
+          }
+        }
+      }
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({ ok: true, address, tickets }));
+    } catch (err) {
+      res.writeHead(500, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({ error: err.message }));
+    }
   }
 
   // API: Submit Signed Transaction to Soroban RPC
@@ -1143,8 +1198,8 @@ async function handleRequest(req, res) {
     req.on("end", () => {
       try {
         const payload = JSON.parse(body || "{}");
-        const { HakiruTelegramBot } = require("../services/social-bot/dist/bot-telegram.js");
-        const bot = new HakiruTelegramBot();
+        const { HikariTelegramBot } = require("../services/social-bot/dist/bot-telegram.js");
+        const bot = new HikariTelegramBot();
         const response = bot.processCommand(payload.command || "/stats", payload.address);
         res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
         return res.end(JSON.stringify({ success: true, command: payload.command, response }));

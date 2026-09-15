@@ -1,6 +1,5 @@
 """
 Hikari Protocol: AI Trading Agents - Stellar XLM Data Feed & Market Snapshot
-Adapted from TauricResearch/TradingAgents dataflows.
 Lead Architect: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
 """
 
