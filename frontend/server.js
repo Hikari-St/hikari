@@ -516,31 +516,36 @@ async function handleRequest(req, res) {
           const contractId = def.contractId || yc[def.id]?.id;
           if (!contractId) return null;
           try {
-            // Read adapter's current yield metrics via simulateTransaction
-            const yieldData = await reader.simulateCall(contractId, "get_yield_metrics").catch(() => null);
-            const tvlData = await reader.simulateCall(contractId, "get_total_assets").catch(() => null);
+            // total_value() is a real exported function on every adapter — this is a genuine live read.
+            const tvlData = await reader.simulateCall(contractId, "total_value");
+            const tvlStroops = tvlData !== null && tvlData !== undefined ? BigInt(tvlData).toString() : "0";
 
-            const baseApyBps = yieldData ? Number(yieldData.base_apy_bps || 0) : 0;
-            const emissionBps = yieldData ? Number(yieldData.emission_apy_bps || 0) : 0;
-            const mevBps = yieldData ? Number(yieldData.mev_boost_bps || 0) : 0;
-            const grossBps = baseApyBps + emissionBps + mevBps;
-            const penaltyBps = yieldData ? Number(yieldData.risk_penalty_bps || 0) : 0;
-            const tvlStroops = tvlData ? BigInt(tvlData).toString() : "0";
+            // configured_rate_bps() only exists on adapters redeployed after this fix; older
+            // deployments will fail this call — that failure is reported honestly, not papered over.
+            let rateBps = null;
+            let rateSource = "PENDING_ADAPTER_REDEPLOY";
+            try {
+              const rate = await reader.simulateCall(contractId, "configured_rate_bps");
+              if (rate !== null && rate !== undefined) {
+                rateBps = Number(rate);
+                rateSource = "ON_CHAIN_CONFIGURED_RATE"; // still a fixed self-accrual rate, not live third-party yield
+              }
+            } catch (_) {
+              // adapter predates configured_rate_bps() — leave rateBps null, rateSource as PENDING
+            }
 
             return {
               id: def.id,
               name: def.name,
               protocol: def.protocol,
               category: def.category,
-              baseApyPct: baseApyBps / 100,
-              emissionsApyPct: emissionBps / 100,
-              mevBoostPct: mevBps / 100,
-              grossApyPct: grossBps / 100,
-              netRiskAdjustedPct: (grossBps - penaltyBps) / 100,
-              allocationPct: def.allocationPct,
+              contractId,
               tvlStroops,
+              configuredRatePct: rateBps !== null ? rateBps / 100 : null,
+              rateSource,
+              integrationStatus: `SIMULATED_YIELD — this adapter does not call the real ${def.protocol} contracts`,
+              allocationPct: def.allocationPct,
               riskTier: def.riskTier,
-              settlementStatus: "VERIFIED",
               dataSource: "LIVE_SOROBAN_RPC",
             };
           } catch (e) {
@@ -566,27 +571,13 @@ async function handleRequest(req, res) {
       }));
     }
 
-    // Compute blended APY from live routes
-    let weightedSum = 0;
-    let totalWeight = 0;
-    routes.forEach((r) => { weightedSum += r.netRiskAdjustedPct * r.allocationPct; totalWeight += r.allocationPct; });
-    const blendedNet = totalWeight > 0 ? weightedSum / totalWeight : 0;
-    const topRoute = routes.reduce((a, b) => (a.grossApyPct > b.grossApyPct ? a : b), routes[0]);
-
     const routesData = {
       timestamp: new Date().toISOString(),
       runtime: "Stellar Protocol 27 (Soroban)",
       benchmarkAsset: "XLM",
       dataSource: "LIVE_SOROBAN_RPC",
+      disclosure: "TVL per adapter is a live on-chain read. Rate figures (when present) are each adapter's own configured self-accrual rate, not live yield from Blend/Phoenix/Soroswap — none of these adapters call those protocols yet.",
       routes,
-      aiRecommendation: {
-        topVenue: topRoute.name,
-        topGrossApyPct: topRoute.grossApyPct,
-        blendedNetApyPct: Number(blendedNet.toFixed(2)),
-        reserveFloorPct: 15.0,
-        rebalanceTriggerSpreadBps: 50,
-        rationale: `Live yield rerouter: ${routes.map(r => `${r.allocationPct}% ${r.protocol} (${r.grossApyPct.toFixed(1)}%)`).join(" + ")} + 15% Reserve Floor.`,
-      },
     };
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     return res.end(JSON.stringify(routesData));
@@ -721,8 +712,42 @@ async function handleRequest(req, res) {
       return Number((sum / period).toFixed(closes[0] > 100 ? 2 : 5));
     }
 
+    // MACD (12/26/9 EMA) — real computation from the same candle closes
+    function emaSeries(data, period) {
+      const k = 2 / (period + 1);
+      const out = [data[0]];
+      for (let i = 1; i < data.length; i++) out.push(data[i] * k + out[i - 1] * (1 - k));
+      return out;
+    }
+    function computeMacd(data) {
+      if (data.length < 26) return { line: 0, signal: 0, histogram: 0, sampleSize: data.length, note: "insufficient candles for a reliable MACD (need 26+)" };
+      const ema12 = emaSeries(data, 12);
+      const ema26 = emaSeries(data, 26);
+      const macdSeries = data.map((_, i) => ema12[i] - ema26[i]);
+      const signalSeries = emaSeries(macdSeries, 9);
+      const line = macdSeries[macdSeries.length - 1];
+      const signalLine = signalSeries[signalSeries.length - 1];
+      return {
+        line: Number(line.toFixed(5)),
+        signal: Number(signalLine.toFixed(5)),
+        histogram: Number((line - signalLine).toFixed(5)),
+        sampleSize: data.length,
+        note: `computed from ${data.length} candles — EMA9 signal line is less stable than a standard 250+ candle series`,
+      };
+    }
+    function classifyTrend(data) {
+      if (data.length < 10) return "INSUFFICIENT_DATA";
+      const sma = data.slice(-10).reduce((a, b) => a + b, 0) / 10;
+      const last = data[data.length - 1];
+      if (last > sma * 1.01) return "UPTREND (above 10-period SMA)";
+      if (last < sma * 0.99) return "DOWNTREND (below 10-period SMA)";
+      return "RANGE-BOUND (near 10-period SMA)";
+    }
+
     const rsi = computeRsi(closes);
     const atr = computeAtr(highs, lows, closes);
+    const macd = computeMacd(closes);
+    const trendClassification = classifyTrend(closes);
     const priceDecimals = currentPrice > 100 ? 2 : currentPrice > 1 ? 2 : 5;
     const support = Math.min(...lows.slice(-14));
     const resistance = Math.max(...highs.slice(-14));
@@ -778,9 +803,14 @@ async function handleRequest(req, res) {
           confidence: parseFloat(confidence) / 100,
           rsi,
           atr,
+          macd: macd.line,
+          macdSignal: macd.signal,
+          macdHistogram: macd.histogram,
+          macdNote: macd.note,
+          chartPattern: trendClassification,
           supportLevel: `$${support.toFixed(priceDecimals)}`,
           resistanceLevel: `$${resistance.toFixed(priceDecimals)}`,
-          summary: `Live indicators on ${timeframe.toUpperCase()}: RSI ${rsi}, ATR ${atr}. Support $${support.toFixed(priceDecimals)}, Resistance $${resistance.toFixed(priceDecimals)}.`,
+          summary: `Live indicators on ${timeframe.toUpperCase()}: RSI ${rsi}, ATR ${atr}, MACD ${macd.line}. Support $${support.toFixed(priceDecimals)}, Resistance $${resistance.toFixed(priceDecimals)}.`,
         },
         riskCommittee: {
           verdict: signal.includes("BUY") ? "APPROVED" : "CAUTION",
@@ -1091,7 +1121,9 @@ async function handleRequest(req, res) {
     }
   }
 
-  // API 7: Hikari Shards Loyalty Points Profile
+  // API 7: Hikari Shards Loyalty Points Profile — computed from the address's REAL hXLM
+  // balance, not a fabricated stand-in amount. Previously every address was scored as if it
+  // had $2,500 staked regardless of its actual on-chain position.
   if (pathname.startsWith("/api/points")) {
     const address = pathname.split("/").pop() || "";
     if (!address || address === "points") {
@@ -1100,14 +1132,27 @@ async function handleRequest(req, res) {
     }
     try {
       const { HikariPointsEngine } = require("../engine/dist/points_engine.js");
+      const reader = getContractReader();
+      if (!reader) throw new Error("ContractReader not available");
+
+      let rawContracts = {};
+      if (fs.existsSync(CONTRACTS_FILE)) {
+        try { rawContracts = JSON.parse(fs.readFileSync(CONTRACTS_FILE, "utf-8")); } catch (_) {}
+      }
+      const tokenId = rawContracts.contracts?.token?.id;
+      if (!tokenId) throw new Error("hXLM token contract id not configured");
+
+      const balanceBig = await reader.readTokenBalance(tokenId, address);
+      const realHxlmBalance = Number(balanceBig) / 1e7;
+
       const engine = new HikariPointsEngine();
-      const profile = engine.getUserProfile(address, 2500, "BALANCED_HXLM");
+      const profile = engine.getUserProfile(address, realHxlmBalance, "BALANCED_HXLM");
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-      return res.end(JSON.stringify(profile));
+      return res.end(JSON.stringify({ ...profile, sourcedFromRealBalance: true, realHxlmBalance }));
     } catch (err) {
       res.writeHead(503, { "Content-Type": "application/json; charset=utf-8" });
       return res.end(JSON.stringify({
-        error: "Points engine unavailable: " + err.message,
+        error: "Points profile unavailable (could not read real on-chain balance): " + err.message,
         userAddress: address,
       }));
     }
@@ -1170,11 +1215,35 @@ async function handleRequest(req, res) {
     }
   }
 
-  // API 12: Hakiru Cryptographic Proof of Solvency Report & User Inclusion Proof
+  // API 12: Cryptographic Proof of Solvency Report & User Inclusion Proof.
+  // Built from REAL on-chain reserves and a REAL current ledger sequence — the engine used to
+  // self-generate a fake depositor registry and a reserve constant hand-picked to print "104.8%
+  // over-collateralized" while claiming to be "mathematically verified on chain." It no longer
+  // accepts fabricated inputs; there is currently no real per-depositor liability registry, so
+  // the report honestly reports zero tracked liabilities until one exists.
   if (pathname === "/api/v1/solvency/proof") {
     try {
-      const { HakiruSolvencyEngine } = require("../services/automation/dist/merkle-solvency.js");
-      const engine = new HakiruSolvencyEngine();
+      const { HikariSolvencyEngine } = require("../services/automation/dist/merkle-solvency.js");
+      const reader = getContractReader();
+      if (!reader) throw new Error("ContractReader not available");
+
+      let rawContracts = {};
+      if (fs.existsSync(CONTRACTS_FILE)) {
+        try { rawContracts = JSON.parse(fs.readFileSync(CONTRACTS_FILE, "utf-8")); } catch (_) {}
+      }
+      const vaultId = rawContracts.contracts?.vault?.id;
+      if (!vaultId) throw new Error("Vault contract id not configured");
+
+      const [reservesBig, ledgerRes] = await Promise.all([
+        reader.readVaultTotalAssets(vaultId),
+        fetch(`${rawContracts.horizonUrl || "https://horizon-testnet.stellar.org"}/`).then((r) => r.json()),
+      ]);
+      const auditedReservesXlm = Number(reservesBig) / 1e7;
+      const verifiedLedger = ledgerRes.history_latest_ledger || 0;
+
+      // No real per-depositor liability registry exists yet — reporting an empty one honestly
+      // (see depositorRegistryStatus: "EMPTY_NOT_YET_TRACKED" in the response) instead of inventing rows.
+      const engine = new HikariSolvencyEngine(auditedReservesXlm, verifiedLedger, []);
       const report = engine.generateSolvencyReport();
       const userAddr = parsedUrl.searchParams.get("address");
       const proof = userAddr ? engine.getInclusionProof(userAddr) : null;
@@ -1184,7 +1253,7 @@ async function handleRequest(req, res) {
     } catch (e) {
       res.writeHead(503, { "Content-Type": "application/json; charset=utf-8" });
       return res.end(JSON.stringify({
-        error: "Solvency engine unavailable: " + e.message,
+        error: "Solvency report unavailable (could not read real on-chain reserves/ledger): " + e.message,
         report: null,
         userProof: null,
       }));

@@ -35,239 +35,106 @@ export class OnChainAdapterReader {
 }
 
 /**
- * Blend Protocol Yield Adapter
- * Implements exact b_rate math and RATE_SCALAR (1e12) for Soroban.
+ * Shared base for the three deployed adapter contracts (blend_adapter, phoenix_adapter,
+ * soroswap_adapter). Each is deployed to testnet and genuinely holds/accounts funds, but NONE
+ * of them call the real external protocol they're named after — they accrue interest internally
+ * at a fixed configured rate (see `configured_rate_bps()` on each Rust contract). getLiveYield()
+ * used to return entirely hardcoded bps numbers (e.g. Blend's "8.50% base + 13.00% emissions +
+ * 3.20% MEV = 24.70%") with a name implying a live read. It now reads the real configured rate
+ * and real TVL, and does not report per-component breakdowns (base/emissions/MEV) that this
+ * protocol doesn't actually track.
  */
-export class BlendBackstopAdapter implements IYieldAdapter {
-  private reader = new OnChainAdapterReader();
+abstract class SimulatedYieldAdapterBase implements IYieldAdapter {
+  protected abstract reader: OnChainAdapterReader;
+  public abstract metadata: YieldAdapterMetadata;
+
+  public async getLiveYield(): Promise<LiveYieldBreakdown> {
+    const [rateRaw, tvlRaw] = await Promise.all([
+      this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "configured_rate_bps"),
+      this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value"),
+    ]);
+
+    // configured_rate_bps() only exists on adapters redeployed with it — older deployments
+    // return null here, which is reported honestly (0, not a guessed number).
+    const baseApyBps = rateRaw !== null ? Number(rateRaw) : 0;
+    const tvlStroops = tvlRaw !== null ? (typeof tvlRaw === "bigint" ? tvlRaw : BigInt(tvlRaw)) : 0n;
+
+    return {
+      baseApyBps,
+      incentiveEmissionApyBps: 0, // not tracked — this adapter has no emissions mechanism
+      mevAlphaBoostBps: 0, // not tracked — no MEV capture is wired into this adapter
+      totalNominalApyBps: baseApyBps,
+      volatilityRiskPenaltyBps: 0, // not tracked
+      netRiskAdjustedApyBps: baseApyBps,
+      tvlStroops,
+      lastUpdatedTimestamp: Date.now(),
+    };
+  }
+
+  public async getTotalAssets(): Promise<bigint> {
+    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
+    if (onChainVal !== null) {
+      return typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
+    }
+    return 0n; // unreachable — report zero, not a fabricated fallback figure
+  }
+
+  // The deployed adapter contracts charge no fee on deposit/withdraw (see contracts/*/src/lib.rs:
+  // amounts pass through 1:1). Previously these returned an unexplained hardcoded fee constant.
+  public async simulateDeposit(amountStroops: bigint) {
+    return { sharesReceived: amountStroops, estimatedFeeStroops: 0n };
+  }
+
+  public async simulateWithdraw(shares: bigint) {
+    return { assetsOutStroops: shares, estimatedFeeStroops: 0n };
+  }
+}
+
+export class BlendBackstopAdapter extends SimulatedYieldAdapterBase {
+  protected reader = new OnChainAdapterReader();
 
   public metadata: YieldAdapterMetadata = {
     protocolId: "blend_backstop",
-    name: "Blend Protocol Backstop Module (bBLND-XLM)",
+    name: "Blend Adapter (simulated yield — does not call the real Blend protocol)",
     category: "BACKSTOP_STAKING",
-    adapterAddress: "C_ADAPTER_BLEND_BACKSTOP_P27",
+    adapterAddress: "CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL",
     underlyingPoolAddress: "CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL",
     reserveAsset: "XLM",
-    settlementVerified: true,
-    livenessScore: 98,
+    settlementVerified: false, // no settlement-liveness check is implemented anywhere in this codebase
+    livenessScore: 0, // not computed — no liveness-scoring implementation exists
   };
-
-  public async getLiveYield(): Promise<LiveYieldBreakdown> {
-    const baseApyBps = 850;      // 8.50% base interest
-    const emissionBoostBps = 1300; // 13.00% BLND emissions & liquidation share
-    const mevBoostBps = 320;      // 3.20% Hikari cross-DEX atomic MEV boost
-    const nominal = baseApyBps + emissionBoostBps + mevBoostBps;
-    const penalty = 160; // First-loss tranche risk penalty
-
-    let tvlStroops = 142_000_000n * 10_000_000n;
-    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
-    if (onChainVal !== null) {
-      tvlStroops = typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
-    }
-
-    return {
-      baseApyBps,
-      incentiveEmissionApyBps: emissionBoostBps,
-      mevAlphaBoostBps: mevBoostBps,
-      totalNominalApyBps: nominal,
-      volatilityRiskPenaltyBps: penalty,
-      netRiskAdjustedApyBps: nominal - penalty,
-      tvlStroops,
-      lastUpdatedTimestamp: Date.now(),
-    };
-  }
-
-  public async getTotalAssets(): Promise<bigint> {
-    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
-    if (onChainVal !== null) {
-      return typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
-    }
-    return 142_000_000n * 10_000_000n;
-  }
-
-  public async simulateDeposit(amountStroops: bigint) {
-    return { sharesReceived: amountStroops, estimatedFeeStroops: 100n };
-  }
-
-  public async simulateWithdraw(shares: bigint) {
-    return { assetsOutStroops: shares, estimatedFeeStroops: 100n };
-  }
 }
 
-/**
- * Phoenix Concentrated Liquidity (CLAMM) Adapter
- * Active market making with ±2% dynamic bin re-centering.
- */
-export class PhoenixClammAdapter implements IYieldAdapter {
-  private reader = new OnChainAdapterReader();
+export class PhoenixClammAdapter extends SimulatedYieldAdapterBase {
+  protected reader = new OnChainAdapterReader();
 
   public metadata: YieldAdapterMetadata = {
     protocolId: "phoenix_clamm",
-    name: "Phoenix XLM-USDC Concentrated Liquidity (CLAMM ±2%)",
+    name: "Phoenix Adapter (simulated yield — does not call the real Phoenix protocol)",
     category: "CONCENTRATED_AMM",
-    adapterAddress: "C_ADAPTER_PHOENIX_CLAMM_P27",
+    adapterAddress: "CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5",
     underlyingPoolAddress: "CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5",
     reserveAsset: "XLM",
-    settlementVerified: true,
-    livenessScore: 96,
+    settlementVerified: false,
+    livenessScore: 0,
   };
-
-  public async getLiveYield(): Promise<LiveYieldBreakdown> {
-    const baseApyBps = 1860; // 18.60% concentrated fee tier
-    const emissionBoostBps = 0;
-    const mevBoostBps = 320;
-    const nominal = baseApyBps + emissionBoostBps + mevBoostBps;
-    const penalty = 173; // Narrow bin impermanent loss risk
-
-    let tvlStroops = 89_000_000n * 10_000_000n;
-    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
-    if (onChainVal !== null) {
-      tvlStroops = typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
-    }
-
-    return {
-      baseApyBps,
-      incentiveEmissionApyBps: emissionBoostBps,
-      mevAlphaBoostBps: mevBoostBps,
-      totalNominalApyBps: nominal,
-      volatilityRiskPenaltyBps: penalty,
-      netRiskAdjustedApyBps: nominal - penalty,
-      tvlStroops,
-      lastUpdatedTimestamp: Date.now(),
-    };
-  }
-
-  public async getTotalAssets(): Promise<bigint> {
-    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
-    if (onChainVal !== null) {
-      return typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
-    }
-    return 89_000_000n * 10_000_000n;
-  }
-
-  public async simulateDeposit(amountStroops: bigint) {
-    return { sharesReceived: amountStroops, estimatedFeeStroops: 120n };
-  }
-
-  public async simulateWithdraw(shares: bigint) {
-    return { assetsOutStroops: shares, estimatedFeeStroops: 120n };
-  }
 }
 
-/**
- * Soroswap Dynamic AMM Pool & Farm Adapter
- */
-export class SoroswapFarmAdapter implements IYieldAdapter {
-  private reader = new OnChainAdapterReader();
+export class SoroswapFarmAdapter extends SimulatedYieldAdapterBase {
+  protected reader = new OnChainAdapterReader();
 
   public metadata: YieldAdapterMetadata = {
     protocolId: "soroswap_farm",
-    name: "Soroswap XLM-USDC Dynamic AMM Pool & Farm",
+    name: "Soroswap Adapter (simulated yield — does not call the real Soroswap protocol)",
     category: "CONSTANT_PRODUCT_FARM",
-    adapterAddress: "C_ADAPTER_SOROSWAP_AMM_P27",
-    underlyingPoolAddress: "CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ",
+    adapterAddress: "CDPZLNOKPV4KMJ5RNT24RKK46BFEIJGTKRDZGVKOMZFSIKZQ6H5G5KJ3",
+    underlyingPoolAddress: "CDPZLNOKPV4KMJ5RNT24RKK46BFEIJGTKRDZGVKOMZFSIKZQ6H5G5KJ3",
     reserveAsset: "XLM",
-    settlementVerified: true,
-    livenessScore: 95,
+    settlementVerified: false,
+    livenessScore: 0,
   };
-
-  public async getLiveYield(): Promise<LiveYieldBreakdown> {
-    const baseApyBps = 1040; // 10.40% volume fee APY
-    const emissionBoostBps = 480; // 4.80% LP mining incentives
-    const mevBoostBps = 320;
-    const nominal = baseApyBps + emissionBoostBps + mevBoostBps;
-    const penalty = 134;
-
-    let tvlStroops = 115_000_000n * 10_000_000n;
-    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
-    if (onChainVal !== null) {
-      tvlStroops = typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
-    }
-
-    return {
-      baseApyBps,
-      incentiveEmissionApyBps: emissionBoostBps,
-      mevAlphaBoostBps: mevBoostBps,
-      totalNominalApyBps: nominal,
-      volatilityRiskPenaltyBps: penalty,
-      netRiskAdjustedApyBps: nominal - penalty,
-      tvlStroops,
-      lastUpdatedTimestamp: Date.now(),
-    };
-  }
-
-  public async getTotalAssets(): Promise<bigint> {
-    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
-    if (onChainVal !== null) {
-      return typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
-    }
-    return 115_000_000n * 10_000_000n;
-  }
-
-  public async simulateDeposit(amountStroops: bigint) {
-    return { sharesReceived: amountStroops, estimatedFeeStroops: 110n };
-  }
-
-  public async simulateWithdraw(shares: bigint) {
-    return { assetsOutStroops: shares, estimatedFeeStroops: 110n };
-  }
 }
 
-/**
- * DeFindex Automated Multi-Strategy Index Adapter
- */
-export class DefindexVaultAdapter implements IYieldAdapter {
-  private reader = new OnChainAdapterReader();
-
-  public metadata: YieldAdapterMetadata = {
-    protocolId: "defindex_index",
-    name: "DeFindex Balanced XLM-USDC Index Vault",
-    category: "INDEX_VAULT",
-    adapterAddress: "C_ADAPTER_DEFINDEX_INDEX_P27",
-    underlyingPoolAddress: "C_DEFINDEX_VAULT_P27",
-    reserveAsset: "XLM",
-    settlementVerified: true,
-    livenessScore: 92,
-  };
-
-  public async getLiveYield(): Promise<LiveYieldBreakdown> {
-    const baseApyBps = 1450;
-    const emissionBoostBps = 200;
-    const mevBoostBps = 0;
-    const nominal = baseApyBps + emissionBoostBps + mevBoostBps;
-    const penalty = 80;
-
-    let tvlStroops = 45_000_000n * 10_000_000n;
-    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
-    if (onChainVal !== null) {
-      tvlStroops = typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
-    }
-
-    return {
-      baseApyBps,
-      incentiveEmissionApyBps: emissionBoostBps,
-      mevAlphaBoostBps: mevBoostBps,
-      totalNominalApyBps: nominal,
-      volatilityRiskPenaltyBps: penalty,
-      netRiskAdjustedApyBps: nominal - penalty,
-      tvlStroops,
-      lastUpdatedTimestamp: Date.now(),
-    };
-  }
-
-  public async getTotalAssets(): Promise<bigint> {
-    const onChainVal = await this.reader.simulateCall<any>(this.metadata.underlyingPoolAddress, "total_value");
-    if (onChainVal !== null) {
-      return typeof onChainVal === "bigint" ? onChainVal : BigInt(onChainVal);
-    }
-    return 45_000_000n * 10_000_000n;
-  }
-
-  public async simulateDeposit(amountStroops: bigint) {
-    return { sharesReceived: amountStroops, estimatedFeeStroops: 150n };
-  }
-
-  public async simulateWithdraw(shares: bigint) {
-    return { assetsOutStroops: shares, estimatedFeeStroops: 150n };
-  }
-}
+// DefindexVaultAdapter was removed: it pointed at a fictional contract address
+// ("C_DEFINDEX_VAULT_P27" — not a real Stellar strkey, never deployed) and returned entirely
+// hardcoded yield numbers. There is no Defindex integration in this codebase.

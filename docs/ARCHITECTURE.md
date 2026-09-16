@@ -152,19 +152,16 @@ pub trait YieldAdapterInterface {
     fn harvest(e: Env) -> i128;
 }
 ```
-- **`strategy_blend` (BlendBackstopAdapter - Simulated)**:
-  - Supplies XLM to Blend money markets and backstop pools.
-  - Converts Blend's fixed-point b_rate into standard nominal rates using `RATE_SCALAR = 1_000_000_000_000` (1e12).
-  - Produces **24.70% APY** (highest yield in Stellar).
-- **`strategy_phoenix` (PhoenixClammAdapter - Simulated)**:
-  - Provides concentrated liquidity (CLAMM) into Phoenix XLM/USDC or XLM/EURC pools.
-  - Targets high-fee tick bands for yield harvesting.
+- **`blend_adapter` (Simulated yield — does not call the real Blend protocol)**:
+  - Deployed to testnet (`contracts/blend_adapter`), tracks principal/interest internally.
+  - `harvest()` accrues interest at a fixed configured rate (`LendingRateBps`), not a live Blend `b_rate` read. No specific APY is claimed — see `configured_rate_bps()` and `/api/yield-routes`.
+- **`phoenix_adapter` (Simulated yield — does not call the real Phoenix protocol)**:
+  - Deployed to testnet (`contracts/phoenix_adapter`), same fixed-rate self-accrual pattern as above.
 
-- **`strategy_soroswap` (SoroswapFarmAdapter - Simulated)**:
-  - Classic XYK liquidity provisioning into Soroswap dynamically incentivized pools.
+- **`soroswap_adapter` (Simulated yield — does not call the real Soroswap protocol)**:
+  - Deployed to testnet (`contracts/soroswap_adapter`), same fixed-rate self-accrual pattern.
 
-- **`strategy_defindex` (DefindexVaultAdapter - Simulated)**:
-  - Diversifies capital across multi-asset automated index rebalancing vaults (**16.50% APY**).
+- **Defindex adapter: not built.** There is no Defindex contract in this repository and no deployed address — earlier docs referenced one with a specific APY figure; that was aspirational, not real.
 
 ### 4.3 Atomic Zero-Signature Migration (`migrate_adapter`)
 When the AI Yield Rerouter discovers a higher-yielding protocol venue:
@@ -180,71 +177,51 @@ Hikari acts as an autonomous AI router continuously scanning, rating, and reallo
 
 ```mermaid
 flowchart LR
-    Scan["1. Real-Time Yield Scanner\nBlend (24.7%) | Phoenix (21.8%)\nSoroswap (18.4%) | Defindex (16.5%)"]
-    Filter["2. Settlement Liveness & Depth\nSettlement Finality >= 99.9%\nVWAP Depth >= $500k"]
-    Pareto["3. Pareto Optimal Optimizer\nMaximize Yield - lambda * Risk\ns.t. Reserve Floor >= 15%"]
-    Migrate["4. Native migrate_adapter\nAtomic Execution\nSlippage <= 50 bps"]
+    Scan["1. Adapter TVL/rate read\nvia /api/yield-routes (live, real)"]
+    Pareto["2. Allocation weights\n(target percentages, policy config)"]
+    Migrate["3. Native migrate_adapter\n(Soroban contract call, real when invoked)"]
 
-    Scan --> Filter --> Pareto --> Migrate
+    Scan --> Pareto --> Migrate
 ```
 
-### 5.1 Real-Time Venue Discovery & Yield Matrix
-The optimizer continuously evaluates nominal APR, protocol fees, incentive emissions, and cross-DEX MEV alpha:
+### 5.1 Venue Status
 
-| Protocol Venue | Contract Adapter | Nominal APR | Protocol Fee | Net APY | Optimal Weight |
-| -------------- | ---------------- | ----------- | ------------ | ------- | -------------- |
-| **Blend Protocol Backstop** | `BlendBackstopAdapter` | 26.00% | 5.00% | **24.70%** | **35%** |
-| **Phoenix CLAMM Concentrated** | `PhoenixClammAdapter` | 23.20% | 6.00% | **21.80%** | **30%** |
-| **Soroswap Dynamic Farm** | `SoroswapFarmAdapter` | 19.80% | 7.00% | **18.40%** | **20%** |
-| **Liquid Safety Reserve** | `HikariReserveVault` | 0.00% | 0.00% | **0.00%** | **15% (Floor)** |
-| **Composite Portfolio** | **Hikari Vault Core** | **23.95%** | **4.20%** | **22.19%** | **100%** |
+| Protocol Venue | Contract Adapter | Status |
+| -------------- | ---------------- | ------ |
+| Blend | `blend_adapter` | Deployed testnet, simulated self-accrual, no live Blend call |
+| Phoenix CLAMM | `phoenix_adapter` | Deployed testnet, simulated self-accrual, no live Phoenix call |
+| Soroswap | `soroswap_adapter` | Deployed testnet, simulated self-accrual, no live Soroswap call |
+| Liquid Safety Reserve | held uninvested in vault | Real — 15% reserve floor is an enforced invariant |
+| Defindex | — | Not built — no contract exists |
+
+Target allocation weights (35% Blend / 30% Phoenix / 20% Soroswap / 15% reserve) are a policy configuration, not a computed optimum — there is no Pareto optimizer implementation in this codebase.
 
 ### 5.2 Depth Aggregation & Settlement Liveness Verification
-- **Multi-Venue VWAP & Depth Aggregation**: The AI rerouter queries multi-venue orderbook depth aggregation across SDEX and Soroban AMMs. It computes Volume-Weighted Average Price (VWAP) to guarantee that rebalancing swaps incur less than 50 bps slippage.
-- **Settlement Liveness Verification**: Before capital is routed to any pool, settlement intelligence verifies the pool's ledger finality rate ($\ge 99.9\%$) and active transaction volume, ensuring capital is never routed into dormant contracts.
+
+Not implemented. There is no VWAP/orderbook-depth aggregation or settlement-liveness scoring anywhere in this codebase (`engine/`, `sdk/`, `services/`). `migrate_adapter` slippage bounds are a design parameter for when this ships, not a currently-enforced check.
 
 ---
 
-## 6. Hikari Multi-Agent AI Trading Desk & Yield Carry
+## 6. Hikari Trading Desk & Yield Carry
 
-Native multi-agent trading framework engineered specifically for Stellar Soroban:
+**What actually exists**: `frontend/server.js`'s `/api/trading-agent` endpoint computes RSI(14), ATR(14), and MACD(12/26/9) from real Stellar Horizon `trade_aggregations` (with a CoinGecko fallback), and derives a single rule-based long/short/hold signal with stop-loss/take-profit levels from that. That's it — one deterministic indicator engine, not a multi-agent system.
 
 ```mermaid
 flowchart TD
-    MarketData["Market Tick Ingestion\n60-Day XLM/USDC, SDEX Depth, Horizon Metrics"]
-    
-    subgraph Specialists["Specialist Financial Analysts"]
-        Warren["Warren\nFundamental & Valuation"]
-        George["George\nTechnical & Charting"]
-        Cathie["Cathie\nSentiment & Momentum"]
-        Ray["Ray\nRisk & Invariant Lead"]
-    end
-    
-    Debate["Bull vs. Bear Debate Arena\nMulti-Turn Synthesis"]
-    Trader["Synthesizing Trader Agent\nEntry, Stop-Loss, Take-Profit"]
-    RiskComm["Risk Committee Consensus\nUnanimous Approval & Invariant Check"]
-    Exec["Lens SDEX/AMM Execution"]
-    Carry["Yield Carry Engine\nIdle Margin -> Blend Backstop (24.7% APY)"]
+    MarketData["Market Tick Ingestion\nHorizon trade_aggregations + CoinGecko fallback"]
+    Indicators["RSI(14) / ATR(14) / MACD(12,26,9)\ncomputed server-side, real data"]
+    Signal["Rule-based signal\nlong / short / hold + SL/TP from ATR"]
 
-    MarketData --> Specialists
-    Warren & George & Cathie & Ray --> Debate
-    Debate --> Trader
-    Trader --> RiskComm
-    RiskComm -->|Approved Position| Exec
-    RiskComm -->|Unallocated Margin| Carry
+    MarketData --> Indicators --> Signal
 ```
 
-### 6.1 The 4 Financial Specialists
-1. **Warren (Fundamental Analyst)**: Tracks Stellar ledger payment volume (+18.4% 24h), Soroban contract invocations, P/S valuation ratios, and validator node counts.
-2. **George (Technical Analyst)**: Computes RSI(14), MACD histogram momentum, Bollinger Band contractions, ATR volatility, and SDEX orderbook liquidity clusters.
-3. **Cathie (Sentiment & Catalyst Analyst)**: Measures developer onboarding, social velocity, institutional remittance corridor announcements, and Protocol 27 adoption.
-4. **Ray (Risk Management Lead)**: Restricts leverage strictly to 1.0x, enforces Half-Kelly sizing criteria, sets dynamic ATR stop-losses, and verifies that the 15% reserve floor is never breached.
+### 6.1 What this doc previously claimed vs. reality
 
-### 6.2 Zero-Cash-Drag Yield Carry
-Traditional algorithmic trading desks suffer from significant "cash drag" when holding idle margin awaiting optimal entry setups. In Hikari:
-- 100% of unallocated trading capital is parked in the **Blend Backstop pool** earning **24.70% APY**.
-- When an execution signal is approved by the Risk Committee, the required capital is redeemed atomically from Blend and swapped on SDEX/Soroswap via Lens.
-- When positions close or take profit, capital immediately returns to Blend yield carry within the same ledger.
+An earlier version of this document (and the shipped UI) described "4 Financial Specialists" — Warren (Fundamental), George (Technical), Cathie (Sentiment), Ray (Risk) — conducting a "Bull vs. Bear Debate." No such agents, debate loop, or LLM orchestration exists anywhere in `engine/`, `sdk/`, or `services/`. Only the technical-indicator piece (roughly "George") and a risk-guardrail summary (roughly "Ray") are real; Fundamental and Sentiment analysis are not implemented.
+
+### 6.2 Yield Carry
+
+Unallocated trading margin is intended to route into the Blend adapter contract. That adapter currently runs simulated, self-accrued yield at a fixed configured rate (see §4.2) — no specific APY is claimed here.
 
 ---
 
@@ -252,13 +229,11 @@ Traditional algorithmic trading desks suffer from significant "cash drag" when h
 
 Hikari keepers are autonomous daemons that monitor the Stellar network every ledger close (~5 seconds):
 
-1. **Harvest & Compound**: Accrued protocol rewards (BLND, PHX) are harvested, swapped to XLM, and added to the pool reserve, continuously driving up `hXLM` NAV.
-2. **Atomic MEV Backrunning**:
-   - Keepers listen to SDEX orderbook fills via Horizon streaming.
-   - When a large SDEX trade dislocates the price of XLM/USDC from Phoenix or Soroswap, the keeper submits an atomic multi-operation transaction:
-     $$\text{Buy on SDEX} \longrightarrow \text{Sell on Phoenix CLAMM} \longrightarrow \text{Deposit Profit into Vault}$$
-   - Because all legs execute in a single atomic Stellar transaction, there is zero inventory or market risk. If the spread collapses, the transaction reverts cleanly.
-   - **100% MEV Redistribution**: 100% of captured MEV profit (+3.20% APY) flows directly into vault shares, returning MEV to stakers.
+1. **Harvest & Compound**: Each adapter's `harvest()` accrues its internally-tracked interest (see §4.2 — fixed configured rate, not a real BLND/PHX emissions claim from those tokens; the adapters do not hold or trade BLND or PHX).
+2. **Atomic MEV Backrunning** (`engine/src/agents/keeper_bot.ts`):
+   - Keepers monitor SDEX/Soroban AMM spreads and can construct an atomic multi-operation backrun transaction when spread exceeds a configured threshold.
+   - Because all legs would execute in a single atomic Stellar transaction, there is no inventory risk if implemented as designed — a reverted spread reverts the whole transaction.
+   - **Realized MEV profit is not yet measured or reported.** No APY figure is claimed for this.
 
 ---
 
@@ -277,8 +252,8 @@ The `safety_sentinel` contract acts as an autonomous risk arbiter:
 
 ## 9. How Hikari directly helps the Stellar ecosystem
 
-1. **Solves the Zero-Inflation Staking Problem**: Transforms passive XLM into high-yield, liquid `hXLM` earning 22.19% APY, preventing capital flight to inflationary L1s.
-2. **Cures Liquidity Fragmentation**: Routes TVL algorithmically where capital efficiency is highest across Blend, Phoenix, and Soroswap.
+1. **Addresses the Zero-Inflation Staking Problem**: Turns passive XLM into liquid `hXLM`. Current yield is a keeper-fed oracle rate (see live `/api/telemetry`), not yet derived from real Blend/Phoenix/Soroswap activity.
+2. **Targets Liquidity Fragmentation**: Vault can route TVL across Blend, Phoenix, and Soroswap adapter contracts — those adapters run simulated yield today, not a live cross-protocol routing algorithm.
 3. **Internalizes MEV Value**: Replaces adversarial off-chain MEV bots with a collaborative staker backrun engine that recycles arbitrage spreads back into the community.
 4. **Empowers AI Agent Economy**: Provides an x402 HTTP micropayment standard and MCP server tools, making Stellar the premier settlement hub for autonomous AI financial agents.
 

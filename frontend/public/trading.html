@@ -484,7 +484,7 @@
             Hikari Trading Desk &bull; Systematic Execution
           </h1>
           <p style="margin: 0; font-size: 0.88rem; color: #94a3b8; max-width: 780px; line-height: 1.5;">
-            Disciplined quantitative execution. Four specialized models evaluate candlestick structure, order flow imbalance, momentum, and risk guardrails in real time to deliver short-term traders mathematically verified setups with exact entries, defensive stops, and profit targets.
+            A single rule-based technical model (RSI/ATR/MACD computed from live Horizon and CoinGecko price data) produces a long/short/hold signal with entry, stop-loss, and take-profit levels derived from real market volatility — not a multi-model ensemble, and not investment advice.
           </p>
         </div>
 
@@ -692,12 +692,12 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
         <div>
           <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: #ffffff; margin: 0 0 0.2rem 0;">
-            4 Quantitative Analysis Models
+            Quantitative Analysis
           </h2>
-          <span style="font-size: 0.78rem; color: #94a3b8;">Hierarchical consensus: Technical, Price Action, Sentiment, and Risk Management</span>
+          <span style="font-size: 0.78rem; color: #94a3b8;">Technical and Risk views are live; Price Action and Sentiment are not implemented yet</span>
         </div>
         <span class="tab-badge-new" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.4); font-size: 0.7rem; padding: 4px 8px;">
-          ● 4 MODELS EVALUATING LIVE
+          ● 2 OF 4 LIVE
         </span>
       </div>
 
@@ -721,40 +721,36 @@
           </div>
         </div>
 
-        <!-- Agent 2: Price Action & Order Flow Analyst -->
-        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.15rem;">
+        <!-- Agent 2: Price Action & Order Flow Analyst — NOT IMPLEMENTED. The backend has no
+             price-action/candlestick-formation detection; this card previously showed fabricated
+             static text ("Institutional absorption detected...") that never updated. -->
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 14px; padding: 1.15rem; opacity: 0.6;">
           <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
             <div class="agent-avatar-badge" style="background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3); color: #c084fc; font-weight: 800; font-size: 0.8rem;">PA</div>
             <div>
               <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">Price Action Analyst</div>
-              <div style="font-size: 0.7rem; color: #c084fc; font-weight: 600;">Candles, Fair Value Gaps, Liquidity</div>
+              <div style="font-size: 0.7rem; color: #c084fc; font-weight: 600;">Not implemented yet</div>
             </div>
           </div>
           <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.45; margin: 0 0 0.75rem 0;" id="agentPaSummary">
-            Price action indicates seller exhaustion. Institutional absorption detected at demand shelf with immediate lower-wick rejection.
+            No candlestick-formation or fair-value-gap detection is built yet. This card is a placeholder for a future feature.
           </p>
-          <div style="font-size: 0.72rem; color: #94a3b8; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 0.5rem; display: flex; justify-content: space-between;">
-            <span>Formation: <strong style="color: #ffffff;" id="agentPaFormation">Demand Shelf Defense</strong></span>
-            <span>Volume: <strong style="color: #10b981;">Above Average</strong></span>
-          </div>
         </div>
 
-        <!-- Agent 3: Sentiment & Orderbook Analyst -->
-        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.15rem;">
+        <!-- Agent 3: Sentiment & Orderbook Analyst — NOT IMPLEMENTED. No orderbook-depth or
+             fear/greed data source is wired up; this card previously showed a fabricated
+             "+18.4% Bid Heavy" / "68 (Greed)" that never updated. -->
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 14px; padding: 1.15rem; opacity: 0.6;">
           <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
             <div class="agent-avatar-badge" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; font-weight: 800; font-size: 0.8rem;">OB</div>
             <div>
               <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">Sentiment &amp; Orderbook</div>
-              <div style="font-size: 0.7rem; color: #fbbf24; font-weight: 600;">Depth Imbalance, Funding, Whale Bids</div>
+              <div style="font-size: 0.7rem; color: #fbbf24; font-weight: 600;">Not implemented yet</div>
             </div>
           </div>
           <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.45; margin: 0 0 0.75rem 0;" id="agentSentimentSummary">
-            Market participants accumulating. Smart money delta positive on order flow; retail panic wicks successfully absorbed.
+            No orderbook-depth or fear/greed data source is wired up yet. This card is a placeholder for a future feature.
           </p>
-          <div style="font-size: 0.72rem; color: #94a3b8; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 0.5rem; display: flex; justify-content: space-between;">
-            <span>Orderbook: <strong style="color: #10b981;" id="agentObImbalance">+18.4% Bid Heavy</strong></span>
-            <span>Fear/Greed: <strong style="color: #fbbf24;" id="agentFearGreed">68 (Greed)</strong></span>
-          </div>
         </div>
 
         <!-- Agent 4: Risk Management Committee -->
@@ -781,29 +777,28 @@
     <!-- Multi-Agent Debate Arena & Live Execution Terminal (100% Responsive Grid) -->
     <div class="debate-terminal-grid">
       
-      <!-- Bull vs. Bear Debate Arena -->
+      <!-- Signal Rationale — this was previously a "Bull vs. Bear Debate" between fictional
+           agents with a fake "Sign-off Hash ... Invariant Verified" line. There is no debate:
+           one rule-based model produces one signal. Rationale below is the real bias/summary
+           text from the live /api/trading-agent response. -->
       <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.25rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
-          <h3 style="margin: 0; font-size: 1rem; font-weight: 800; color: #ffffff;">Bull vs. Bear Debate Synthesis</h3>
-          <span style="font-size: 0.72rem; color: #38bdf8; font-family: 'JetBrains Mono', monospace;">Multi-Turn Synthesis</span>
+          <h3 style="margin: 0; font-size: 1rem; font-weight: 800; color: #ffffff;">Signal Rationale</h3>
+          <span style="font-size: 0.72rem; color: #38bdf8; font-family: 'JetBrains Mono', monospace;">Single rule-based model</span>
+        </div>
+
+        <div style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.75rem;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: #38bdf8; margin-bottom: 0.3rem;">Technical summary:</div>
+          <div style="font-size: 0.82rem; color: #e2e8f0; line-height: 1.4;" id="debateBullThesis">
+            Loading…
+          </div>
         </div>
 
         <div style="background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.75rem;">
-          <div style="font-size: 0.75rem; font-weight: 700; color: #10b981; margin-bottom: 0.3rem;">Bull Thesis (Momentum Expansion):</div>
-          <div style="font-size: 0.82rem; color: #e2e8f0; line-height: 1.4;" id="debateBullThesis">
-            Multi-timeframe trend alignment, expanding volume, and dynamic EMA 20/50 support favor upside expansion toward profit target.
-          </div>
-        </div>
-
-        <div style="background: rgba(244, 63, 94, 0.06); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.75rem;">
-          <div style="font-size: 0.75rem; font-weight: 700; color: #f43f5e; margin-bottom: 0.3rem;">Bear Thesis (Vulnerabilities &amp; Invalidation):</div>
+          <div style="font-size: 0.75rem; font-weight: 700; color: #10b981; margin-bottom: 0.3rem;">Risk assessment:</div>
           <div style="font-size: 0.82rem; color: #e2e8f0; line-height: 1.4;" id="debateBearVulnerability">
-            Overhead resistance near upper band may induce short-term consolidation. Non-negotiable stop-loss defends against downside invalidation.
+            Loading…
           </div>
-        </div>
-
-        <div style="font-size: 0.72rem; color: #94a3b8; padding: 0.5rem; background: rgba(0, 0, 0, 0.25); border-radius: 6px; font-family: 'JetBrains Mono', monospace; word-break: break-all;" id="tdSignatureHash">
-          Sign-off Hash: 0x9f4a8b2c...e71d (Hikari Engine Invariant Verified)
         </div>
       </div>
 
@@ -812,16 +807,13 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <span style="width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 8px #38bdf8;"></span>
-            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: #38bdf8; font-weight: 700;">Live Execution Terminal Stream</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: #38bdf8; font-weight: 700;">Signal Log</span>
           </div>
-          <span style="font-size: 0.72rem; color: #64748b; font-family: 'JetBrains Mono', monospace;">Real-Time Telemetry</span>
+          <span style="font-size: 0.72rem; color: #64748b; font-family: 'JetBrains Mono', monospace;">No trades are executed from this page</span>
         </div>
 
         <div id="tdExecutionLog" style="flex: 1; min-height: 160px; max-height: 200px; overflow-y: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; line-height: 1.5; color: #94a3b8; padding: 0.5rem; background: rgba(0, 0, 0, 0.4); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05);">
-          <div style="color: #38bdf8;">[SYSTEM_READY] Hikari Trading Desk online.</div>
-          <div style="color: #10b981;">[DATA_INGEST] Ingested 1H OHLCV candles for XLM/USDC. Price: $0.17298.</div>
-          <div style="color: #fbbf24;">[MODEL_CONSENSUS] Market Technical Model &amp; Price Action Model aligned on LONG.</div>
-          <div style="color: #ffffff;">[SIGNAL_ACTIVE] Entry: $0.1722 - $0.1735 | Stop-Loss: $0.16850 | TP: $0.18450 (2.6:1 R:R).</div>
+          <div style="color: #38bdf8;">[SYSTEM_READY] Loading live signal…</div>
         </div>
       </div>
 
@@ -1208,7 +1200,7 @@
         // Update Macro Bar
         document.getElementById("tdPairLabel").textContent = `${data.targetAsset} Price`;
         document.getElementById("tdXlmPrice").textContent = data.priceFormatted || `$${data.currentPrice}`;
-        document.getElementById("tdPriceSub").textContent = `${data.dailyChange} 24h • Vol: $68.4M`;
+        document.getElementById("tdPriceSub").textContent = `${data.dailyChange} 24h`;
         document.getElementById("tdConsensusSignal").textContent = data.consensusDecision;
         document.getElementById("tdConfidenceBadge").textContent = `Confidence: ${data.confidenceScore} Alignment`;
         document.getElementById("chartPairHeading").textContent = `${data.targetAsset} Candlestick Chart`;
@@ -1217,10 +1209,12 @@
           document.getElementById("tdRiskRewardVal").textContent = data.tradeSetup.riskRewardRatio;
           document.getElementById("tdKellyBadge").textContent = `Position: ${data.tradeSetup.approvedAllocationPercent}`;
           document.getElementById("tdSignalHeadline").textContent = `🟢 ${data.tradeSetup.action}`;
+          const pxNow = data.currentPrice || data.tradeSetup.entryPrice;
+          const pctVs = (level) => (pxNow ? ` (${(((level - pxNow) / pxNow) * 100).toFixed(1)}%)` : "");
           document.getElementById("tdLevelEntry").textContent = data.tradeSetup.entryZone;
-          document.getElementById("tdLevelStopLoss").textContent = `${data.tradeSetup.stopLossFormatted} (-2.3%)`;
-          document.getElementById("tdLevelTp1").textContent = `${data.tradeSetup.takeProfit1Formatted} (+3.1%)`;
-          document.getElementById("tdLevelTp2").textContent = `${data.tradeSetup.takeProfit2Formatted} (+6.8%)`;
+          document.getElementById("tdLevelStopLoss").textContent = `${data.tradeSetup.stopLossFormatted}${pctVs(data.tradeSetup.stopLoss)}`;
+          document.getElementById("tdLevelTp1").textContent = `${data.tradeSetup.takeProfit1Formatted}${pctVs(data.tradeSetup.takeProfit1)}`;
+          document.getElementById("tdLevelTp2").textContent = `${data.tradeSetup.takeProfit2Formatted}${pctVs(data.tradeSetup.takeProfit2)}`;
         }
 
         if (data.analysts) {
@@ -1231,24 +1225,26 @@
             document.getElementById("tdDetectedPattern").textContent = data.analysts.technical.chartPattern;
             document.getElementById("valRsi").textContent = data.analysts.technical.rsi;
             document.getElementById("valMacd").textContent = data.analysts.technical.macd;
-          }
-          if (data.analysts.priceAction) {
-            document.getElementById("agentPaSummary").textContent = data.analysts.priceAction.summary;
-            document.getElementById("agentPaFormation").textContent = data.analysts.priceAction.formation;
-          }
-          if (data.analysts.sentiment) {
-            document.getElementById("agentSentimentSummary").textContent = data.analysts.sentiment.summary;
-            document.getElementById("agentObImbalance").textContent = data.analysts.sentiment.orderbookImbalance;
-            document.getElementById("agentFearGreed").textContent = data.analysts.sentiment.fearGreedIndex;
+            // Real summary text, not a fabricated "debate" — see comment above these elements in the HTML.
+            const bullEl = document.getElementById("debateBullThesis");
+            if (bullEl) bullEl.textContent = data.analysts.technical.summary;
           }
           if (data.analysts.riskCommittee) {
             document.getElementById("agentRiskSummary").textContent = data.analysts.riskCommittee.summary;
+            const riskEl = document.getElementById("debateBearVulnerability");
+            if (riskEl) riskEl.textContent = data.analysts.riskCommittee.summary;
           }
         }
 
-        if (data.debate) {
-          document.getElementById("debateBullThesis").textContent = data.debate.bullThesis;
-          document.getElementById("debateBearVulnerability").textContent = data.debate.bearVulnerability;
+        const logBox = document.getElementById("tdExecutionLog");
+        if (logBox && !logBox.dataset.liveInit) {
+          logBox.dataset.liveInit = "1";
+          logBox.innerHTML = "";
+          const timeStr = new Date().toTimeString().split(" ")[0];
+          const entry = document.createElement("div");
+          entry.style.color = "#10b981";
+          entry.textContent = `[${timeStr}] [SIGNAL] ${data.consensusDecision || "N/A"} — source: ${data.dataSource || "unknown"}. No trade executed.`;
+          logBox.prepend(entry);
         }
 
         // Render Chart
@@ -1258,7 +1254,7 @@
 
       } catch (err) {
         console.warn("Notice: Live market feed notice:", err);
-        showToast("Market feed offline — displaying cached fallback", "⚠");
+        showToast("Live market feed unreachable — showing a synthetic placeholder chart, not real prices", "⚠");
         const fallback = getFallbackData(pair, tf);
         window.lastCandles = fallback.candles;
         window.lastSetup = fallback.tradeSetup;
@@ -1297,45 +1293,36 @@
       });
     });
 
-    // Run Agent Analysis Button
+    // Run Agent Analysis Button — refreshes the real RSI/ATR/MACD signal from live Horizon/
+    // CoinGecko data. Previously this animated a fake "4 specialist agents debating" sequence
+    // with a scripted outcome that had nothing to do with the actual API response.
     const btnTrigger = document.getElementById("btnTdTriggerCycle");
     if (btnTrigger) {
-      btnTrigger.addEventListener("click", () => {
-        showToast(`Analyzing ${currentPair} chart with 4 specialist agents...`);
+      btnTrigger.addEventListener("click", async () => {
+        showToast(`Refreshing live signal for ${currentPair}…`);
         btnTrigger.disabled = true;
-        btnTrigger.textContent = "Deliberating Chart Structure...";
+        btnTrigger.textContent = "Refreshing…";
 
         const logBox = document.getElementById("tdExecutionLog");
         const timeStr = new Date().toTimeString().split(" ")[0];
-
         if (logBox) {
-          const entry1 = document.createElement("div");
-          entry1.style.color = "#38bdf8";
-          entry1.textContent = `[${timeStr}] [CYCLE_TRIGGERED] Technical, Price Action, Sentiment & Risk agents evaluating ${currentPair}...`;
-          logBox.prepend(entry1);
+          const entry = document.createElement("div");
+          entry.style.color = "#38bdf8";
+          entry.textContent = `[${timeStr}] [REFRESH] Fetching live Horizon/CoinGecko data for ${currentPair}…`;
+          logBox.prepend(entry);
         }
 
-        setTimeout(() => {
-          if (logBox) {
-            const entry2 = document.createElement("div");
-            entry2.style.color = "#c084fc";
-            entry2.textContent = `[${timeStr}] [CHART_ANALYSIS] Bull vs Bear debate synthesized. Liquid demand block confirmed.`;
-            logBox.prepend(entry2);
-          }
-        }, 500);
+        await loadPairTradingData(currentPair, currentTimeframe);
 
-        setTimeout(() => {
-          if (logBox) {
-            const entry3 = document.createElement("div");
-            entry3.style.color = "#10b981";
-            entry3.textContent = `[${timeStr}] [SETUP_PUBLISHED] Disciplined setup ready for short-term traders. Target: TP2 with 2.6:1 R:R.`;
-            logBox.prepend(entry3);
-          }
-          showToast(`Quantitative chart analysis complete for ${currentPair}! Follow disciplined setup.`);
-          btnTrigger.disabled = false;
-          btnTrigger.textContent = "Run Chart Analysis";
-          loadPairTradingData(currentPair, currentTimeframe);
-        }, 1100);
+        if (logBox) {
+          const entry = document.createElement("div");
+          entry.style.color = "#10b981";
+          entry.textContent = `[${timeStr}] [SIGNAL] Updated from live data. No trade was executed — this refreshes a signal, not an order.`;
+          logBox.prepend(entry);
+        }
+        showToast(`Signal refreshed for ${currentPair}.`);
+        btnTrigger.disabled = false;
+        btnTrigger.textContent = "Refresh Signal";
       });
     }
 

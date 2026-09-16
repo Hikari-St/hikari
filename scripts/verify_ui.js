@@ -15,9 +15,11 @@ async function verify() {
     stellarTestnetBadge: htmlLanding.includes('Stellar Testnet'),
     launchAppTopNav: htmlLanding.includes('id="btnLaunchAppNav"'),
     topNavLinksRemoved: !htmlLanding.includes('data-menu="products"') && !htmlLanding.includes('data-menu="institutional"') && !htmlLanding.includes('data-menu="node-operators"') && !htmlLanding.includes('data-menu="governance"'),
-    testnetTvlEarnXlm: htmlLanding.includes('485K XLM') && htmlLanding.includes('Testnet TVL'),
-    testnetTvlEarnUsd: htmlLanding.includes('$42.5K'),
-    testnetTvlEarnMulti: htmlLanding.includes('$18.4K'),
+    // These metrics are now populated at runtime from live endpoints, not baked into the HTML —
+    // the check just confirms the honest placeholder ids exist for that live fetch to target.
+    testnetTvlEarnXlm: htmlLanding.includes('id="earnXlmTvl"'),
+    testnetTvlEarnUsd: htmlLanding.includes('id="earnUsdTvl"'),
+    testnetTvlEarnMultiNotImplemented: htmlLanding.includes('Not implemented') && htmlLanding.includes('Earn Multichain'),
     noFourMillionClaims: !htmlLanding.includes('Over $4M') && !htmlLanding.includes('$4M invested'),
     noBugBountyPill: !htmlLanding.includes('pill-bounty') && !htmlLanding.includes('Bug Bounty'),
     safeHarborPill: htmlLanding.includes('pill-harbor') && htmlLanding.includes('Safe Harbor'),

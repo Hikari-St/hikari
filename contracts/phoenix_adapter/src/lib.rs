@@ -134,6 +134,13 @@ impl PhoenixAdapter {
         principal.saturating_add(fees)
     }
 
+    /// Configured target fee rate this adapter accrues internally.
+    /// NOTE: this is a self-contained simulated accrual rate, not a live read
+    /// from the Phoenix CLAMM pool — this adapter does not call Phoenix.
+    pub fn configured_rate_bps(env: Env) -> u32 {
+        env.storage().instance().get(&DataKey::TargetFeeBps).unwrap_or(0)
+    }
+
     pub fn accrue_fees(env: Env, fee_amount: i128) -> Result<i128, Error> {
         let is_paused: bool = env.storage().instance().get(&DataKey::Paused).unwrap_or(false);
         if is_paused {

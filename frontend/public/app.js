@@ -17,33 +17,37 @@ let state = {
   pendingProposal: null,
 };
 
+// Real oracle APR (bps), populated once /api/telemetry resolves. Null until then — code that
+// reads this must handle "not loaded yet" instead of assuming a number.
+let liveOracleAprPct = null;
+
 const VAULT_TIERS = {
   BALANCED_HXLM: {
     id: "BALANCED_HXLM",
     name: "Balanced hXLM",
     token: "XLM",
     shareToken: "hXLM",
-    baseApy: "6.94% APY",
+    baseApy: "Rate pending (simulated adapters)",
     badge: "SEP-41 Native",
-    desc: "Diversified Blend lending + Phoenix CLAMM yield with automated rebalancing."
+    desc: "Routes across Blend/Phoenix adapter contracts — currently simulated yield, see disclosure."
   },
   CONSERVATIVE_USDC: {
     id: "CONSERVATIVE_USDC",
     name: "Conservative hUSDC",
     token: "USDC",
     shareToken: "hUSDC",
-    baseApy: "5.20% APY",
+    baseApy: "Rate pending (simulated adapters)",
     badge: "Blend SAC Prime",
-    desc: "Zero liquidation risk: 100% overcollateralized lending on Blend money market."
+    desc: "Lending via the Blend adapter contract — currently simulated yield, see disclosure."
   },
   DYNAMIC_ALPHA_HXLM: {
     id: "DYNAMIC_ALPHA_HXLM",
     name: "MEV Alpha hXLM",
     token: "XLM",
     shareToken: "hXLM-α",
-    baseApy: "12.4% APR",
+    baseApy: "Rate pending (simulated adapters)",
     badge: "Soroban Alpha MEV",
-    desc: "High-yield dynamic strategy combining CLAMM LP fees and native atomic MEV backruns."
+    desc: "Combines CLAMM adapter yield (simulated) with keeper MEV backruns (unmeasured)."
   }
 };
 
@@ -758,6 +762,15 @@ function randomHash() {
   return Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
 }
 
+// Renders a per-route figure: real % if the adapter reports one on-chain, otherwise an
+// honest "pending" label instead of a fabricated number.
+function formatRoutePct(route) {
+  if (!route || route.configuredRatePct === null || route.configuredRatePct === undefined) {
+    return "Rate pending (simulated adapter)";
+  }
+  return `${route.configuredRatePct.toFixed(2)}% (simulated accrual)`;
+}
+
 // Master GSAP Animations & Choreography
 function initGsapAnimations() {
   // Ensure dashboard cards, grid, and mode switch are always visible
@@ -1035,8 +1048,13 @@ function initShardsSystem() {
   const leaderboardList = document.getElementById("leaderboardList");
 
   async function fetchShardsProfile(address) {
+    if (!address) {
+      if (headerShardsText) headerShardsText.innerText = "Connect wallet";
+      if (headerMultiplierTag) headerMultiplierTag.innerText = "—";
+      return;
+    }
     try {
-      const res = await fetch(`/api/points/${address || 'GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN'}`);
+      const res = await fetch(`/api/points/${address}`);
       if (res.ok) {
         const data = await res.json();
         if (headerShardsText) headerShardsText.innerText = `${(data.totalShards / 1000).toFixed(1)}k Shards`;
@@ -1055,11 +1073,16 @@ function initShardsSystem() {
   window.fetchShardsProfile = fetchShardsProfile;
 
   async function fetchLeaderboard() {
+    if (!leaderboardList) return;
+    // No fallback to the old static markup — that showed fabricated entries (including the
+    // protocol's own admin/agent testnet keys) as a fake "Live Season 1 Snapshot" forever,
+    // because the points engine has no persistence and always returns an empty leaderboard.
+    leaderboardList.innerHTML = `<div class="shards-table-row" style="grid-column: 1 / -1; color: var(--text-dim); padding: 1rem 0;">No live leaderboard data yet — the points engine has no persistent storage, so real rankings aren't tracked across requests yet.</div>`;
     try {
       const res = await fetch("/api/leaderboard");
       if (res.ok) {
         const { leaderboard } = await res.json();
-        if (leaderboardList && leaderboard && leaderboard.length > 0) {
+        if (leaderboard && leaderboard.length > 0) {
           leaderboardList.innerHTML = leaderboard.map((item, idx) => `
             <div class="shards-table-row">
               <span style="font-weight: 700; color: ${idx === 0 ? 'var(--lavender)' : idx === 1 ? '#cbd5e1' : idx === 2 ? 'var(--purple-soft)' : 'var(--text-dim)'};">#${item.rank}</span>
@@ -1101,8 +1124,15 @@ function initShardsSystem() {
     }
   });
 
-  // Initial fetch
-  fetchShardsProfile();
+  // Only fetch a real shards profile once a wallet is actually connected — previously this
+  // queried the protocol admin's own testnet address by default and displayed their real
+  // points as if they belonged to the (not yet connected) visitor.
+  if (state.wallet.connected && state.wallet.address) {
+    fetchShardsProfile(state.wallet.address);
+  } else {
+    if (headerShardsText) headerShardsText.innerText = "Connect wallet";
+    if (headerMultiplierTag) headerMultiplierTag.innerText = "—";
+  }
 }
 
 initShardsSystem();
@@ -1295,7 +1325,7 @@ function initHeroAmbientScene() {
       if (loaderLabel) {
         if (val < 28) loaderLabel.textContent = "光 • HIKARI AI YIELD";
         else if (val < 62) loaderLabel.textContent = "光 • CONNECTING SOROBAN";
-        else if (val < 95) loaderLabel.textContent = "光 • 12.4% ALPHA ENGINE";
+        else if (val < 95) loaderLabel.textContent = "光 • YIELD ROUTER ENGINE";
         else loaderLabel.textContent = "光 • HIKARI READY (100%)";
       }
     },
@@ -1838,19 +1868,31 @@ function initNavSliderAndCalculator() {
     });
   }
 
-  // Interactive 12.4% APY Calculator Slider in Hero
+  // Interactive Yield Calculator Slider in Hero — uses the real live oracle APR, not a fixed number.
   const heroCalcSlider = document.getElementById("heroCalcSlider");
   const calcDepositVal = document.getElementById("calcDepositVal");
   const calcReturnVal = document.getElementById("calcReturnVal");
+  const calcLabelEl = document.querySelector(".calc-label");
 
-  if (heroCalcSlider && calcDepositVal && calcReturnVal) {
-    heroCalcSlider.addEventListener("input", () => {
-      const val = parseFloat(heroCalcSlider.value);
-      calcDepositVal.innerText = val.toLocaleString() + " XLM";
-      const ret = (val * 0.124).toFixed(2);
-      calcReturnVal.innerText = "+" + ret + " XLM";
-    });
+  function runHeroCalc() {
+    if (!heroCalcSlider || !calcDepositVal || !calcReturnVal) return;
+    const val = parseFloat(heroCalcSlider.value);
+    calcDepositVal.innerText = val.toLocaleString() + " XLM";
+    if (liveOracleAprPct === null) {
+      calcReturnVal.innerText = "Rate pending";
+      if (calcLabelEl) calcLabelEl.textContent = "Est. Annual Yield:";
+      return;
+    }
+    const ret = (val * (liveOracleAprPct / 100)).toFixed(2);
+    calcReturnVal.innerText = "+" + ret + " XLM";
+    if (calcLabelEl) calcLabelEl.textContent = `Est. Annual Yield (+${liveOracleAprPct.toFixed(2)}% XLM):`;
   }
+
+  if (heroCalcSlider) {
+    heroCalcSlider.addEventListener("input", runHeroCalc);
+  }
+  window.runHeroCalc = runHeroCalc;
+  runHeroCalc(); // paint the honest "Rate pending" state immediately instead of a stale number
 
   // Live Yield Ticker animation in Hero
   const heroYieldCounter = document.getElementById("heroYieldCounter");
@@ -2002,21 +2044,23 @@ function initMarketingInteractions() {
     }, 4500);
   }
 
+  // These are example previews only — nothing is sent to Telegram/Discord/X. No bot or
+  // webhook exists yet (see services/social-bot, which self-reports as SANDBOX_SIMULATOR).
   if (btnSimHighestApy) {
     btnSimHighestApy.addEventListener("click", () => {
-      triggerLandingToast("⚡ <strong>[Highest APY Alert]</strong> Phoenix CLAMM rebalanced • <strong>14.2% APY</strong> unlocked on XLM-USDC! Sent via Telegram & Discord.", "#8b2fe6");
+      triggerLandingToast("⚡ <strong>[Example]</strong> This is what a \"Highest APY Alert\" notification would look like. Not a real alert — nothing was sent.", "#8b2fe6");
     });
   }
 
   if (btnSimTradeEntry) {
     btnSimTradeEntry.addEventListener("click", () => {
-      triggerLandingToast("📈 <strong>[Trade Entry Signal]</strong> Long entry filled at $0.1248 XLM • <strong>78.4% Upside Probability</strong> target $0.1340! Sent to @HikariAlphaBot.", "#059669");
+      triggerLandingToast("📈 <strong>[Example]</strong> This is what a \"Trade Entry Signal\" notification would look like. Not a real alert — nothing was sent.", "#059669");
     });
   }
 
   if (btnSimDirectionalBias) {
     btnSimDirectionalBias.addEventListener("click", () => {
-      triggerLandingToast("🔮 <strong>[Futures Direction Signal]</strong> High probability upward breakout confirmed (78.4% Bullish / 21.6% Downside Risk).", "#7c3aed");
+      triggerLandingToast("🔮 <strong>[Example]</strong> This is what a \"Futures Direction Signal\" notification would look like. Not a real alert — nothing was sent.", "#7c3aed");
     });
   }
 }
@@ -2031,32 +2075,44 @@ function initFuturesDirectionSystem() {
   const btnDeckTriggerReroute = document.getElementById("btnDeckTriggerReroute");
   const btnDeckOpenFullAnalytics = document.getElementById("btnDeckOpenFullAnalytics");
 
+  async function renderFuturesTelemetry(mode) {
+    if (!futuresTelemetryText) return;
+    futuresTelemetryText.innerHTML = "<strong>Yield Router:</strong> loading live adapter data…";
+    try {
+      const res = await fetch("/api/yield-routes");
+      if (!res.ok) {
+        futuresTelemetryText.innerHTML = "<strong>Yield Router:</strong> adapter contracts not reachable right now.";
+        return;
+      }
+      const data = await res.json();
+      const parts = (data.routes || []).map((r) => `${r.allocationPct}% ${r.protocol} (${formatRoutePct(r)})`);
+      const label = mode === "long" ? "7-Day Macro View" : "Current Allocation";
+      futuresTelemetryText.innerHTML = `<strong>Yield Router — ${label}:</strong> ${parts.join(", ") || "no adapters reachable"}. 15% safe reserve floor. ${data.disclosure || ""}`;
+    } catch (err) {
+      futuresTelemetryText.innerHTML = "<strong>Yield Router:</strong> data unavailable.";
+    }
+  }
+
   if (btnTfShortTerm && btnTfLongTerm) {
     btnTfShortTerm.addEventListener("click", () => {
       btnTfShortTerm.classList.add("active");
       btnTfLongTerm.classList.remove("active");
-      if (futuresTelemetryText) {
-        futuresTelemetryText.innerHTML = "<strong>AI Yield Rerouter Dispatch:</strong> Real-time scan (ledger #54,892,104). Blend Backstop at 24.70% APY and Phoenix CLAMM at 21.80% APY. Pareto rebalancing active with 0-slippage atomic batching across Soroban contracts.";
-      }
+      renderFuturesTelemetry("short");
     });
 
     btnTfLongTerm.addEventListener("click", () => {
       btnTfLongTerm.classList.add("active");
       btnTfShortTerm.classList.remove("active");
-      if (futuresTelemetryText) {
-        futuresTelemetryText.innerHTML = "<strong>AI Yield Rerouter Dispatch:</strong> 7-Day Macro Yield Projection: Blended yield averaging 22.19% APY. Zero cash drag with 100% of unallocated reserves earning dynamic carry in Blend v2.";
-      }
+      renderFuturesTelemetry("long");
     });
   }
 
   if (btnDeckTriggerReroute) {
-    btnDeckTriggerReroute.addEventListener("click", () => {
+    btnDeckTriggerReroute.addEventListener("click", async () => {
       const showToastFn = window.showToast || (typeof showToast === "function" ? showToast : alert);
-      showToastFn("✓ AI Yield Reroute simulated: Evaluated 4 protocols. Top route: Blend Backstop (24.70%) & Phoenix (21.80%). Reserve floor (15.0%) preserved.");
-      if (futuresTelemetryText) {
-        const ledger = Math.floor(54892100 + Math.random() * 500);
-        futuresTelemetryText.innerHTML = `<strong>AI Yield Rerouter Dispatch:</strong> Rebalance executed at ledger #${ledger}. 35% Blend Backstop (24.70%), 30% Phoenix CLAMM (21.80%), 20% Soroswap (18.40%), 15% Safe Reserve. Invariants 100% verified.`;
-      }
+      showToastFn("Refreshing live adapter data…");
+      await renderFuturesTelemetry("short");
+      showToastFn("Yield router telemetry refreshed from live on-chain reads.");
     });
   }
 
@@ -2068,6 +2124,8 @@ function initFuturesDirectionSystem() {
       }
     });
   }
+
+  renderFuturesTelemetry("short");
 }
 
 
@@ -2080,36 +2138,36 @@ const VAULT_CONFIGS = {
     pillId: "pillVaultXlm",
     tierKey: "BALANCED_HXLM",
     tab: "stake",
-    badgeText: "AI YIELD REROUTER & RISK TELEMETRY • STELLAR PROTOCOL 27",
-    title: "Autonomous AI Yield Rerouter & Real-Time Risk Telemetry",
-    sub: "Hikari neural agents continuously benchmark, simulate, and reroute staked XLM into the highest verified yields on Stellar (Blend 24.70%, Phoenix 21.80%, Soroswap 18.40%) while enforcing risk telemetry, zero slippage, and 15% liquid reserve invariants.",
-    tvl: "12.5M XLM",
-    apy: "22.19%",
-    strategy: "Autonomous Rerouter + MEV"
+    badgeText: "YIELD ROUTER & RISK TELEMETRY (TESTNET DEMO) • STELLAR PROTOCOL 27",
+    title: "Yield Router & Risk Telemetry",
+    sub: "Vault can route staked XLM across Blend/Phoenix/Soroswap adapter contracts. Those adapters currently run simulated, self-accrued yield on testnet — not live third-party protocol yield yet.",
+    tvl: null,
+    apy: null,
+    strategy: "Rerouter + MEV keeper (testnet)"
   },
   usd: {
     key: "usd",
     pillId: "pillVaultUsd",
     tierKey: "CONSERVATIVE_USDC",
     tab: "basket",
-    badgeText: "USD STABLECOIN HIGH-YIELD VAULT • SEP-41 USDC & USDS",
-    title: "EarnUSD — Multi-Strategy Stablecoin Vault",
-    sub: "Automated yield aggregation for USDC and institutional stablecoins via Blend lending and Soroswap liquidity pools.",
-    tvl: "$42.4M",
-    apy: "17.0%",
-    strategy: "Blend SAC + Soroswap LP"
+    badgeText: "USD STABLECOIN VAULT (TESTNET) • SEP-41 USDC",
+    title: "EarnUSD — Stablecoin Vault",
+    sub: "Real deployed testnet USDC vault. Yield aggregation via Blend/Soroswap adapters — those adapters run simulated accrual today, see the disclosure on the Yield Router tab.",
+    tvl: null,
+    apy: null,
+    strategy: "Blend SAC + Soroswap LP (testnet)"
   },
   multichain: {
     key: "multichain",
     pillId: "pillVaultMulti",
     tierKey: "DYNAMIC_ALPHA_HXLM",
     tab: "bridge",
-    badgeText: "CROSS-CHAIN REHYDRATION VAULT • CIRCLE CCTP V2 & EVM INTEROP",
-    title: "Earn Multichain — Cross-Chain Yield Bridge & Rehydration",
-    sub: "Seamless zero-slippage rehydration from Arbitrum, Optimism, and Base directly into Stellar Soroban high-yield vaults.",
-    tvl: "$88.2M",
-    apy: "14.2%",
-    strategy: "Circle CCTP + Soroban SAC"
+    badgeText: "CROSS-CHAIN BRIDGE • NOT YET IMPLEMENTED",
+    title: "Earn Multichain — Not Yet Available",
+    sub: "Cross-chain rehydration (Circle CCTP / EVM interop) is not implemented — there is no bridge contract or integration in this codebase yet. This is a roadmap item, not a live vault.",
+    tvl: null,
+    apy: null,
+    strategy: "Not implemented"
   }
 };
 
@@ -2134,8 +2192,8 @@ function selectVault(vaultKey, updateHistory = true) {
   if (badgeText) badgeText.innerText = cfg.badgeText;
   if (title) title.innerText = cfg.title;
   if (sub) sub.innerText = cfg.sub;
-  if (statTvl) statTvl.innerText = cfg.tvl;
-  if (statApy) statApy.innerText = cfg.apy;
+  if (statTvl) statTvl.innerText = cfg.tvl || "Live on-chain (see vault)";
+  if (statApy) statApy.innerText = cfg.apy || "Rate pending";
   if (statStrategy) statStrategy.innerText = cfg.strategy;
 
   // Switch Tier
@@ -2155,7 +2213,7 @@ function selectVault(vaultKey, updateHistory = true) {
   updateBalanceLabel();
   calculateConversion();
 
-  addLog("[VaultRouter]", `Activated ${cfg.title} (${cfg.apy} APY).`, "log-tag-agent");
+  addLog("[VaultRouter]", `Activated ${cfg.title} (${cfg.apy || "rate pending"}).`, "log-tag-agent");
 
   if (updateHistory) {
     try {
@@ -2227,17 +2285,34 @@ function initHakiruSocialAndSolvency() {
   });
 
   async function loadSolvencyReport() {
+    const rootDisp = document.getElementById("solvencyMerkleRootDisplay");
+    const liabEl = document.getElementById("solvencyLiabilitiesVal");
+    const reservesEl = document.getElementById("solvencyReservesVal");
+    const surplusEl = document.getElementById("solvencySurplusVal");
+    const statusEl = document.getElementById("solvencyStatusLine");
     try {
       const res = await fetch("/api/v1/solvency/proof");
-      if (res.ok) {
-        const data = await res.json();
-        const rootDisp = document.getElementById("solvencyMerkleRootDisplay");
-        if (rootDisp && data.report) {
-          rootDisp.innerText = data.report.merkleRoot;
-        }
+      const data = await res.json();
+      if (!res.ok || !data.report) {
+        if (statusEl) statusEl.textContent = "Solvency report unavailable — could not read real on-chain reserves/ledger.";
+        if (liabEl) liabEl.textContent = "Unavailable";
+        if (reservesEl) reservesEl.textContent = "Unavailable";
+        if (surplusEl) surplusEl.textContent = "Unavailable";
+        return;
+      }
+      const r = data.report;
+      if (rootDisp) rootDisp.innerText = r.merkleRoot;
+      if (liabEl) liabEl.textContent = `${r.totalLiabilitiesXlm.toLocaleString()} XLM`;
+      if (reservesEl) reservesEl.textContent = `${r.totalAuditedReservesXlm.toLocaleString()} XLM (real, on-chain)`;
+      if (surplusEl) surplusEl.textContent = `${r.surplusBufferXlm >= 0 ? "+" : ""}${r.surplusBufferXlm.toLocaleString()} XLM`;
+      if (statusEl) {
+        statusEl.textContent = r.depositorRegistryStatus === "EMPTY_NOT_YET_TRACKED"
+          ? "REAL RESERVES, NO LIABILITY REGISTRY YET — reserves are read live on-chain; there is no real per-depositor liability tracking yet, so no reserve ratio is claimed."
+          : `MATHEMATICALLY VERIFIED • ${r.reserveRatioPercent}% RESERVE RATIO`;
       }
     } catch (e) {
       console.warn("Could not fetch solvency report", e);
+      if (statusEl) statusEl.textContent = "Solvency report unavailable.";
     }
   }
 
@@ -2253,13 +2328,13 @@ function initHakiruSocialAndSolvency() {
         if (data.userProof && data.userProof.isVerified) {
           resultDiv.innerHTML = `
             <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 0.6rem 0.8rem; color: #10b981;">
-              <strong>✅ 100% Cryptographically Verified!</strong><br>
+              <strong>✅ Cryptographically Verified!</strong><br>
               Account <code>${addr}</code> holding <strong>${data.userProof.shares} shares</strong> (${data.userProof.underlyingValueXlm.toLocaleString()} XLM) matches Merkle Leaf <code>${data.userProof.leafHash.slice(0, 16)}...</code>.
             </div>`;
         } else {
           resultDiv.innerHTML = `
             <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 0.6rem 0.8rem; color: #ef4444;">
-              ⚠️ Address not yet indexed in this snapshot. (Try sample account <code>GIBO1V7L9900CDEF</code> or <code>GAKN7F4E5678WXYZ</code>).
+              ⚠️ No liability registry exists yet, so no address can be verified — see the status line above. This isn't a lookup failure; there is nothing to look up yet.
             </div>`;
         }
       } catch (e) {
@@ -2651,98 +2726,16 @@ function initHakiru5TabApp() {
 
   if (btnWithdrawMax && inputWithdrawAmount) {
     btnWithdrawMax.addEventListener("click", () => {
-      const bal = state.wallet.connected ? state.wallet.sharesHXlm : 450;
+      const bal = state.wallet.connected ? state.wallet.sharesHXlm : 0;
       inputWithdrawAmount.value = bal;
       if (withdrawReceiveEst) withdrawReceiveEst.textContent = (bal * 1.0428).toFixed(2) + " XLM";
     });
   }
 
-  // Multichain Interactive Converter (Requested in Voice Note)
-  const chainPills = document.querySelectorAll(".hikari-chain-pill");
-  const bridgeInputLabel = document.getElementById("bridgeInputLabel");
-  const bridgeBalDisplay = document.getElementById("bridgeBalDisplay");
-  const inputBridgeAmount = document.getElementById("inputBridgeAmount");
-  const btnBridgeMax = document.getElementById("btnBridgeMax");
-  const bridgeRouteDisplay = document.getElementById("bridgeRouteDisplay");
-  const bridgeXlmEst = document.getElementById("bridgeXlmEst");
-  const bridgeHxlmEst = document.getElementById("bridgeHxlmEst");
-  const btnActionBridgeStake = document.getElementById("btnActionBridgeStake");
-
-  let activeChainData = {
-    chain: "sol",
-    token: "SOL",
-    rate: 1216,
-    bal: "5.20 SOL",
-    route: "Solana ➔ Stellar Anchor ➔ XLM",
-  };
-
-  const chainConfigs = {
-    sol: { name: "Solana (SOL)", token: "SOL", rate: 1216, bal: "5.20 SOL", route: "Solana ➔ Stellar Anchor ➔ XLM" },
-    eth: { name: "Ethereum (ETH)", token: "ETH", rate: 21500, bal: "1.45 ETH", route: "Ethereum ➔ Circle CCTP ➔ Stellar XLM" },
-    arb: { name: "Arbitrum (USDC)", token: "USDC", rate: 8.0, bal: "1,250.00 USDC", route: "Arbitrum ➔ CCTP V2 ➔ Stellar DEX ➔ XLM" },
-    pol: { name: "Polygon (POL)", token: "POL", rate: 3.2, bal: "850.00 POL", route: "Polygon ➔ Axelar Bridge ➔ Stellar XLM" },
-    base: { name: "Base (ETH)", token: "ETH", rate: 21500, bal: "0.85 ETH", route: "Base ➔ Circle CCTP ➔ Stellar XLM" },
-  };
-
-  function updateBridgeCalculations() {
-    const amt = parseFloat(inputBridgeAmount ? inputBridgeAmount.value : 0) || 0;
-    const xlmAmt = amt * activeChainData.rate;
-    const hxlmAmt = xlmAmt / 1.0428;
-
-    if (bridgeXlmEst) {
-      bridgeXlmEst.textContent = `≈ ${xlmAmt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} XLM`;
-    }
-    if (bridgeHxlmEst) {
-      bridgeHxlmEst.textContent = `≈ ${hxlmAmt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} hXLM`;
-    }
-  }
-
-  chainPills.forEach((pill) => {
-    pill.addEventListener("click", () => {
-      chainPills.forEach((p) => p.classList.remove("active"));
-      pill.classList.add("active");
-      const cKey = pill.dataset.chain;
-      const conf = chainConfigs[cKey] || chainConfigs.sol;
-      activeChainData = conf;
-
-      if (bridgeInputLabel) bridgeInputLabel.textContent = `Deposit ${conf.name}`;
-      if (bridgeBalDisplay) bridgeBalDisplay.textContent = `Balance: ${conf.bal}`;
-      if (bridgeRouteDisplay) bridgeRouteDisplay.textContent = conf.route;
-
-      updateBridgeCalculations();
-    });
-  });
-
-  if (inputBridgeAmount) {
-    inputBridgeAmount.addEventListener("input", updateBridgeCalculations);
-  }
-
-  if (btnBridgeMax && inputBridgeAmount) {
-    btnBridgeMax.addEventListener("click", () => {
-      const rawBal = parseFloat(activeChainData.bal) || 1.0;
-      inputBridgeAmount.value = rawBal;
-      updateBridgeCalculations();
-    });
-  }
-
-  if (btnActionBridgeStake) {
-    btnActionBridgeStake.addEventListener("click", () => {
-      if (!state.wallet.connected) {
-        openWalletModal();
-        return;
-      }
-      const amt = parseFloat(inputBridgeAmount.value) || 0;
-      if (amt <= 0) {
-        showToast("Please enter an amount to bridge and stake");
-        return;
-      }
-      const xlmAmt = amt * activeChainData.rate;
-      const hxlmAmt = xlmAmt / 1.0428;
-      state.wallet.sharesHXlm += hxlmAmt;
-      updateWalletUI();
-      showToast(`Hikari: Bridged ${amt} ${activeChainData.token} and auto-staked ${hxlmAmt.toFixed(2)} hXLM! (14.2% APY)`);
-    });
-  }
+  // Multichain bridge/swap UI removed — there is no bridge contract or cross-chain integration
+  // in this codebase. The previous version fabricated exchange rates and credited fake hXLM to
+  // the displayed balance on click without any real transaction. See app.html for the honest
+  // "Not yet available" placeholder that replaced it.
 
   // 5. FAQ Accordion Interaction
   document.querySelectorAll(".hikari-faq-question, .hakiru-faq-question").forEach((btn) => {
@@ -2947,7 +2940,20 @@ function initHakiru5TabApp() {
     }
   }
 
+  // Only Freighter is actually implemented. Every other button used to silently run the same
+  // Freighter-only check regardless of label — that misrepresented what clicking it would do.
+  const SUPPORTED_WALLETS = new Set(["freighter"]);
   document.querySelectorAll(".hikari-wallet-btn, .hakiru-wallet-btn").forEach((b) => {
+    const walletKey = (b.dataset.wallet || "").toLowerCase();
+    if (!SUPPORTED_WALLETS.has(walletKey)) {
+      b.classList.add("hikari-wallet-btn-unsupported");
+      b.style.opacity = "0.5";
+      b.title = "Not yet supported — use Freighter (Browser) for now.";
+      b.addEventListener("click", () => {
+        showToast(`${b.dataset.name || "This wallet"} isn't wired up yet — please use Freighter for now.`);
+      });
+      return;
+    }
     b.addEventListener("click", () => {
       const wName = b.dataset.name || b.dataset.wallet || "Wallet";
       connectAccount(wName);
@@ -3393,13 +3399,17 @@ function initYieldRouterSystem() {
   const telemetryBox = document.getElementById("yrRebalanceTelemetry");
   const presetBtns = document.querySelectorAll(".btnYrPreset");
 
-  let currentBlendedApy = 22.19;
+  let currentBlendedApy = null; // no fabricated default — stays null until a live rate is confirmed on-chain
 
   function updateCalculations() {
     const amount = parseFloat(inputDeposit?.value) || 0;
-    const annualReward = (amount * currentBlendedApy) / 100;
     if (calcAnnual) {
-      calcAnnual.textContent = `+${annualReward.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} XLM / yr`;
+      if (currentBlendedApy === null) {
+        calcAnnual.textContent = `Rate pending on-chain (adapters run simulated accrual — see disclosure)`;
+      } else {
+        const annualReward = (amount * currentBlendedApy) / 100;
+        calcAnnual.textContent = `+${annualReward.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} XLM / yr`;
+      }
     }
     if (calcVsNative) {
       calcVsNative.textContent = `vs. +0.00 XLM holding native XLM (0% inflation)`;
@@ -3420,53 +3430,115 @@ function initYieldRouterSystem() {
   });
 
   window.loadYieldRouterData = async function () {
+    const subEl = document.getElementById("vaultContextSub");
     try {
       const res = await fetch("/api/yield-routes");
-      if (!res.ok) return;
-      const data = await res.json();
-      if (data && data.aiRecommendation) {
-        currentBlendedApy = data.aiRecommendation.blendedNetApyPct || 22.19;
-        const topApyEl = document.getElementById("yrTopApy");
-        if (topApyEl) topApyEl.textContent = `${data.aiRecommendation.topGrossApyPct.toFixed(2)}%`;
-        const blendedEl = document.getElementById("yrBlendedApy");
-        if (blendedEl) blendedEl.textContent = `${currentBlendedApy.toFixed(2)}%`;
-        const reserveEl = document.getElementById("yrReserveFloor");
-        if (reserveEl) reserveEl.textContent = `${data.aiRecommendation.reserveFloorPct.toFixed(2)}% Invariant`;
-        updateCalculations();
+      if (!res.ok) {
+        if (subEl) subEl.textContent = "Yield adapter contracts not reachable right now — no data to show.";
+        return;
       }
+      const data = await res.json();
+      if (!data || !Array.isArray(data.routes)) return;
+
+      const byId = Object.fromEntries(data.routes.map((r) => [r.id, r]));
+      const blend = byId.route_blend_backstop;
+      const phoenix = byId.route_phoenix_clamm;
+      const soroswap = byId.route_soroswap_farm;
+
+      const known = data.routes.filter((r) => r.configuredRatePct !== null);
+      if (known.length > 0) {
+        let weightedSum = 0, totalWeight = 0;
+        known.forEach((r) => { weightedSum += r.configuredRatePct * r.allocationPct; totalWeight += r.allocationPct; });
+        currentBlendedApy = totalWeight > 0 ? weightedSum / totalWeight : null;
+      } else {
+        currentBlendedApy = null;
+      }
+
+      const topApyEl = document.getElementById("yrTopApy");
+      if (topApyEl) topApyEl.textContent = blend ? formatRoutePct(blend) : "—";
+      const blendedEl = document.getElementById("yrBlendedApy");
+      if (blendedEl) blendedEl.textContent = currentBlendedApy !== null ? `${currentBlendedApy.toFixed(2)}%` : "Pending";
+      const reserveEl = document.getElementById("yrReserveFloor");
+      if (reserveEl) reserveEl.textContent = "15.00% Invariant";
+
+      const yrBlendApyEl = document.getElementById("yrBlendApy");
+      if (yrBlendApyEl) yrBlendApyEl.textContent = formatRoutePct(blend);
+      const yrPhoenixApyEl = document.getElementById("yrPhoenixApy");
+      if (yrPhoenixApyEl) yrPhoenixApyEl.textContent = formatRoutePct(phoenix);
+      const yrSoroswapApyEl = document.getElementById("yrSoroswapApy");
+      if (yrSoroswapApyEl) yrSoroswapApyEl.textContent = formatRoutePct(soroswap);
+
+      const cardBlendApyEl = document.getElementById("cardBlendApy");
+      if (cardBlendApyEl) cardBlendApyEl.textContent = formatRoutePct(blend);
+      const cardPhoenixApyEl = document.getElementById("cardPhoenixApy");
+      if (cardPhoenixApyEl) cardPhoenixApyEl.textContent = formatRoutePct(phoenix);
+      const cardSoroswapApyEl = document.getElementById("cardSoroswapApy");
+      if (cardSoroswapApyEl) cardSoroswapApyEl.textContent = formatRoutePct(soroswap);
+
+      const vaultStatTvlEl = document.getElementById("vaultStatTvl");
+      if (vaultStatTvlEl) vaultStatTvlEl.textContent = blend ? formatRoutePct(blend) : "Rate pending";
+      const vaultStatApyEl = document.getElementById("vaultStatApy");
+      if (vaultStatApyEl) vaultStatApyEl.textContent = currentBlendedApy !== null ? `${currentBlendedApy.toFixed(2)}% (simulated)` : "Rate pending";
+      const paretoBlendedApyEl = document.getElementById("paretoBlendedApy");
+      if (paretoBlendedApyEl) paretoBlendedApyEl.textContent = currentBlendedApy !== null ? `Blended Rate (simulated): ${currentBlendedApy.toFixed(2)}%` : "Blended Rate: pending";
+      const tdYieldCarryActiveEl = document.getElementById("tdYieldCarryActive");
+      if (tdYieldCarryActiveEl) tdYieldCarryActiveEl.textContent = blend ? formatRoutePct(blend) : "Rate pending";
+
+      const routesTableBody = document.getElementById("yrRoutesTableBody");
+      if (routesTableBody) {
+        const reserveRow = routesTableBody.querySelector("tr:last-child");
+        const rows = data.routes.map((r) => `
+          <tr style="border-top: 1px solid rgba(255,255,255,0.05);">
+            <td style="padding: 0.8rem 1rem; color: #ffffff; font-weight: 600;">${r.name}</td>
+            <td style="padding: 0.8rem 1rem; font-family: monospace; color: #c084fc;">${r.contractId.slice(0, 6)}…${r.contractId.slice(-4)}</td>
+            <td style="padding: 0.8rem 1rem; color: #10b981; font-weight: 700;">${formatRoutePct(r)}</td>
+            <td style="padding: 0.8rem 1rem; color: #f59e0b;">${r.integrationStatus}</td>
+            <td style="padding: 0.8rem 1rem; color: #ffffff; font-weight: 600;">${r.allocationPct.toFixed(1)}%</td>
+          </tr>`).join("");
+        routesTableBody.innerHTML = rows + (reserveRow ? reserveRow.outerHTML : "");
+      }
+
+      if (subEl) {
+        subEl.textContent = data.disclosure || "Blend/Phoenix/Soroswap adapters currently run simulated, self-accrued yield — not live third-party protocol yield.";
+      }
+
+      updateCalculations();
     } catch (err) {
       console.warn("Could not fetch /api/yield-routes:", err);
+      if (subEl) subEl.textContent = "Yield router data unavailable.";
     }
   };
 
   if (btnStakeAndRoute) {
+    // Preview-only: this button does not submit a transaction. Real deposits go through the
+    // wallet-signed flow (connectAccount + /api/build-deposit + Freighter signing) elsewhere in this file.
     btnStakeAndRoute.addEventListener("click", () => {
       const amount = parseFloat(inputDeposit?.value) || 10000;
-      showToast(`Routing ${amount.toLocaleString()} XLM through Hikari Vault to Blend & Phoenix...`);
+      const apyLabel = currentBlendedApy !== null ? `${currentBlendedApy.toFixed(2)}% simulated APY` : "a rate pending on-chain confirmation";
+      showToast(`Preview only — connect a wallet and use Deposit to route ${amount.toLocaleString()} XLM through the vault.`);
       setTimeout(() => {
-        showToast(`✓ Minted ${(amount * 0.958).toFixed(2)} hXLM! Position deployed at ${currentBlendedApy}% APY.`);
+        showToast(`Preview: this allocation would target ${apyLabel}. No funds moved.`);
       }, 1200);
     });
   }
 
   if (btnSimulateRebalance) {
+    // Illustrative preview only — no transaction is submitted here. There is no
+    // migrate_adapter execution path wired to a real transaction in this build.
     btnSimulateRebalance.addEventListener("click", () => {
       if (!telemetryBox) return;
       telemetryBox.style.display = "block";
-      telemetryBox.innerHTML = `<div>[KEEPER] Inspecting cross-protocol rate differential...</div>`;
+      telemetryBox.innerHTML = `<div style="color: #f59e0b;">[PREVIEW — no transaction submitted] Illustrating what a keeper rebalance would look like:</div>`;
       setTimeout(() => {
-        telemetryBox.innerHTML += `<div>[VWAP] SDEX orderbook depth verified: $0.1245 VWAP (spread: 4 bps)</div>`;
+        telemetryBox.innerHTML += `<div>[KEEPER] Would inspect configured rate differential across adapters...</div>`;
       }, 400);
       setTimeout(() => {
-        telemetryBox.innerHTML += `<div>[SETTLEMENT] Settlement liveness confirmed: 99.9% ledger finality</div>`;
-      }, 800);
+        telemetryBox.innerHTML += `<div>[SOROBAN] Would invoke migrate_adapter(BlendAdapter, max_slippage: 50 bps) — not implemented yet</div>`;
+      }, 900);
       setTimeout(() => {
-        telemetryBox.innerHTML += `<div style="color: #38bdf8;">[SOROBAN] Invoking native migrate_adapter(BlendBackstopAdapter, max_slippage: 50 bps)...</div>`;
-      }, 1200);
-      setTimeout(() => {
-        telemetryBox.innerHTML += `<div style="color: #10b981; font-weight: 700;">✓ Rebalance complete! 350,000 XLM migrated atomically without depositor signatures. Slippage: 0.08%.</div>`;
-        showToast("✓ Keeper rebalance executed via native migrate_adapter!");
-      }, 1800);
+        telemetryBox.innerHTML += `<div style="color: #f59e0b; font-weight: 700;">Preview complete. No funds were moved.</div>`;
+        showToast("Preview only — real rebalance execution is not implemented yet.");
+      }, 1400);
     });
   }
 
@@ -3476,11 +3548,24 @@ function initYieldRouterSystem() {
 function initTradingDeskSystem() {
   const btnTrigger = document.getElementById("btnTdTriggerCycle");
 
+  let lastTradingData = null;
+
+  function logToTdBox(text, color) {
+    const logBox = document.getElementById("tdExecutionLog");
+    if (!logBox) return;
+    const timeStr = new Date().toISOString().replace("T", " ").slice(0, 19);
+    const entry = document.createElement("div");
+    if (color) entry.style.color = color;
+    entry.textContent = `[${timeStr}] ${text}`;
+    logBox.prepend(entry);
+  }
+
   window.loadTradingDeskData = async function () {
     try {
       const res = await fetch("/api/trading-agent");
       if (!res.ok) return;
       const data = await res.json();
+      lastTradingData = data;
       if (data) {
         const priceEl = document.getElementById("tdXlmPrice");
         if (priceEl && data.currentPrice) priceEl.textContent = `$${data.currentPrice.toFixed(4)}`;
@@ -3490,6 +3575,19 @@ function initTradingDeskSystem() {
         if (consensusEl && data.consensusDecision) {
           consensusEl.textContent = `${data.consensusDecision} (${data.approvedAllocationPercent})`;
         }
+        const logBox = document.getElementById("tdExecutionLog");
+        if (logBox && !logBox.dataset.liveInit) {
+          logBox.dataset.liveInit = "1";
+          logBox.innerHTML = "";
+          logToTdBox(
+            `[SIGNAL] ${data.analysts?.technical?.summary || "RSI/ATR computed from live Horizon/CoinGecko data."} Source: ${data.dataSource}.`,
+            "#94a3b8"
+          );
+          logToTdBox(
+            `[SIGNAL] Consensus: ${data.consensusDecision} (${data.confidenceScore}). This is a single rule-based indicator, not a multi-agent debate — no trade has been executed.`,
+            "#10b981"
+          );
+        }
       }
     } catch (err) {
       console.warn("Could not fetch /api/trading-agent:", err);
@@ -3497,24 +3595,143 @@ function initTradingDeskSystem() {
   };
 
   if (btnTrigger) {
-    btnTrigger.addEventListener("click", () => {
-      showToast("Triggering Hikari multi-agent trading consensus cycle...");
-      const logBox = document.getElementById("tdExecutionLog");
-      if (logBox) {
-        const timeStr = new Date().toISOString().replace("T", " ").slice(0, 19);
-        const newEntry = document.createElement("div");
-        newEntry.style.color = "#38bdf8";
-        newEntry.textContent = `[${timeStr}] [CYCLE_TRIGGERED] Hikari specialists debating new market tick...`;
-        logBox.prepend(newEntry);
+    btnTrigger.addEventListener("click", async () => {
+      showToast("Refreshing live technical signal…");
+      logToTdBox("[CYCLE] Refreshing RSI/ATR from live Horizon/CoinGecko data…", "#38bdf8");
+      await window.loadTradingDeskData();
+      if (lastTradingData) {
+        showToastFnOrAlert(`Signal: ${lastTradingData.consensusDecision} (${lastTradingData.confidenceScore}). No trade executed — this dashboard does not place orders.`);
       }
-      setTimeout(() => {
-        showToast("✓ Hikari cycle finished: Consensus BUY 7.50% NAV on XLM. Yield carry: 92.5% Blend.");
-        window.loadTradingDeskData();
-      }, 1200);
     });
   }
 
+  function showToastFnOrAlert(msg) {
+    (window.showToast || (typeof showToast === "function" ? showToast : alert))(msg);
+  }
+
   window.loadTradingDeskData();
+}
+
+// Populates the landing page "Earn" cards with real live data (or honest "pending" labels)
+// instead of the static marketing numbers that used to be hardcoded here.
+function setAllText(ids, text) {
+  ids.forEach((id) => { const el = document.getElementById(id); if (el) el.textContent = text; });
+}
+
+async function initEarnCardsLiveData() {
+  const tvlIds = ["earnXlmTvl", "earnXlmTvl2"];
+  const xlmApyIds = ["earnXlmApy", "earnXlmApy2"];
+  const usdApyIds = ["earnUsdApy", "earnUsdApy2"];
+  const aprIds = ["navHxlmApyBadge", "chipXlmApy", "heroApyDisplay", "statApr", "rewardStatApy"];
+
+  try {
+    const res = await fetch("/api/telemetry");
+    if (res.ok) {
+      const tel = await res.json();
+      const stroops = tel.vaultState?.totalAssetsStroops;
+      if (stroops) {
+        const xlm = Number(BigInt(stroops)) / 1e7;
+        setAllText(tvlIds, `${xlm.toLocaleString(undefined, { maximumFractionDigits: 2 })} XLM`);
+        setAllText(["statTotalPooled"], `${xlm.toLocaleString(undefined, { maximumFractionDigits: 2 })} XLM`);
+      } else {
+        setAllText(tvlIds, "Not reachable");
+        setAllText(["statTotalPooled"], "Not reachable");
+      }
+
+      const aprBps = tel.oracleTelemetry?.aprBps;
+      if (typeof aprBps === "number") {
+        liveOracleAprPct = aprBps / 100;
+        setAllText(aprIds, `${liveOracleAprPct.toFixed(2)}%`);
+        setAllText(["chipXlmApy"], `XLM: ${liveOracleAprPct.toFixed(2)}%`);
+        setAllText(["navHxlmApyBadge"], `${liveOracleAprPct.toFixed(2)}% APY`);
+      } else {
+        setAllText(aprIds, "Rate pending");
+      }
+      setAllText(["chipUsdcApy"], "USDC: rate pending");
+
+      const navStroops = tel.oracleTelemetry?.navStroops;
+      const totalSharesStroops = tel.vaultState?.totalSharesStroops;
+      if (navStroops) {
+        const navXlm = Number(BigInt(navStroops)) / 1e7;
+        setAllText(["rewardStatPrice"], `${navXlm.toFixed(4)} XLM`);
+      } else {
+        setAllText(["rewardStatPrice"], "Not reachable");
+      }
+      if (navStroops && totalSharesStroops) {
+        const navXlm = Number(BigInt(navStroops)) / 1e7;
+        const sharesXlm = Number(BigInt(totalSharesStroops)) / 1e7;
+        setAllText(["statMarketCap"], `${(navXlm * sharesXlm).toLocaleString(undefined, { maximumFractionDigits: 2 })} XLM`);
+      } else {
+        setAllText(["statMarketCap"], "Not reachable");
+      }
+
+      runHeroCalcIfReady();
+    } else {
+      setAllText(tvlIds, "Not reachable");
+      setAllText(aprIds, "Rate pending");
+      setAllText(["statTotalPooled", "statMarketCap", "rewardStatPrice"], "Not reachable");
+    }
+  } catch (err) {
+    setAllText(tvlIds, "Not reachable");
+    setAllText(aprIds, "Rate pending");
+    setAllText(["statTotalPooled", "statMarketCap", "rewardStatPrice"], "Not reachable");
+    console.warn("Could not fetch /api/telemetry for live UI:", err);
+  }
+
+  try {
+    const res = await fetch("/api/yield-routes");
+    if (res.ok) {
+      const data = await res.json();
+      const blend = (data.routes || []).find((r) => r.id === "route_blend_backstop");
+      setAllText(xlmApyIds, formatRoutePct(blend));
+      setAllText(usdApyIds, formatRoutePct(blend));
+    } else {
+      setAllText(xlmApyIds, "Rate pending");
+      setAllText(usdApyIds, "Rate pending");
+    }
+  } catch (err) {
+    setAllText(xlmApyIds, "Rate pending");
+    setAllText(usdApyIds, "Rate pending");
+  }
+}
+
+function runHeroCalcIfReady() {
+  if (typeof window.runHeroCalc === "function") window.runHeroCalc();
+}
+
+function initRewardsCheck() {
+  const input = document.getElementById("inputRewardAddress");
+  const btn = document.getElementById("btnCheckRewards");
+  const balEl = document.getElementById("rewardStatBal");
+  if (!btn || !input || !balEl) return;
+
+  btn.addEventListener("click", async () => {
+    const address = input.value.trim();
+    if (!address || !address.startsWith("G") || address.length !== 56) {
+      balEl.textContent = "Enter a valid Stellar (G...) address";
+      return;
+    }
+    balEl.textContent = "Checking…";
+    try {
+      const configRes = await fetch("/api/contracts");
+      const config = await configRes.json();
+      const tokenId = config.token;
+      if (!tokenId) {
+        balEl.textContent = "Token contract unavailable";
+        return;
+      }
+      const balRes = await fetch(`/api/token-balance?address=${encodeURIComponent(address)}&token=${encodeURIComponent(tokenId)}`);
+      const balData = await balRes.json();
+      if (balRes.ok) {
+        balEl.textContent = `${(balData.balance || 0).toLocaleString(undefined, { maximumFractionDigits: 4 })} hXLM (live)`;
+      } else {
+        balEl.textContent = "Balance read failed — RPC unreachable";
+      }
+    } catch (err) {
+      balEl.textContent = "Balance read failed";
+      console.warn("Reward balance check failed:", err);
+    }
+  });
 }
 
 // Call on load
@@ -3529,6 +3746,8 @@ if (document.readyState === "loading") {
     initGovernanceSystem();
     initYieldRouterSystem();
     initTradingDeskSystem();
+    initEarnCardsLiveData();
+    initRewardsCheck();
   });
 } else {
   initNavSliderAndCalculator();
@@ -3540,6 +3759,8 @@ if (document.readyState === "loading") {
   initGovernanceSystem();
   initYieldRouterSystem();
   initTradingDeskSystem();
+  initEarnCardsLiveData();
+  initRewardsCheck();
 }
 
 

@@ -13,15 +13,22 @@ Hikari is an autonomous, non-custodial liquid-yield and agentic finance protocol
 
 ### Core Smart Contract Scope
 
-| Contract Name | Rust Path | Description | Key Functions |
+> The function names below are copied directly from the current contract source (verified in this
+> pass) — an earlier version of this table had invented names/paths that didn't exist
+> (`adapter_blend/`, `contracts/gateseal/`, `get_apy`, `claim_batch`, `propose_policy`, etc.),
+> which would have wasted an auditor's time. `withdraw`, share claiming, etc. actually live on
+> the vault / withdrawal_queue contracts as shown.
+
+| Contract Name | Rust Path | Description | Key Functions (real) |
 |---|---|---|---|
-| **Hikari Vault** | `contracts/vault/src/lib.rs` | Central capital pool, virtual share accounting, asynchronous withdrawal queue | `deposit`, `request_withdrawal`, `claim_batch`, `rebalance`, `harvest` |
-| **hXLM Share Token** | `contracts/token/src/lib.rs` | SEP-41 compliant fungible share token with virtual offsets | `mint`, `burn`, `balance`, `transfer`, `clawback` |
-| **Strategy Registry** | `contracts/strategy_registry/src/lib.rs` | Whitelist registry with per-strategy TVL caps and rate-limits | `register_strategy`, `update_cap`, `pause_strategy`, `is_approved` |
-| **Policy Account** | `contracts/policy_account/src/lib.rs` | 3-of-5 threshold multisig custom smart account enforcing policy checks | `__check_auth`, `propose_policy`, `execute_policy` |
-| **GateSeal Circuit Breaker** | `contracts/gateseal/src/lib.rs` | One-shot emergency panic button with 7-day auto-expiring pause | `seal_now`, `unseal`, `is_sealed` |
-| **Blend Adapter** | `contracts/adapter_blend/src/lib.rs` | Integration adapter for Blend collateralized lending pools | `supply`, `withdraw`, `get_apy`, `emergency_exit` |
-| **Phoenix CLAMM Adapter** | `contracts/adapter_phoenix/src/lib.rs` | Integration adapter for Phoenix concentrated liquidity pools | `deposit_range`, `collect_fees`, `emergency_exit` |
+| **Hikari Vault** | `contracts/vault/src/lib.rs` | Central capital pool, virtual share accounting | `deposit`, `withdraw`, `allocate_to_strategy`, `deallocate_from_strategy`, `emergency_exit_strategy`, `pause`/`unpause`, `total_assets`, `total_shares` |
+| **Withdrawal Queue** | `contracts/withdrawal_queue/src/lib.rs` | Asynchronous cooldown-based redemption queue | see contract source — separate from the vault's own `withdraw` |
+| **hXLM Share Token** | `contracts/token/src/lib.rs` | SEP-41 compliant fungible share token | `mint`, `burn`, `balance`, `transfer`, `transfer_from`, `approve`, `allowance` (no `clawback`) |
+| **Strategy Registry** | `contracts/strategy_registry/src/lib.rs` | Whitelist registry with per-strategy caps | `add_strategy`, `update_cap`, `pause_strategy`, `unpause_strategy`, `revoke_strategy`, `get_strategy`, `get_all_strategies` |
+| **Policy Account** | `contracts/policy_account/src/lib.rs` | Agent/contract allowlist + spend-limit smart account | `set_agent_status`, `set_contract_allowed`, `set_limits`, `verify_and_record_action`, `get_spending_status` |
+| **GateSeal Circuit Breaker** | `contracts/gate_seal/src/lib.rs` | One-shot emergency panic button with 7-day auto-expiring pause | `seal`, `unseal`, `is_sealed`, `is_seal_expired`, `get_seal_status` |
+| **Blend Adapter** | `contracts/blend_adapter/src/lib.rs` | Testnet-deployed, simulated self-accrual — does not call the real Blend protocol | `deposit`, `withdraw`, `total_value`, `harvest`, `emergency_exit`, `configured_rate_bps` |
+| **Phoenix Adapter** | `contracts/phoenix_adapter/src/lib.rs` | Testnet-deployed, simulated self-accrual — does not call the real Phoenix protocol | `deposit`, `withdraw`, `total_value`, `accrue_fees`, `recenter_ticks`, `emergency_exit`, `configured_rate_bps` |
 
 ---
 
@@ -64,11 +71,11 @@ $$\Delta_{\text{seal}} = 120,960 \text{ ledgers} \approx 7 \text{ days}$$
 ## 4. Test Suites & Verification Reproduction
 
 ```bash
-# 1. Rust Cargo Soroban Contract Tests (18 Unit & Integration Tests)
-cargo test --workspace
+# 1. Rust Cargo Soroban Contract Tests (31 unit tests, verified in this pass)
+cargo test --manifest-path contracts/Cargo.toml
 
-# 2. Automated 10,000-Iteration Randomized Invariant Fuzzing
-node scripts/run_fuzz_tests.js
+# 2. Automated randomized invariant fuzzing (unseeded — exact counts vary per run)
+node scripts/run_fuzz_tests.js --iterations=10000
 
 # 3. Multi-Scenario Market Stress Test (365 Epochs)
 npm run test:stress

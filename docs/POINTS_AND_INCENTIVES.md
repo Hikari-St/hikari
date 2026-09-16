@@ -4,6 +4,16 @@
 **Last Updated**: September 2026  
 **Status**: Institutional Specification  
 
+> **Current implementation vs. this spec (checked against `engine/src/points_engine.ts` in this
+> pass)**: the tier multipliers (1.0x / 1.5x / 2.5x) match. Everything else here is
+> aspirational/not yet built: the real duration-boost breakpoints are 30/90/180 days at
+> 1.2x/1.5x/2.0x (not the 14/30/90-day, 1.25x/1.75x/2.5x schedule below); there is no Soroswap-LP
+> or CCTP booster (only a generic "Blend collateral" +25% and "LP on DEX" +25%); and there's no
+> Cross-Chain CCTP depositor path at all — no CCTP/bridge integration exists anywhere in this
+> codebase. Also note the points engine has no persistent storage (a fresh instance per request in
+> `frontend/server.js`), so `/api/leaderboard` always returns empty today regardless of what this
+> document describes.
+
 ---
 
 ## 1. Program Overview & Motivation

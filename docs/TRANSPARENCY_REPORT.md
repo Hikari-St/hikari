@@ -1,48 +1,33 @@
-# Hikari Protocol: Monthly Transparency & Financial Audit Report
+# Hikari Protocol: Transparency Report
 
-**Report Date**: 2026-09-13  
-**Author & Maintainer**: `ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>`  
-**Generated At**: `2026-09-13T21:40:00.302Z`  
-**Network**: Stellar Testnet (Protocol 27 • Soroban)  
+**Author & Maintainer**: `ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>`
+**Network**: Stellar Testnet (Protocol 27 • Soroban)
 
----
-
-## 1. Capital Under Management (TVL) & NAV Progression
-
-| Metric | Current Value | 30-Day Change | Benchmark Target | Status |
-|---|---|---|---|---|
-| **Total Value Locked (TVL)** | **124,500 XLM** | +18.4% | > 100,000 XLM | **OPTIMAL** |
-| **Net Asset Value (hXLM / XLM)** | **1.0428 XLM** | +4.28% | $\Delta NAV \ge 0$ | **HEALTHY** |
-| **Liquid Reserve Buffer** | **28,400 XLM (22.8%)** | +2.1% | $\ge 15.0\%$ | **SECURE** |
-| **Net Blended APY** | **6.94%** | +0.45% | > 5.0% | **OUTPERFORMING** |
+> This file previously contained a fabricated "Monthly Transparency & Financial Audit Report"
+> with invented figures (124,500 XLM TVL, fake fee accrual, "18 unit tests / 10,000 fuzz
+> iterations / 365-day stress tests" that don't exist, and a false "Verified cryptographically"
+> footer). Nothing in this repository generates a signed or cryptographically verified report on
+> any schedule. What follows instead is a pointer to the real, live-queryable numbers.
 
 ---
 
-## 2. Strategy Allocation Breakdown
+## Where to get real numbers
 
-- **Blend Protocol XLM Lending**: 45,000 XLM (36.1% of TVL) • APY: 5.20% (Collateralized Supply)
-- **Phoenix Protocol CLAMM**: 32,500 XLM (26.1% of TVL) • Fee APR: 6.40% (Narrow-Band LP)
-- **Soroswap DEX AMM**: 18,600 XLM (14.9% of TVL) • Fee APR: 7.80% (XLM/USDC Pool)
-- **Liquid Vault Buffer**: 28,400 XLM (22.8% of TVL) • Instant Liquidity for Turbo Redemptions
+There is no automated report generator or "Autonomous Risk Daemon" in this codebase. Instead, query the running app directly:
 
----
+| Metric | Real source |
+|---|---|
+| Total Value Locked | `GET /api/telemetry` → `vaultState.totalAssetsStroops` (live Soroban read of `total_assets()`) |
+| Net Asset Value (hXLM/XLM) | `GET /api/telemetry` → `oracleTelemetry.navStroops` — a keeper-fed oracle value, not yet derived from live Blend/Phoenix trading activity |
+| Liquid reserve ratio | `GET /api/telemetry` → `oracleTelemetry.liquidReserveRatioBps` |
+| GateSeal / circuit breaker status | `GET /api/telemetry` → `circuitBreaker` |
+| Per-adapter TVL and configured rate | `GET /api/yield-routes` — includes a `disclosure` field explaining that Blend/Phoenix/Soroswap adapters run simulated self-accrual, not live third-party yield |
+| Proof of reserves | `GET /api/v1/solvency/proof` — real SHA-256 Merkle root computed from on-chain reserves and the current Horizon ledger. There is currently **no real per-depositor liability registry**, so `depositorRegistryStatus` reports `EMPTY_NOT_YET_TRACKED` and no reserve ratio is claimed until one exists. |
 
-## 3. Protocol Economics & Fee Accrual (High-Water Mark)
+## Test coverage (real, as of this repo)
 
-- **High-Water Mark (NAV)**: 1.0428 XLM
-- **Management Fees Accrued (0.50% annualized)**: 51.87 XLM
-- **Performance Fees Accrued (10.0% of alpha)**: 53.29 XLM
-- **First-Loss Buffer Retention (50%)**: 52.58 XLM retained in Vault
-- **Treasury Routing (50%)**: 52.58 XLM routed for developer grants & audits
+31 Rust contract tests across the 15 Soroban contracts, plus a handful of TypeScript SDK/engine tests. There is no fuzz-testing or long-duration stress-test harness in this repository.
 
----
+## Fee accrual
 
-## 4. Security & Circuit Breaker Telemetry
-
-- **GateSeal Circuit Breaker Status**: Nominal (`false`)
-- **Queue Operation Mode**: Turbo Mode (Instant Redemptions, 0% Haircut)
-- **Atomic MEV Backrun Profit Streamed**: +62.64 XLM (80% Depositor Boost)
-- **Audit Verification Status**: All 18 Soroban unit tests, 10,000 fuzz iterations, and 365-day stress tests passing with 0 invariant breaches.
-
----
-*Verified cryptographically and published by the Hikari Autonomous Risk Daemon.*
+The `fee_controller` contract defines management/performance fee parameters (see `docs/ECONOMIC_MODEL.md`), but there is no tracked historical ledger of fees actually accrued — reporting a specific XLM figure for "fees accrued to date" would be fabricated, so none is given here.

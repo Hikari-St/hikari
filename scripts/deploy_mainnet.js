@@ -1,6 +1,12 @@
 // scripts/deploy_mainnet.js
 // Author: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
-// Production Stellar Mainnet Deployment & Multi-Sig Guardian Ceremony Suite
+//
+// Mainnet deployment is NOT implemented. This script only renders the planned
+// governance parameters and contract pipeline for review — it makes no RPC or
+// Horizon calls and submits nothing to any network. There is no `--live` mode:
+// a real mainnet deploy requires a funded deployer key, an actual multi-sig
+// guardian ceremony with independently-held keys, and real Soroban `deploy`/
+// `invoke` calls, none of which exist here yet.
 
 const fs = require("fs");
 const path = require("path");
@@ -8,75 +14,72 @@ const path = require("path");
 const MAINNET_HORIZON = "https://horizon.stellar.org";
 const MAINNET_RPC = "https://soroban-rpc.mainnet.stellar.org";
 
-async function executeMainnetCeremony(dryRun = true) {
+function renderMainnetPlan() {
   console.log("================================================================================");
-  console.log("🚀 [HIKARI] Stellar Mainnet Production Deployment & Guardian Ceremony");
+  console.log("[HIKARI] Mainnet deployment plan preview (NOT a deployment)");
   console.log("Author & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>");
-  console.log(`Execution Mode: ${dryRun ? "🔍 DRY-RUN (Pre-Flight Simulation)" : "🔴 LIVE BROADCAST"}`);
+  console.log("This script performs no network calls. Nothing is deployed or verified by running it.");
   console.log("================================================================================\n");
 
-  const guardianConfig = {
+  const governancePlan = {
     threshold: "3-of-5 Multi-Sig",
     timelockLedgers: 120960, // ~7 days delay on major governance upgrades
-    guardians: [
-      "GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN", // Security Council 1
-      "GAQZQABZADRIHXJSNS75OLEKNE65ZFU273PBSA6H23IHILQVFK3VQ5L2", // Security Council 2
-      "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLL7DEV", // Institutional Partner 1
-      "GDLOBSTRM5V6VQL2W7H4P8ZJXK39QY0RNE4SDA7MUPTR4A69T0HIKARI", // Mobile Guardian
-      "GBXBULLJ7R8T9V2W3X4Y5Z6A7B8C9D0E1F2G3H4I5J6K7L8M9N0HIKARI"  // Hardware Signer
-    ],
+    guardians: "TBD — real, independently-held guardian keys must be assigned before launch. Not set.",
     gateSealDuration: 120960, // 7 days emergency pause
     initialReserveFloorPct: 15,
   };
 
-  console.log("1. Multi-Sig Governance Verification:");
-  console.log(`   ✓ Multi-Sig Policy: ${guardianConfig.threshold}`);
-  console.log(`   ✓ Emergency GateSeal Window: ${guardianConfig.gateSealDuration} ledgers (~7 days)`);
-  console.log(`   ✓ Timelock Upgrade Delay: ${guardianConfig.timelockLedgers} ledgers`);
-  console.log(`   ✓ Participating Signers: ${guardianConfig.guardians.length} addresses verified\n`);
+  console.log("1. Governance parameters (planned, not yet on-chain):");
+  console.log(`   - Multi-Sig Policy: ${governancePlan.threshold}`);
+  console.log(`   - Emergency GateSeal Window: ${governancePlan.gateSealDuration} ledgers (~7 days)`);
+  console.log(`   - Timelock Upgrade Delay: ${governancePlan.timelockLedgers} ledgers`);
+  console.log(`   - Guardians: ${governancePlan.guardians}\n`);
 
-  console.log("2. Planned Contract Deployment Pipeline:");
+  console.log("2. Planned contract deployment order (not yet executed):");
   const pipeline = [
-    { step: "1/6", contract: "Native XLM SAC Wrapper", id: "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2SLH34INT3C" },
+    { step: "1/6", contract: "Native XLM SAC Wrapper" },
     { step: "2/6", contract: "Hikari Liquid Share Token (hXLM)", symbol: "hXLM", decimals: 7 },
     { step: "3/6", contract: "Hikari Vault Core", virtualShares: 1000, virtualAssets: 1, minReservePct: 15 },
     { step: "4/6", contract: "Withdrawal Queue", cooldownLedgers: 50, batchClaimCap: 20 },
     { step: "5/6", contract: "GateSeal Circuit Breaker", pauseDuration: 120960 },
-    { step: "6/6", contract: "Strategy Adapters (Blend Lending + Phoenix CLAMM)", maxAllocPct: 25 }
+    { step: "6/6", contract: "Strategy Adapters (Blend / Phoenix / Soroswap)", maxAllocPct: 25 },
   ];
   console.table(pipeline);
 
-  console.log("\n3. Agent Allocation Guardrails Configured:");
-  console.log("   ✓ Hard Max Allocation per Strategy: 25% of total assets");
-  console.log("   ✓ Hard Slippage Ceiling: 50 bps (0.50%)");
-  console.log("   ✓ Minimum Liquid Reserve Floor: 15% (Never deployable)");
-  console.log("   ✓ x402 Daily Data Query Budget: $1.00 USD");
+  console.log("\n3. Intended agent allocation guardrails (to be enforced on-chain at launch, not active yet):");
+  console.log("   - Max allocation per strategy: 25% of total assets");
+  console.log("   - Slippage ceiling: 50 bps (0.50%)");
+  console.log("   - Minimum liquid reserve floor: 15%");
+  console.log("   - x402 daily data query budget: $1.00 USD");
 
   const mainnetArtifact = {
     network: "mainnet",
     passphrase: "Public Global Stellar Network ; September 2015",
     rpcUrl: MAINNET_RPC,
     horizonUrl: MAINNET_HORIZON,
-    governance: guardianConfig,
-    deployedAt: new Date().toISOString(),
-    status: dryRun ? "PRE_FLIGHT_SIMULATED" : "BROADCAST_CONFIRMED",
-    author: "ibochivincent-lang"
+    status: "NOT_DEPLOYED",
+    note: "Planning preview only. No contracts deployed, no guardians assigned, no network calls made.",
+    governancePlan,
+    author: "ibochivincent-lang",
   };
 
   const outPath = path.join(__dirname, "..", "deployed_mainnet.json");
   fs.writeFileSync(outPath, JSON.stringify(mainnetArtifact, null, 2), "utf-8");
-  console.log(`\n✓ Deployment configuration preview saved to: ${outPath}`);
-
-  console.log("\n================================================================================");
-  console.log("🎉 [MAINNET PRE-FLIGHT READY] All Invariants & Multi-Sig Ceremonies Verified!");
+  console.log(`\nPlan preview written to: ${outPath}`);
   console.log("================================================================================\n");
 
   return mainnetArtifact;
 }
 
 if (require.main === module) {
-  const isLive = process.argv.includes("--live");
-  executeMainnetCeremony(!isLive).catch(console.error);
+  if (process.argv.includes("--live")) {
+    console.error(
+      "Refusing to run with --live: real mainnet deployment (funded deployer key, guardian ceremony, " +
+      "Soroban deploy/invoke calls) is not implemented in this script. Remove --live to render the plan preview."
+    );
+    process.exit(1);
+  }
+  renderMainnetPlan();
 }
 
-module.exports = { executeMainnetCeremony };
+module.exports = { renderMainnetPlan };

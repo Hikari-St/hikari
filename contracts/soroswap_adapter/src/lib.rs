@@ -113,6 +113,13 @@ impl SoroswapAdapter {
         principal + fees
     }
 
+    /// Configured fee APR this adapter accrues internally.
+    /// NOTE: this is a self-contained simulated accrual rate, not a live read
+    /// from the Soroswap pair — this adapter does not call Soroswap.
+    pub fn configured_rate_bps(env: Env) -> u32 {
+        env.storage().instance().get(&DataKey::FeeAprBps).unwrap_or(0)
+    }
+
     pub fn harvest(env: Env) -> Result<i128, Error> {
         let vault: Address = env.storage().instance().get(&DataKey::Vault).unwrap();
         vault.require_auth();

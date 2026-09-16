@@ -44,9 +44,9 @@ However, Stellar operates on the Stellar Consensus Protocol (SCP) rather than Pr
 **Hikari Protocol** is the decentralized asset management, liquid staking execution layer, and autonomous AI trading desk engineered specifically for Stellar Soroban:
 
 1. **Native Liquid Staking (hXLM / whXLM)**: A yield-bearing, SEP-41 compliant liquid staking receipt token that auto-compounds native returns across audited Stellar DeFi strategies while retaining 100% liquidity.
-2. **Advanced Pro Analytics & Risk Telemetry (AI Yield Rerouter)**: Real-time cross-protocol yield aggregation and Pareto allocation engine discovering and directing capital to Stellar's highest yields (Blend Backstop 24.70% APY, Phoenix CLAMM 21.80%, Soroswap 18.40%, Defindex 16.50%). Utilizes native zero-signature migrate_adapter execution, multi-venue depth aggregation, and settlement liveness verification.
-3. **Hikari Multi-Agent Trading Desk**: Autonomous financial specialists (Fundamental, Technical, Sentiment, News, Risk Committee) conducting multi-turn Bull vs. Bear debates, executing optimal entries on SDEX/Soroswap with zero-cash-drag **Yield Carry** (parking idle margin in Blend Backstop for 24.70% APY).
-4. **Autonomous Keepers & MEV Capture**: Continuously harvest rewards, rebalance narrow tick bands, and backrun SDEX-Soroswap arbitrage, recycling 100% of atomic MEV spreads (+3.20% APY) directly into staker NAV.
+2. **Pro Analytics & Risk Telemetry (Yield Router)**: Vault can route capital across Blend, Phoenix, and Soroswap adapter contracts (all deployed to testnet). **Current status**: those adapters run simulated, fixed-rate self-accrual — they do not yet call the real Blend/Phoenix/Soroswap protocols. `migrate_adapter` exists as a contract-level capability; depth aggregation and settlement-liveness scoring are not implemented.
+3. **Hikari Trading Desk**: A single rule-based technical model (RSI/ATR/MACD from live Stellar Horizon + CoinGecko data) producing a long/short/hold signal with stop-loss/take-profit levels. Not a multi-agent system in the live product — a separate offline prototype (`agents/trading_agents/`, Python) explores a multi-analyst architecture but runs on synthetic seeded-random data and is not connected to the live app.
+4. **Autonomous Keepers & MEV Capture**: `engine/src/agents/keeper_bot.ts` can construct atomic backrun transactions when SDEX/AMM spread exceeds a threshold. Realized MEV profit is not yet measured or reported — no APY figure is claimed.
 5. **Formal Invariant & Safety Sentinel**: Mathematically proved solvency ( \ge S_t \times P_t$), a mandatory 15% liquid buffer, and automated Bunker Mode circuit breakers.
 6. **x402 Micropayments & MCP Surface**: Machine-to-machine HTTP 402 payment facilitation enabling AI agents and algorithmic keepers to stake, query, and rebalance without human intervention.
 
@@ -93,8 +93,8 @@ Hikari acts as a primary economic catalyst and TVL engine for the entire Stellar
 
 | Stakeholder Group | Key Benefits Delivered by Hikari |
 | :--- | :--- |
-| **XLM Holders & Stakers** | • Earn up to **22.19% net composite APY** with automated auto-compounding.<br>• Retain 100% liquidity via the hXLM token with dual-exit redemption (0% fee unbonding queue or instant DEX swap).<br>• Complete protection against first-depositor inflation attacks via virtual share offsets ( = 1000$).<br>• Guaranteed solvency enforced by a mandatory 15% liquid reserve floor. |
-| **Stellar DeFi Protocols** (Blend, Phoenix, Soroswap, Defindex) | • Receives dependable, sticky, protocol-owned TVL routed dynamically based on risk-adjusted health scores.<br>• Phoenix CLAMM receives automated active tick management, keeping liquidity centered in fee-generating bands.<br>• Blend receives steady supply liquidity, lowering borrow rates and expanding lending capacity. |
+| **XLM Holders & Stakers** | • Liquid `hXLM` receipt token with dual-exit redemption (0% fee unbonding queue or instant DEX swap). Yield today is a keeper-fed oracle rate — see `/api/telemetry` for the live figure, not a fixed promised APY.<br>• Protection against first-depositor inflation attacks via virtual share offsets.<br>• Mandatory 15% liquid reserve floor enforced as a contract invariant. |
+| **Stellar DeFi Protocols** (Blend, Phoenix, Soroswap) | • Intended to receive protocol-owned TVL once adapters call the real protocols — today the adapters hold funds but run simulated self-accrual and do not yet interact with Blend/Phoenix/Soroswap contracts. This is a near-term roadmap item, not a shipped integration. |
 | **The Stellar Network** | • Replaces external MEV value leakage with internal on-chain value compounding.<br>• Enhances SDEX orderbook depth and narrows cross-venue spreads.<br>• Drives continuous Soroban contract utilization, proving the scalability and reliability of Protocol 27. |
 | **Developers & AI Agents** | • Plug-and-play @hikari/sdk with TypeScript typings, deterministic simulation, and transaction builders.<br>• Native x402 payment facilitation enabling automated agents to pay sub-cent fees (.001 USDC) for execution.<br>• Model Context Protocol (MCP) server integration for instant integration with Claude, ChatGPT, and AI agents. |
 
@@ -113,32 +113,23 @@ When a user deposits native XLM, the protocol mints hXLM based on current NAV. A
   - **Instant DEX Swap**: Sub-10 second liquidation via Soroban AMM liquidity pools with market-determined slippage.
 - **whXLM Static Wrapper**: A non-rebasing, ERC-4626 aligned wrapper designed specifically for external Soroban lending collateral and concentrated liquidity pairs.
 
-### 4.2 AI Yield Rerouter & Pareto Optimizer
-Hikari acts as an autonomous AI router showing and migrating capital to the best yield on Stellar in real-time.
-- **Venue Discovery & Rating**:
-  - **Blend Protocol Backstop Module (bBLND-XLM)**: **24.70% APY** (Base 8.50% + BLND emissions 13.00% + MEV alpha 3.20%, calculated via RATE_SCALAR = 1e12).
-  - **Phoenix CLAMM Concentrated Liquidity (±2% band)**: **21.80% APY** (Dynamic tick trading fee capture).
-  - **Soroswap Dynamic AMM Farm**: **18.40% APY** (Trading fees + SWAP incentives).
-  - **Defindex Multi-Strategy Vault**: **16.50% APY** (Automated index balancing).
-- **Pareto Optimal Allocation Formula**:
-  \max_{\{w_i\}} \sum_{i=1}^N w_i \cdot \text{NetAPY}_i - \lambda \sum_{i=1}^N w_i^2 \cdot \sigma_i^2 \quad \text{s.t.} \quad \sum w_i = 1.0, \quad w_{\text{reserve}} \ge 0.15
-  Yielding balanced production weights: **35% Blend Backstop, 30% Phoenix CLAMM, 20% Soroswap AMM, and 15% Safe Liquid Reserve**, producing a net composite **22.19% APY**.
-- **Atomic Zero-Signature Migration (migrate_adapter)**: Aggregate vault funds can be migrated from one strategy adapter to another in a single atomic transaction without requiring user signatures or liquidation events, bounded by strict slippage limits ( \le 50\text{ bps}$).
+### 4.2 Yield Router (testnet demo)
+The vault can route capital to Blend/Phoenix/Soroswap adapter contracts, each deployed to testnet.
+- **Venue status** (see `/api/yield-routes` for live TVL and configured rate per adapter):
+  - **Blend adapter**: simulated fixed-rate self-accrual — does not call the real Blend protocol.
+  - **Phoenix adapter**: simulated fixed-rate self-accrual — does not call the real Phoenix protocol.
+  - **Soroswap adapter**: simulated fixed-rate self-accrual — does not call the real Soroswap protocol.
+  - **Defindex**: not built — no contract exists in this repository.
+- **Allocation weights (35% Blend / 30% Phoenix / 20% Soroswap / 15% reserve)** are a policy configuration, not the output of a Pareto optimizer — no such optimizer is implemented.
+- **`migrate_adapter`**: a contract-level capability for atomic strategy migration exists in the vault design; slippage-bound automated migration triggered by a live optimizer is not implemented.
 
-### 4.3 Hikari Multi-Agent Trading Desk
-Native multi-agent trading framework engineered specifically for Stellar Soroban:
-- **Specialist Multi-Agent Consensus**:
-  1. **Fundamental Analyst (Warren)**: Analyzes on-chain ledger metrics, Soroban contract call growth, P/S ratios, and inflation burns.
-  2. **Technical Analyst (George)**: Scans RSI, MACD histograms, Bollinger Bands, and orderbook depth clusters.
-  3. **Sentiment & News Analyst (Cathie)**: Evaluates developer activity, ecosystem news velocity, and Protocol 27 adoption.
-  4. **Risk Committee Lead (Ray)**: Enforces Half-Kelly position sizing, maximum 1.0x leverage, and strict drawdown circuit breakers.
-- **Bull vs. Bear Multi-Turn Debate**: Generates synthesized proposals with mathematically defended entry, stop-loss, and take-profit targets.
-- **Zero Cash Drag ( Yield Carry)**: In traditional trading desks, idle margin in cash loses value to inflation. In Hikari, 100% of unallocated trading capital is parked in the highest-yielding Blend Backstop pool earning 24.70% APY until trade execution.
+### 4.3 Hikari Trading Desk
+What's live in the product (`frontend/server.js` → `/api/trading-agent`): a single rule-based technical model computing RSI(14), ATR(14), and MACD(12/26/9) from real Stellar Horizon `trade_aggregations` (CoinGecko fallback), producing one long/short/hold signal with ATR-derived stop-loss/take-profit levels.
 
-### 4.4 Autonomous Rebalancing & Atomic MEV Backrun Engine
-Price dislocations between SDEX and Soroban AMMs are monitored continuously by keeper bots:
-- **Atomic Arbitrage Execution**: When a price gap exceeds gas and swap costs, keepers execute atomic backruns in a single ledger close.
-- **NAV Reinvestment**: 100% of net arbitrage profit (+3.20% APY) is channeled directly into the vault, appreciating the hXLM/XLM exchange rate for all stakers.
+Separately, `agents/trading_agents/` (Python) is an offline prototype exploring a multi-analyst architecture (technical, fundamentals, sentiment, news, risk-committee, trader roles) with real point-scoring logic in `analysts.py`. It is **not connected to the live app**, and by default runs on a synthetic seeded-random data feed (`data_feed.py`) rather than live Stellar/market data — useful for demonstrating the analysis approach, not a live trading capability today.
+
+### 4.4 Autonomous Rebalancing & MEV Backrun Engine (partial)
+`engine/src/agents/keeper_bot.ts` monitors SDEX/Soroban AMM spreads and can construct an atomic backrun transaction when a spread exceeds a configured threshold. Realized arbitrage profit is not yet measured or reported anywhere in this codebase — no APY figure is claimed for it.
 
 ### 4.5 Mathematical Solvency Invariant Engine & Circuit Breakers
 Security is guaranteed by continuous mathematical invariants enforced at the smart contract level:
@@ -169,14 +160,14 @@ All components are live in the repository on branch main under the MIT License:
 
 | Area | Shipped Capability | Status & Evidence |
 | :--- | :--- | :--- |
-| **Soroban Contracts** | Dual Vaults (hXLM & hUSDC), Linear Streamer (hikari_streamer), Sentinel, Factory, Strategy Adapters | Rust contracts compiling to wasm, 30/30 unit tests pass |
-| **8-Tab DApp Workspace** | Dedicated responsive views for Stake, Wrap, Withdrawals, Rewards, Earn, Pro Analytics & Risk, Hikari Trading Desk, and Governance | rontend/public/app.html, verified on desktop & mobile |
-| **AI Yield Rerouter** | Real-time venue discovery (Blend 24.70%, Phoenix 21.80%, Soroswap 18.40%, Defindex 16.50%), Pareto optimizer, native migrate_adapter simulation | engine/src/adapters/, scripts/simulate_best_yield.js, passing |
-| **Hikari Trading Desk** | Multi-agent engine: 4 specialists (Warren, George, Cathie, Ray), Bull vs Bear debate, Risk committee consensus, Yield carry | gents/src/, scripts/run_xlm_trading_agent.py, 6/6 unit tests passing |
-| **TypeScript SDK** | @hikari/sdk with live Soroban RPC contract readers, NAV estimators, deposit builders, and ticket status formatters | sdk/src/client.ts, sdk/src/contract-reader.ts, 10/10 tests passing |
-| **Policy & Risk Engine** | Deterministic Policy Engine (15% velocity delta, 50 bps slippage, 15% reserve floor) | engine/src/, 21/21 tests passing |
-| **Agentic & x402 Suite** | HTTP 402 Micropayment Client (x402_client.ts), Blend & DeFindex Agent Providers | gents/src/, services/x402-gateway/, passing tests |
-| **Backend & Isolation** | Resilient database with anti-mixup address isolation and tamper-evident audit stream | scripts/verify_backend_security.js (7/7 passing) |
+| **Soroban Contracts** | 15 contracts: vault, token, governance, oracle, gate-seal, streamer, sentinel, factory, and 3 adapters | Rust contracts compiling to wasm, 31 unit tests pass |
+| **8-Tab DApp Workspace** | Dedicated responsive views for Stake, Wrap, Withdrawals, Rewards, Earn, Pro Analytics & Risk, Hikari Trading Desk, and Governance | frontend/public/app.html, verified on desktop & mobile |
+| **Yield Router** | Adapter contracts deployed to testnet with real live TVL reads. Yield accrual is simulated (fixed configured rate), not a live read from Blend/Phoenix/Soroswap — see §4.2 | contracts/{blend,phoenix,soroswap}_adapter/, /api/yield-routes |
+| **Hikari Trading Desk (live)** | Single rule-based RSI/ATR/MACD signal from real Horizon + CoinGecko data. A separate offline multi-analyst prototype exists (real analysis logic, synthetic data feed) but is not wired into the live app — see §4.3 | frontend/server.js → /api/trading-agent, agents/trading_agents/ |
+| **TypeScript SDK** | @hikari/sdk with live Soroban RPC contract readers, NAV estimators, deposit builders, and ticket status formatters | sdk/src/client.ts, sdk/src/contract-reader.ts |
+| **Policy & Risk Engine** | Deterministic Policy Engine (velocity delta, slippage, reserve floor checks) | engine/src/ |
+| **Agentic & x402 Suite** | HTTP 402 Micropayment Client, x402 gateway service | services/x402-gateway/ |
+| **Backend & Isolation** | Database client with per-address isolation | services/database/ |
 | **CI / CD Pipeline** | 11 GitHub workflows (CI, CodeQL, Commitlint, Vercel Deploy, Release, Stale) | .github/workflows/ |
 
 ---
@@ -187,10 +178,10 @@ To maintain absolute software excellence, the team rigorously documents and reme
 
 | # | Item | Symptom (Before) | Root Cause | Fix Applied | Verification |
 | :- | :--- | :--- | :--- | :--- | :--- |
-| 1 | **Withdrawals & Rewards Tab Hierarchy** | FAQ accordion appeared above the withdraw form when switching views; layout was inconsistent. | DOM structure in pp.html lacked dedicated bottom FAQs inside tab sections; page scroll position remained at bottom from prior tabs. | Added dedicated FAQ accordions inside #viewTabWithdrawals and #viewTabRewards placed strictly underneath functional cards; added window.scrollTo(0, 0) in switchTab. | Card on Top -> FAQ Under verified across all tabs; 38/38 assertions pass. |
+| 1 | **Withdrawals & Rewards Tab Hierarchy** | FAQ accordion appeared above the withdraw form when switching views; layout was inconsistent. | DOM structure in app.html lacked dedicated bottom FAQs inside tab sections; page scroll position remained at bottom from prior tabs. | Added dedicated FAQ accordions inside #viewTabWithdrawals and #viewTabRewards placed strictly underneath functional cards; added window.scrollTo(0, 0) in switchTab. | Card on Top -> FAQ Under verified across all tabs; 38/38 assertions pass. |
 | 2 | **Mobile AI Notification Simulation Banner** | Banner buttons overflowed horizontally on mobile screens (375px); alert toast clipped screen bounds. | Inline styling lacked mobile media queries; banner actions used white-space: nowrap without responsive column wrap. | Added responsive .connect-sim-banner CSS; full-width stacked button targets; implemented responsive .hikari-landing-toast modal. | Zero horizontal overflow on mobile viewports; verified via DevTools. |
-| 3 | **Multi-Tenant State Isolation** | Risk of session cross-talk when multiple wallets authenticate concurrently. | In-memory session tracking lacked strict cryptographic public key binding. | Implemented anti-mixup database storage with individual tenant records, cryptographic challenge nonces, and replay protection. | Verified via erify_backend_security.js. |
-| 4 | **Native On-Chain Contract Integration** | SDK and frontend mock fallbacks risked showing placeholder state. | Client methods required live Soroban RPC contract readers and Freighter wallet binding. | Implemented ContractReader in @hikari/sdk, wired server endpoints to live RPC, and connected Freighter wallet signing. | Verified via live testnet contracts and end-to-end integration tests. |
+| 3 | **Multi-Tenant State Isolation** | Risk of session cross-talk when multiple wallets authenticate concurrently. | In-memory session tracking lacked strict cryptographic public key binding. | Implemented anti-mixup database storage with individual tenant records, cryptographic challenge nonces, and replay protection. | Verified via verify_backend_security.js. |
+| 4 | **Native On-Chain Contract Integration (partial)** | SDK/frontend previously had mock fallbacks; separately, the app's yield/solvency/points displays showed hardcoded numbers (e.g. "24.70% APY", "104.8% solvent") that never updated from live data, and a mainnet deployment script printed a fake "verified" ceremony without any network calls. | Client methods needed live Soroban RPC contract readers and Freighter wallet binding — done. The hardcoded-display and fake-ceremony issues were separate and are still being worked through; not all are fixed. | Implemented ContractReader in @hikari/sdk, wired server endpoints to live RPC, connected Freighter wallet signing, and fixed the highest-severity hardcoded displays and the fake mainnet script (see repo history for the current list). | `/api/yield-routes`, `/api/telemetry`, and `/api/v1/solvency/proof` now return live data with honest "pending"/"not tracked" states instead of fabricated numbers where real data doesn't exist yet. |
 
 ---
 
@@ -223,15 +214,15 @@ To maintain absolute software excellence, the team rigorously documents and reme
 
 ## 9. Ask and Use of Funds
 
-Requesting a Tier-2 Stellar Community Fund (SCF) Grant (,000 USD / equivalent XLM):
+Requesting a Tier-2 Stellar Community Fund (SCF) Grant — **[TODO: maintainer to fill in the actual USD/XLM ask amount; it was missing from this file before this pass, not a number we should guess]**:
 
 | Category | Allocation | Deliverables |
 | :--- | :--- | :--- |
-| **Core Smart Contract Engineering** | 45% (,500) | Mainnet Soroban contract optimization, keeper bots, and invariant proofs |
-| **Security Audit & Formal Verification** | 25% (,500) | External third-party smart contract security audit for hikari_core |
-| **SDK, MCP & x402 Agent Infrastructure** | 15% (,500) | Production MCP server release, @hikari/sdk documentation and developer cookbook |
-| **Liquidity Bootstrapping & Keeper Gas Pool** | 10% (,000) | Initial testnet/mainnet liquidity reserves and keeper gas sponsorship |
-| **Operations, Infrastructure & Monitoring** | 5% (,500) | Vercel production hosting, RPC node subscriptions, and uptime alerting |
+| **Core Smart Contract Engineering** | 45% | Mainnet Soroban contract optimization, keeper bots, and invariant proofs |
+| **Security Audit & Formal Verification** | 25% | External third-party smart contract security audit for hikari_core |
+| **SDK, MCP & x402 Agent Infrastructure** | 15% | Production MCP server release, @hikari/sdk documentation and developer cookbook |
+| **Liquidity Bootstrapping & Keeper Gas Pool** | 10% | Initial testnet/mainnet liquidity reserves and keeper gas sponsorship |
+| **Operations, Infrastructure & Monitoring** | 5% | Vercel production hosting, RPC node subscriptions, and uptime alerting |
 
 ---
 
@@ -240,7 +231,7 @@ Requesting a Tier-2 Stellar Community Fund (SCF) Grant (,000 USD / equivalent XL
 | Risk | Severity | Mitigation Strategy |
 | :--- | :--- | :--- |
 | **Underlying Strategy Insolvency** (e.g. Blend bad debt) | High | Max 40% allocation cap per strategy; automated Bunker Mode trips if NAV deviates >5%; mandatory 15% native liquid reserve floor. |
-| **Smart Contract Vulnerability** | High | Comprehensive invariant unit tests (8/8 passing), formal fuzz testing, and external smart contract audit prior to mainnet launch. |
+| **Smart Contract Vulnerability** | High | 31 Rust unit tests currently pass. Formal fuzz testing is not yet implemented — planned pre-mainnet, alongside an external smart contract audit. |
 | **DEX Liquidity Depeg** | Medium | Users can always redeem 1:1 against underlying reserves through the unbonding queue, creating a natural arbitrage peg floor. |
 | **Keeper Bot Downtime** | Low | Keepers are purely optimization robots; core staking, unbonding, and reward accrual remain fully operational on-chain even if keepers pause. |
 | **Regulatory / Custody Risk** | Medium | Strictly non-custodial. All deposits are governed by smart contract code; users hold private keys via Freighter / Lobstr / xBull. |

@@ -1,9 +1,8 @@
-# Hikari Protocol: Bug Bounty Program Specification
+# Hikari Protocol: Bug Bounty Program Specification (DRAFT — verify funding before publicizing)
 
 **Author & Maintainer**: `ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>`  
 **Platform**: Immunefi / Direct Security Disclosure  
-**Program Status**: Active (Pre-Mainnet & Mainnet)  
-**Total Bounty Pool**: \$100,000 USDC  
+**Program Status**: **Unverified — do not treat as active.** This file said "Active (Pre-Mainnet & Mainnet)" with a "$100,000 USDC" pool, but nothing in this repository shows that pool is actually escrowed/funded or that an Immunefi listing exists, and the landing page's own test suite (`scripts/verify_ui.js`) explicitly asserts that **no** "Bug Bounty" badge should appear on the site (`noBugBountyPill`) — i.e. this was apparently already pulled from public view once. Publishing "Active" with a specific dollar figure to real security researchers when the pool isn't confirmed funded would be a serious problem (people doing real work expecting real payment). **Maintainer: confirm real funding/escrow before flipping this back to "Active," or mark it "Planned" until then.**  
 
 ---
 
@@ -31,15 +30,14 @@ Bounties are paid in native `USDC` (SEP-41 SAC) or `XLM` based on the Immunefi V
 ### Smart Contracts (In-Scope):
 - `contracts/vault/src/lib.rs` (Vault Core, share accounting)
 - `contracts/token/src/lib.rs` (hXLM SEP-41 token)
-- `contracts/queue/src/lib.rs` (Withdrawal Queue, cooldown logic)
+- `contracts/withdrawal_queue/src/lib.rs` (Withdrawal Queue, cooldown logic)
 - `contracts/gate_seal/src/lib.rs` (Emergency circuit breaker)
-- `contracts/adapters/blend/src/lib.rs` (Blend adapter)
-- `contracts/adapters/phoenix/src/lib.rs` (Phoenix CLAMM adapter)
+- `contracts/blend_adapter/src/lib.rs`, `contracts/phoenix_adapter/src/lib.rs`, `contracts/soroswap_adapter/src/lib.rs` (adapters — note: these currently run simulated self-accrual and don't call the real external protocols, see ARCHITECTURE.md §4.2)
 
 ### Infrastructure & Agents (In-Scope):
-- `engine/src/policy.ts` (Deterministic policy enforcement)
+- `engine/src/policy_engine.ts`, `engine/src/policy_verifier.ts` (deterministic policy enforcement — corrected path, `engine/src/policy.ts` doesn't exist)
 - `engine/src/cryptographic_verifier.ts` (Merkle state verification)
-- `agents/src/payment_agent.ts` (x402 payment budget limits)
+- `agents/src/payment_agent.ts` (x402 payment budget limits — part of the disconnected offline `agents/` prototype, see PROPOSAL.md §4.3)
 
 ---
 

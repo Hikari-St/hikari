@@ -166,7 +166,7 @@
               <a href="app.html?vault=xlm" class="nav-slider-card">
                 <div class="nav-slider-card-top">
                   <span class="nav-card-title">hXLM Liquid Staking</span>
-                  <span class="nav-card-badge">12.4% APY</span>
+                  <span class="nav-card-badge" id="navHxlmApyBadge">Loading…</span>
                 </div>
                 <p class="nav-card-desc">Mint yield bearing SEP-41 hXLM with zero lockup and auto compounding.</p>
               </a>
@@ -290,7 +290,7 @@
       </div>
     </div>
 
-    <!-- Hero Section with Live 12.4% APY Visual Graphic Hook -->
+    <!-- Hero Section with live APY figures fetched from /api/telemetry -->
     <!-- Hero Section: Autonomous AI Yield Router & Trading Desk -->
     <div class="hero" id="hero">
       <div class="hero__left">
@@ -329,8 +329,8 @@
         </div>
 
         <div class="hero__chips">
-          <span class="chip" data-chip><span>17.0% USDC Yield Peak</span></span>
-          <span class="chip" data-chip><span>12.4% XLM Compounding</span></span>
+          <span class="chip" data-chip><span id="chipUsdcApy">USDC: rate pending</span></span>
+          <span class="chip" data-chip><span id="chipXlmApy">XLM: Loading…</span></span>
           <span class="chip" data-chip><span>Adaptive XLM ↔ USDC Rerouting</span></span>
           <span class="chip" data-chip><span>Disciplined Trade Setups</span></span>
         </div>
@@ -351,7 +351,7 @@
 
           <div class="yield-card__main-stat">
             <div class="yield-card__apy-row">
-              <span class="yield-card__apy-num" id="heroApyDisplay">17.0% / 12.4%</span>
+              <span class="yield-card__apy-num" id="heroApyDisplay">Loading…</span>
               <span class="yield-card__apy-label">USDC &bull; XLM APY</span>
             </div>
             <div class="yield-card__apy-sub">
@@ -672,7 +672,7 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
         <div style="margin-top: 1rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
             <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0;">Top Protocol Stakers</h4>
-            <span style="font-size: 0.72rem; color: var(--accent-emerald);">Live Season 1 Snapshot</span>
+            <span style="font-size: 0.72rem; color: var(--accent-emerald);">Live query — no persistent ranking yet</span>
           </div>
           <div id="leaderboardContainer" class="shards-leaderboard-table">
             <div class="shards-table-row shards-table-header">
@@ -682,24 +682,7 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
               <span style="text-align: right;">Total Shards</span>
             </div>
             <div id="leaderboardList">
-              <div class="shards-table-row">
-                <span style="font-weight: 700; color: var(--lavender);"> #1</span>
-                <span style="font-family: monospace;">GCJSDY6...6BQN</span>
-                <span class="tier-pill" style="background: rgba(139, 47, 230, 0.15); color: var(--lavender);">Solar Archon</span>
-                <span style="text-align: right; font-weight: 600;">1,420,500</span>
-              </div>
-              <div class="shards-table-row">
-                <span style="font-weight: 700; color: #cbd5e1;"> #2</span>
-                <span style="font-family: monospace;">GAQZQAB...5L2</span>
-                <span class="tier-pill" style="background: rgba(139, 47, 230, 0.15); color: var(--lavender);">Solar Archon</span>
-                <span style="text-align: right; font-weight: 600;">980,400</span>
-              </div>
-              <div class="shards-table-row">
-                <span style="font-weight: 700; color: var(--purple-soft);"> #3</span>
-                <span style="font-family: monospace;">GBBD47I...7DEV</span>
-                <span class="tier-pill" style="background: rgba(139, 47, 230, 0.15); color: var(--purple-soft);">Starlight Warden</span>
-                <span style="text-align: right; font-weight: 600;">675,200</span>
-              </div>
+              <div class="shards-table-row" style="grid-column: 1 / -1; color: var(--text-dim); padding: 1rem 0;">Loading…</div>
             </div>
           </div>
         </div>
@@ -880,15 +863,15 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
               </svg>
             </div>
             <h3 class="earn-card__title">EarnXLM</h3>
-            <p class="earn-card__desc">Earn on Stellar with high-yield XLM compounding. When market conditions are favorable, our autonomous agent routes capital into XLM for maximum upside and 12.4% APY rewards.</p>
+            <p class="earn-card__desc">A Soroban vault (deployed to testnet) that can route XLM across Blend/Phoenix/Soroswap adapter contracts. Those adapters run simulated, self-accrued yield today — see the app for the live disclosure.</p>
             <div class="earn-card__metrics">
               <div class="earn-metric-col">
-                <span class="earn-metric-val">485K XLM</span>
-                <span class="earn-metric-lbl">Testnet TVL</span>
+                <span class="earn-metric-val" id="earnXlmTvl">Loading…</span>
+                <span class="earn-metric-lbl">Live Testnet TVL</span>
               </div>
               <div class="earn-metric-col">
-                <span class="earn-metric-val apy-highlight">12.4%</span>
-                <span class="earn-metric-lbl">APY*</span>
+                <span class="earn-metric-val apy-highlight" id="earnXlmApy">Rate pending</span>
+                <span class="earn-metric-lbl">Rate (simulated)*</span>
               </div>
             </div>
             <a href="app.html?vault=xlm" class="earn-card__btn" id="btnDepositXlm" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Deposit</a>
@@ -929,15 +912,15 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
               </svg>
             </div>
             <h3 class="earn-card__title">EarnUSD</h3>
-            <p class="earn-card__desc">Earn highest yield on USDC (17.0% APY). When volatility spikes or market turns unfavorable, our autonomous agent reroutes XLM into USDC to protect capital with zero stress.</p>
+            <p class="earn-card__desc">A real deployed testnet USDC vault. Yield aggregation via Blend/Soroswap adapters — those adapters run simulated accrual today, not live third-party yield.</p>
             <div class="earn-card__metrics">
               <div class="earn-metric-col">
-                <span class="earn-metric-val">$42.5K</span>
-                <span class="earn-metric-lbl">Testnet TVL</span>
+                <span class="earn-metric-val" id="earnUsdTvl">Live on testnet</span>
+                <span class="earn-metric-lbl">Status</span>
               </div>
               <div class="earn-metric-col">
-                <span class="earn-metric-val apy-highlight">17.0%</span>
-                <span class="earn-metric-lbl">APY*</span>
+                <span class="earn-metric-val apy-highlight" id="earnUsdApy">Rate pending</span>
+                <span class="earn-metric-lbl">Rate (simulated)*</span>
               </div>
             </div>
             <a href="app.html?vault=usd" class="earn-card__btn" id="btnDepositUsd" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Deposit</a>
@@ -980,15 +963,15 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
               </svg>
             </div>
             <h3 class="earn-card__title">Earn Multichain</h3>
-            <p class="earn-card__desc">XLM Multichain Earn protocols bridging liquidity across EVM, Solana and Stellar via Circle CCTP V2, Axelar GMP and LayerZero OFT</p>
+            <p class="earn-card__desc">Cross-chain bridging (Circle CCTP / Axelar / LayerZero) is a roadmap idea — there is no bridge contract or integration in this codebase yet. Not available.</p>
             <div class="earn-card__metrics">
               <div class="earn-metric-col">
-                <span class="earn-metric-val">$18.4K</span>
-                <span class="earn-metric-lbl">Testnet TVL</span>
+                <span class="earn-metric-val">N/A</span>
+                <span class="earn-metric-lbl">Not implemented</span>
               </div>
               <div class="earn-metric-col">
-                <span class="earn-metric-val apy-highlight">14.2%</span>
-                <span class="earn-metric-lbl">APY*</span>
+                <span class="earn-metric-val apy-highlight">N/A</span>
+                <span class="earn-metric-lbl">Not implemented</span>
               </div>
             </div>
             <a href="app.html?vault=multichain" class="earn-card__btn" id="btnDepositMulti" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Deposit</a>
@@ -1379,11 +1362,11 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
         <div class="connect-social-header">
           <div class="connect-social-badge">
             <span class="social-ping-dot"></span>
-            <span>24/7 AUTONOMOUS AI AGENT TELEMETRY</span>
+            <span>SANDBOX PREVIEW — NOT LIVE YET</span>
           </div>
-          <h2 class="connect-social-title">Connect with Us Through the Everyday Apps You Use</h2>
+          <h2 class="connect-social-title">Social Notifications — Sandbox Preview</h2>
           <p class="connect-social-desc">
-            Stay continuously updated without staring at charts. Our autonomous AI agents ping your preferred social media and messaging apps in real time—delivering instant notifications for the highest APYs available, optimal trade entries, short term futures momentum signals, and automated compounding harvests.
+            A preview of a planned notification feature. The backend that would power this (<code>services/social-bot</code>) currently reports its Telegram/Discord/Twitter channels as <code>SANDBOX_SIMULATOR</code> — nothing below is a live feed or a real Hikari-run channel yet.
           </p>
         </div>
 
@@ -1399,25 +1382,24 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
               </div>
               <div class="channel-meta">
                 <h3 class="channel-name">Telegram Bot</h3>
-                <span class="channel-handle">@HikariAlphaBot</span>
+                <span class="channel-handle">Not deployed yet</span>
               </div>
-              <span class="channel-status-pill status-live">Live 24/7</span>
+              <span class="channel-status-pill" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border-color: rgba(245, 158, 11, 0.35);">Sandbox</span>
             </div>
-            <p class="channel-summary">Instant pings for peak APY surges, short term futures bias, and automated liquidation threshold warnings.</p>
-            
-            <!-- Live Feed Preview Bubble -->
+            <p class="channel-summary">Planned: pings for yield changes, trade signals, and compounding harvests. Not built yet — no bot exists to message.</p>
+
+            <!-- Example of what an alert would look like — not a real feed -->
             <div class="channel-feed-preview">
-              <div class="feed-bubble-tag">Latest Agent Alert • Just now</div>
+              <div class="feed-bubble-tag">Example alert (illustrative only)</div>
               <div class="feed-bubble-text">
-                ⚡ <strong>[Highest APY Alert]</strong> Phoenix CLAMM rebalanced • <strong>14.2% APY</strong> unlocked on XLM-USDC.<br>
-                📈 <strong>[Trade Entry]</strong> Long bias detected at $0.1248 XLM (78% Upside Probability).
+                ⚡ <strong>[Example]</strong> "Highest APY Alert" would appear here.<br>
+                📈 <strong>[Example]</strong> "Trade Entry Signal" would appear here.
               </div>
             </div>
 
-            <a href="https://t.me/stellar" target="_blank" rel="noopener" class="channel-cta-btn btn-tg">
-              <span>Connect Telegram Alerts</span>
-              <span class="channel-arrow">→</span>
-            </a>
+            <button type="button" class="channel-cta-btn btn-tg" disabled style="opacity: 0.5; cursor: not-allowed;" title="No real Telegram bot exists yet">
+              <span>Not available yet</span>
+            </button>
           </div>
 
           <!-- Channel 2: Discord Telemetry -->
@@ -1430,24 +1412,23 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
               </div>
               <div class="channel-meta">
                 <h3 class="channel-name">Discord Webhooks</h3>
-                <span class="channel-handle">#hikari-telemetry</span>
+                <span class="channel-handle">Not deployed yet</span>
               </div>
-              <span class="channel-status-pill status-verified">Verified</span>
+              <span class="channel-status-pill" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border-color: rgba(245, 158, 11, 0.35);">Sandbox</span>
             </div>
-            <p class="channel-summary">Continuous Soroban keeper logs, autonomous TWAP executions, and governance voting notifications.</p>
+            <p class="channel-summary">Planned: keeper logs and governance notifications. Not built yet — no webhook exists to post to.</p>
 
             <div class="channel-feed-preview">
-              <div class="feed-bubble-tag">Autonomous Keeper Feed • 2m ago</div>
+              <div class="feed-bubble-tag">Example alert (illustrative only)</div>
               <div class="feed-bubble-text">
-                <strong>[Keeper Auto Compound #1430]</strong> Harvested +342.1 XLM from Blend &amp; Phoenix.<br>
-                <strong>[Solvency Audit]</strong> Merkle reserve proof verified at 104.8% backing.
+                <strong>[Example]</strong> "Keeper Auto Compound" log would appear here.<br>
+                <strong>[Example]</strong> "Solvency Audit" notice would appear here.
               </div>
             </div>
 
-            <a href="https://discord.gg/stellar" target="_blank" rel="noopener" class="channel-cta-btn btn-dc">
-              <span>Join Discord Channel</span>
-              <span class="channel-arrow">→</span>
-            </a>
+            <button type="button" class="channel-cta-btn btn-dc" disabled style="opacity: 0.5; cursor: not-allowed;" title="No real Discord webhook exists yet">
+              <span>Not available yet</span>
+            </button>
           </div>
 
           <!-- Channel 3: X (Twitter) -->
@@ -1460,32 +1441,31 @@ console.log(`Confirmed in ledger! Tx: ${tx.txHash}`);</code></pre>
               </div>
               <div class="channel-meta">
                 <h3 class="channel-name">X (Twitter)</h3>
-                <span class="channel-handle">@HikariProtocol</span>
+                <span class="channel-handle">Not deployed yet</span>
               </div>
-              <span class="channel-status-pill status-official">Official</span>
+              <span class="channel-status-pill" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border-color: rgba(245, 158, 11, 0.35);">Sandbox</span>
             </div>
-            <p class="channel-summary">Daily Zero Knowledge solvency proofs, milestone achievements, and major strategy protocol integrations.</p>
+            <p class="channel-summary">Planned: solvency proofs and milestone posts. Not built yet — no account exists to post from.</p>
 
             <div class="channel-feed-preview">
-              <div class="feed-bubble-tag">Broadcasted Tweet • 18m ago</div>
+              <div class="feed-bubble-tag">Example post (illustrative only)</div>
               <div class="feed-bubble-text">
-                <strong>485,000+ XLM</strong> pooled on Stellar Testnet across 1,420 depositors. Zero impermanent loss recorded in 30 days.
+                A solvency-proof or milestone post would appear here once this ships.
               </div>
             </div>
 
-            <a href="https://x.com/stellarorg" target="_blank" rel="noopener" class="channel-cta-btn btn-x">
-              <span>Follow on X</span>
-              <span class="channel-arrow">→</span>
-            </a>
+            <button type="button" class="channel-cta-btn btn-x" disabled style="opacity: 0.5; cursor: not-allowed;" title="No real X/Twitter account exists yet">
+              <span>Not available yet</span>
+            </button>
           </div>
         </div>
 
         <!-- Interactive AI Notification Simulation Banner -->
         <div class="connect-sim-banner">
           <div class="sim-banner-left">
-            <div class="sim-badge">🔔 TEST OUR AI DISPATCHER</div>
-            <div class="sim-title">Experience Real Time AI Agent Notifications Now</div>
-            <div class="sim-sub">Simulate an autonomous trade entry or highest APY alert pinging directly to your device:</div>
+            <div class="sim-badge">🔔 PREVIEW EXAMPLE NOTIFICATIONS</div>
+            <div class="sim-title">See What a Future Notification Would Look Like</div>
+            <div class="sim-sub">These buttons only show example text in this browser tab — no real message is sent anywhere:</div>
           </div>
           <div class="sim-banner-actions">
             <button id="btnSimHighestApy" class="btn-sim-alert" type="button">

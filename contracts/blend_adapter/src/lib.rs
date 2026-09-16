@@ -102,6 +102,13 @@ impl BlendAdapter {
         principal + interest
     }
 
+    /// Configured fixed lending rate this adapter accrues internally.
+    /// NOTE: this is a self-contained simulated accrual rate, not a live read
+    /// from the Blend Protocol — this adapter does not call the Blend pool.
+    pub fn configured_rate_bps(env: Env) -> u32 {
+        env.storage().instance().get(&DataKey::LendingRateBps).unwrap_or(0)
+    }
+
     pub fn harvest(env: Env) -> Result<i128, Error> {
         let vault: Address = env.storage().instance().get(&DataKey::Vault).unwrap();
         vault.require_auth();

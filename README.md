@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/github/license/ibochivincent-lang/hikari?style=flat-square)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/ibochivincent-lang/hikari/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/ibochivincent-lang/hikari/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square)](https://github.com/ibochivincent-lang/hikari)
+[![Tests](https://img.shields.io/badge/tests-31%20Rust%20%2B%205%20TS-brightgreen?style=flat-square)](https://github.com/ibochivincent-lang/hikari)
 [![SDK](https://img.shields.io/badge/%40hikari%2Fsdk-v0.1.0-blue?style=flat-square&logo=typescript)](sdk)
 [![Deployed on Vercel](https://img.shields.io/badge/deploy-vercel-000?style=flat-square&logo=vercel)](https://hikari-ebon.vercel.app)
 [![Conventional Commits](https://img.shields.io/badge/commits-conventional-fe5196?style=flat-square&logo=conventionalcommits)](https://www.conventionalcommits.org)
@@ -11,9 +11,9 @@
 
 Hikari is the decentralized asset management, liquid staking execution layer, and autonomous AI trading desk built natively for Stellar:
 1. **Native Liquid Staking (`hXLM` / `whXLM`)**: Tokenizes staked XLM into an appreciating, SEP-41 compliant receipt token auto-compounding native returns across audited Stellar DeFi strategies while retaining 100% liquidity.
-2. **Advanced Pro Analytics &amp; Risk Telemetry (AI Yield Rerouter)**: Real-time cross-protocol yield aggregation and Pareto allocation engine discovering and directing capital to Stellar's highest yields (Blend Backstop 24.70% APY, Phoenix CLAMM 21.80%, Soroswap 18.40%, Defindex 16.50%). Utilizes native zero-signature `migrate_adapter` execution, multi-venue depth aggregation, and settlement liveness verification.
-3. **Hikari Multi-Agent Trading Desk**: Autonomous financial specialists (Fundamental, Technical, Sentiment, News, Risk Committee) conducting multi-turn Bull vs. Bear debates, executing optimal entries on SDEX/Soroswap with zero-cash-drag **Yield Carry** (parking idle margin in Blend Backstop for 24.70% APY).
-4. **Autonomous Keepers & MEV Capture**: Continuously harvest rewards, rebalance narrow tick bands, and backrun SDEX-Soroswap arbitrage, recycling 100% of atomic MEV spreads (+3.20% APY) directly into staker NAV.
+2. **Pro Analytics & Risk Telemetry (Yield Router, testnet demo)**: A vault-adapter architecture that can route capital across multiple Soroban adapter contracts. Today the Blend/Phoenix/Soroswap adapters are **self-contained simulated-yield contracts** deployed to testnet (fixed-rate internal accrual, no live call into the real Blend/Phoenix/Soroswap protocols yet) — see [Live Stellar Testnet Deployments](#live-stellar-testnet-deployments) for exactly which contracts are real vs. simulated.
+3. **Hikari Trading Desk**: A technical-signal dashboard computing live RSI/ATR from real Stellar Horizon `trade_aggregations` (with a CoinGecko price fallback) to produce a rule-based long/short/hold signal with stop-loss/take-profit bounds. It is a single deterministic indicator engine, not a multi-agent LLM debate.
+4. **Autonomous Keepers & MEV Capture**: Keeper bot (`engine/src/agents/keeper_bot.ts`) monitors SDEX/Soroban AMM spreads for atomic backrun opportunities. Realized yield from this is not yet measured or reported — no APY figure is claimed.
 5. **Formal Invariant & Safety Sentinel**: Mathematically proved solvency ($R_t \ge S_t \times P_t$), a mandatory 15% liquid buffer, and automated Bunker Mode circuit breakers.
 6. **x402 Micropayments & MCP Surface**: Machine-to-machine HTTP 402 payment facilitation enabling AI agents and algorithmic keepers to stake, query, and rebalance without human intervention.
 
@@ -80,17 +80,16 @@ Hikari is purpose-built for Stellar and could not exist with the same guarantees
    - SEP-41 compliant receipt token whose Net Asset Value (NAV) appreciates monotonically against XLM.
    - Dual-exit liquidity: 0% protocol fee queue unbonding (1–3 days) or instant DEX swap (~10s).
    - `whXLM` static wrapper for external money market collateral (Blend).
-2. **Advanced Pro Analytics &amp; Risk Telemetry (AI Yield Rerouter)**:
-   - Real-time venue discovery: Blend Backstop (24.70% APY), Phoenix CLAMM (21.80%), Soroswap Farm (18.40%), Defindex Vault (16.50%).
-   - Pareto-optimal allocation engine computing optimal risk-adjusted weights (35% Blend, 30% Phoenix, 20% Soroswap, 15% Safe Liquid Reserve Floor) delivering **22.19% net APY**.
+2. **Pro Analytics & Risk Telemetry (Yield Router, testnet demo)**:
+   - Vault contract can allocate across multiple Soroban adapter contracts (Blend, Phoenix, Soroswap adapters deployed to testnet).
+   - **Current status: the deployed Blend/Phoenix/Soroswap adapters are simulated-yield contracts** — each accrues interest internally off a configured fixed rate and does not yet make a cross-contract call into the real Blend, Phoenix, or Soroswap protocols. Allocation weights and blended-APY figures shown in the app are illustrative of the intended routing logic, not live third-party yield.
    - Native `migrate_adapter` integration for atomic zero-user-signature migrations.
-3. **Hikari Multi-Agent Trading Desk &amp; Yield Carry**:
-   - 4 Financial Specialists: Fundamental (Warren), Technical (George), Sentiment (Cathie), and Risk Committee Lead (Ray).
-   - Multi-turn Bull vs. Bear debate with verifiable stop-loss and take-profit bounds.
-   - Zero-Cash-Drag **Yield Carry**: 100% of unallocated trading margin parked in Blend Backstop earning 24.70% APY while awaiting trade signals.
+3. **Hikari Trading Desk & Yield Carry**:
+   - Single technical-signal engine (RSI/ATR on live Horizon/CoinGecko price data) producing a long/short/hold call with stop-loss and take-profit bounds — not a multi-agent LLM debate.
+   - Zero-Cash-Drag **Yield Carry**: routes unallocated trading margin into the Blend adapter described above (simulated-yield contract, testnet).
 4. **Autonomous Rebalancing & Atomic MEV Backrunning**:
-   - Algorithmic keeper robots monitor SDEX and Soroban AMMs every ledger close.
-   - Captures price dislocations atomically and routes 100% of arbitrage profit (+3.20% APY) into staker NAV.
+   - Keeper bot (`engine/src/agents/keeper_bot.ts`) monitors SDEX/Soroban AMM spreads and constructs atomic backrun transactions when spread exceeds a configured threshold.
+   - Realized APY from backrunning is not yet measured/reported on-chain; no historical yield number is claimed.
 5. **Formal Invariant & Safety Sentinel Engine**:
    - Enforces the mathematical solvency invariant $R_t \ge S_t \times P_t$.
    - Mandatory 15% liquid native XLM reserve floor to ensure instant liquidity.
@@ -198,18 +197,28 @@ The complete architectural and governance suite lives under [`docs/`](docs/):
 
 ## Live Stellar Testnet Deployments
 
+This table is generated from [`deployed_contracts.json`](deployed_contracts.json), the same file the app reads at runtime — it will not drift from what's actually deployed. Adapters marked **(Simulated yield)** hold funds and account interest internally but do not yet call the named external protocol.
+
 | Contract | Address / ID | Explorer |
 | -------- | ------------ | -------- |
 | **Hikari Core Vault (XLM)** | `CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CCR6NFKICAK4KW2SVKU4UESG5SR6RMYRVUDDO6K7BB6NUWYSMGQS5KT5) |
-| **Hikari Core Vault (USDC)** | `CBXUSDCVAULT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CBXUSDCVAULT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC) |
-| **Linear Yield Streamer** | `CASTREAMER7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC001` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CASTREAMER7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC001) |
+| **Hikari Core Vault (USDC)** | `CAWPVCC5PWCU47LUH4AZDXILYJY3CPNPOTRURYNFDEPLVAALFRWUJEUM` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CAWPVCC5PWCU47LUH4AZDXILYJY3CPNPOTRURYNFDEPLVAALFRWUJEUM) |
+| **Linear Yield Streamer** | `CDCAAPOIUGGSXWDLJ3WMRAGOC3SI2TRK6I2XP7D5QL3MDSF27XO67EPP` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CDCAAPOIUGGSXWDLJ3WMRAGOC3SI2TRK6I2XP7D5QL3MDSF27XO67EPP) |
 | **hXLM Share Token (SEP-41)** | `CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CA36LWOMIDPXFMVTQR6TODLSAO6QFNSYK6UBP5CS5MWGC2UHIDT23QLH) |
 | **Strategy Registry** | `CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CB7EOUYL5V22KCUK27LACLMDYDQMBCJMNQUWSALEGBEZXEK4LH76VZFQ) |
 | **Withdrawal Queue** | `CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CBTICEQ2OQ5KTCCWPYT4Q3SROZORZCJBSHR2J4RSGI5TESKWEW34TOXQ) |
-| **Blend Protocol Adapter (Simulated)** | `CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL) |
-| **Phoenix CLAMM Adapter (Simulated)** | `CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5) |
+| **Policy Account** | `CAPXDOMRO7U6XGOSNWKP6YBY7GMBRH7FPTYWTAW6CRGPMYIZHIJDO3UP` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CAPXDOMRO7U6XGOSNWKP6YBY7GMBRH7FPTYWTAW6CRGPMYIZHIJDO3UP) |
+| **Blend Adapter (Simulated yield)** | `CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CDLG3GFOQ6WFVTFXQCW3ZSJMMMXIEQVEGZKMERS4ITBDZOHKXPRB5EAL) |
+| **Phoenix Adapter (Simulated yield)** | `CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CAD345D2TCMIQEHSVVJMXOKMNGVVLW6YS7VBFSYXCRPALCOCDNA6O6L5) |
+| **Soroswap Adapter (Simulated yield)** | `CDPZLNOKPV4KMJ5RNT24RKK46BFEIJGTKRDZGVKOMZFSIKZQ6H5G5KJ3` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CDPZLNOKPV4KMJ5RNT24RKK46BFEIJGTKRDZGVKOMZFSIKZQ6H5G5KJ3) |
 | **GateSeal Circuit Breaker** | `CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CAS5XIHKYBCCW7WTYDBGGLQ5P7OSQHEPVIUWCQ2W5ARMYXWUCQSEZYDJ) |
+| **Oracle** | `CAEPCI2TEPENZZBGSMSQEL3W6IW7TYBXRKGXU25J56LQUC33NXJXF6S6` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CAEPCI2TEPENZZBGSMSQEL3W6IW7TYBXRKGXU25J56LQUC33NXJXF6S6) |
+| **Governance** | `CA2MDYX7IIDD32KQGXIN6SRERI4ABVO3N37BLH7HKNFGTAI252VE7QID` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CA2MDYX7IIDD32KQGXIN6SRERI4ABVO3N37BLH7HKNFGTAI252VE7QID) |
+| **Fee Controller** | `CDD6XCT7TD3AWEYMQM7XDFPFDQUZUFUTRVUY3MDNCHPV4SUU4R3OA473` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CDD6XCT7TD3AWEYMQM7XDFPFDQUZUFUTRVUY3MDNCHPV4SUU4R3OA473) |
 | **Native XLM SAC** | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC) |
+| **Underlying USDC SAC** | `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA` | [StellarExpert](https://stellar.expert/explorer/testnet/contract/CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA) |
+
+**Mainnet**: not deployed. `deployed_mainnet.json` is a governance/multisig *plan* only (see file for status).
 
 ---
 

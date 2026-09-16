@@ -54,7 +54,7 @@ Hikari is a native, autonomous asset management and multi-strategy liquid stakin
 | :--- | :--- | :--- | :--- |
 | **Spoofing** | Adversary impersonates keeper bot or admin | Unauthorized call to `allocate_to_strategy` or `update_telemetry` | Strict cryptographic Soroban authorization (`require_auth()`) checked on caller address against immutable instance storage. |
 | **Tampering** | Off-chain keeper attempts to report manipulated NAV or telemetry | Fabricated off-chain profit reports to inflate share price | On-chain **Anti-Spike Clamping** strictly rejects $>10\%$ NAV movement per ledger (`Error::ThresholdExceeded`). Telemetry commits RFC-8785 canonical hash. |
-| **Repudiation** | Action proposal executed without verifiable audit trail | Keeper denies proposing an anomalous rebalance | Cryptographic SHA-256 hash chaining via [`AuditLogger`](file:///C:/Users/User/.gemini/antigravity-ide/scratch/Hikari/engine/src/audit_logger.ts) committed before on-chain dispatch. |
+| **Repudiation** | Action proposal executed without verifiable audit trail | Keeper denies proposing an anomalous rebalance | Cryptographic SHA-256 hash chaining via [`AuditLogger`](../engine/src/audit_logger.ts) committed before on-chain dispatch. |
 | **Information Disclosure** | Leakage of private trading strategy routes | Frontrunning keeper rebalances via mempool inspection | Atomic single-transaction backruns on Soroban Protocol 27; intents settle atomically without public pending exposure. |
 | **Denial of Service** | Flash withdrawal runs depleting vault liquidity | Massive sudden redemptions locking user principal | Mandatory **15% liquid native XLM reserve floor** strictly preserved; redemptions routed through unbonding queue with cooldown. |
 | **Elevation of Privilege** | Malicious governance takeover changing parameters | Hostile proposal lowering reserve floor or stealing fees | **Dual-Governance Staker Veto**: `hXLM` depositors hold a 33.4% veto power to cancel proposals during mandatory timelock. |
@@ -158,7 +158,7 @@ A proposal in `Vetoed` state is permanently blocked from entering `Queued` or `E
 
 ## 5. Property-Based Fuzzing Results (100,000 Iterations)
 
-The randomized property-based fuzz test harness (`scripts/run_fuzz_tests.js`) was executed across **100,000 state transitions**:
+The randomized property-based fuzz test harness (`scripts/run_fuzz_tests.js`, real and reproducible — verified in this pass) can be executed across 100,000 state transitions via `node scripts/run_fuzz_tests.js --iterations=100000`. It is unseeded, so exact per-run counts (especially "Bunker Haircuts Verified") vary — at 10,000 iterations, two verified runs produced 5,711 and 5,749 respectively, so treat any single printed block (including the one below, from an earlier run) as illustrative, not a fixed constant to cite as-is:
 
 ```
 ================================================================================
@@ -182,10 +182,13 @@ The randomized property-based fuzz test harness (`scripts/run_fuzz_tests.js`) wa
 To independently reproduce the entire test and verification suite:
 
 ```bash
-# 1. Compile all 13 Soroban smart contracts to WebAssembly
+# 1. Compile all 15 Soroban smart contracts to WebAssembly (plus a shared `interfaces`
+#    crate and a `mock_strategy` test helper that aren't independently deployed contracts).
+#    NOTE: build:wasm currently shells out to a Windows-only PowerShell script
+#    (scripts/build_wasm.ps1) — it will not run on Linux/macOS as-is.
 npm run build:wasm
 
-# 2. Run complete 29-test Rust smart contract unit test suite
+# 2. Run the 31-test Rust smart contract unit test suite
 npm run test:contracts
 
 # 3. Run 100,000-iteration randomized invariant fuzzing harness

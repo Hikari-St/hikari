@@ -3,20 +3,14 @@
   "passphrase": "Public Global Stellar Network ; September 2015",
   "rpcUrl": "https://soroban-rpc.mainnet.stellar.org",
   "horizonUrl": "https://horizon.stellar.org",
-  "governance": {
+  "status": "NOT_DEPLOYED",
+  "note": "Mainnet deployment has not happened. This file documents the intended governance parameters only. Contract addresses and guardian keys do not exist yet and must not be treated as live.",
+  "governancePlan": {
     "threshold": "3-of-5 Multi-Sig",
     "timelockLedgers": 120960,
-    "guardians": [
-      "GCJSDY6QA6CYEIZ6W6USD2QC22OBHKOI326YUU64QWBBMWL4GBSY6BQN",
-      "GAQZQABZADRIHXJSNS75OLEKNE65ZFU273PBSA6H23IHILQVFK3VQ5L2",
-      "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLL7DEV",
-      "GDLOBSTRM5V6VQL2W7H4P8ZJXK39QY0RNE4SDA7MUPTR4A69T0HIKARI",
-      "GBXBULLJ7R8T9V2W3X4Y5Z6A7B8C9D0E1F2G3H4I5J6K7L8M9N0HIKARI"
-    ],
+    "guardians": "TBD — to be assigned real, independently-held keys at mainnet launch. No guardian addresses are committed yet.",
     "gateSealDuration": 120960,
     "initialReserveFloorPct": 15
   },
-  "deployedAt": "2026-09-12T19:25:03.668Z",
-  "status": "PRE_FLIGHT_SIMULATED",
   "author": "ibochivincent-lang"
 }

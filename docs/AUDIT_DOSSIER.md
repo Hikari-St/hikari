@@ -14,7 +14,7 @@
 | :--- | :--- | :---: | :---: | :--- |
 | **Dynamic Vault Core** | `contracts/vault/src/lib.rs` | Soroban WASM | ~350 | ERC-4626 share minting/burning, virtual shares ($10^3$), virtual assets ($1$), 15% reserve floor |
 | **Share Token (`hXLM`)** | `contracts/token/src/lib.rs` | Soroban WASM | ~220 | SEP-41 compliant liquid yield-bearing token, non-dilutive balance tracking |
-| **Withdrawal Queue** | `contracts/queue/src/lib.rs` | Soroban WASM | ~280 | Asynchronous redemption queue, 50-ledger cooldown, monotonic FIFO payouts |
+| **Withdrawal Queue** | `contracts/withdrawal_queue/src/lib.rs` | Soroban WASM | ~280 | Asynchronous redemption queue, 50-ledger cooldown, monotonic FIFO payouts |
 | **GateSeal Breaker** | `contracts/gate_seal/src/lib.rs` | Soroban WASM | ~180 | One-shot emergency panic freeze ($\le 120,960$ ledgers / ~7 days), automatic self-unseal |
 | **Factory & Registry** | `contracts/strategy_registry/src/lib.rs`| Soroban WASM | ~210 | Versioned WASM registry, allocation caps, strategy allowlist enforcement |
 | **Blend Adapter** | `contracts/blend_adapter/src/lib.rs` | Soroban WASM | ~160 | SEP-41 collateral supply into Blend money markets, interest receipt custody |
@@ -45,7 +45,7 @@ $$\Phi_{\text{perf}} = \max\left(0,\; 0.10 \cdot (\text{NAV}_t - \text{NAV}_{\te
 $$A_{\text{claimable}} = S_{\text{redeemed}} \times \text{NAV} \times \left(1 - \frac{\text{Haircut Bps}}{10,000}\right)$$
 $$\text{Haircut Bps} = \min\left(2500, \frac{\text{Drawdown Bps} \times 10000}{1500}\right)$$
 - **Property**: When drawdown exceeds 15%, the vault enters Bunker Mode. Redemptions switch from instant to a FIFO queue with a shared loss haircut, eliminating the first-mover advantage of bank runs.
-- **Verification Harness**: 5,711 drawdown iterations verified that all claimants receive equitable pro-rata payouts with $100\%$ protocol solvency preserved.
+- **Verification Harness**: `node scripts/run_fuzz_tests.js` is unseeded, so the count of bunker-scenario iterations that actually trigger a drawdown varies run to run (observed ~5,700–5,750 out of 10,000 across a couple of local runs) — treat any single number here as illustrative, not a fixed constant, and re-run to reproduce.
 
 ### Invariant 5: GateSeal Circuit Breaker Bounds
 $$\Delta_{\text{seal}} \le 120,960\text{ ledgers} \approx 7\text{ days}$$
@@ -55,20 +55,29 @@ $$\Delta_{\text{seal}} \le 120,960\text{ ledgers} \approx 7\text{ days}$$
 
 ## 3. Formal 10,000-Iteration Fuzzing Results
 
-Audit verification executed via `scripts/run_fuzz_tests.js`:
+This is real, reproducible output — `node scripts/run_fuzz_tests.js --iterations=10000` reimplements
+the vault's share/NAV/haircut math in plain JS and property-checks it under randomized inputs. It
+is unseeded, so exact counts (especially "Bunker Haircuts Verified") vary run to run. One actual
+run produced:
 
 ```
 ================================================================================
-📊 10,000-ITERATION FUZZ TESTING RESULTS:
+📊 10,000-ITERATION FORMAL INVARIANT FUZZING RESULTS:
 ================================================================================
   Total Iterations Executed:       10,000
   Inflation Attacks Tested:        10,000 (0 zero-share exploits)
   HWM Scenarios Evaluated:         10,000 (0 fees collected in drawdowns)
-  Bunker Haircuts Verified:        5,711 (100% solvency preserved)
+  Bunker Haircuts Verified:        5,749 (100% solvency preserved)
+  15% Reserve Floor Enforced:      10,000 checks (0 floor breaches)
+  Dual-Governance Vetoes Tested:   10,000 (100% malicious executions blocked)
   Total Invariant Violations:      0
 ================================================================================
-🎉 ALL PROTOCOL PROPERTIES FORMALLY VALIDATED ACROSS 10,000 RANDOM TRANSITIONS!
+🎉 ALL 6 CORE INVARIANTS FORMALLY VALIDATED ACROSS 10,000 RANDOM STATE TRANSITIONS!
 ```
+
+Note this fuzzes a JS reimplementation of the invariant math, not the compiled Rust contract
+bytecode directly — the Rust unit tests (`cargo test --manifest-path contracts/Cargo.toml`) are
+the ones exercising the actual deployed code.
 
 ---
 
@@ -83,7 +92,7 @@ Audit verification executed via `scripts/run_fuzz_tests.js`:
 
 ### Out-of-Scope Items:
 1. Stellar Core validator consensus failures (handled by Stellar SCP).
-2. Bugs within third-party external money markets (mitigated by our 25% single-strategy exposure ceiling).
+2. Bugs within third-party external money markets — moot today since the Blend/Phoenix/Soroswap adapters don't call those protocols yet (simulated self-accrual, see ARCHITECTURE.md §4.2). Each adapter does have a `capStroops` cap set at deployment (see `deployed_contracts.json`), but there is no general enforced "25% single-strategy" invariant in the contract code — do not cite one.
 
 ---
 
@@ -95,7 +104,8 @@ Auditors can reproduce all test suites using the following commands:
 # 1. Run 10,000-Iteration Property-Based Invariant Fuzzing Harness
 node scripts/run_fuzz_tests.js
 
-# 2. Run 365-Day 5-Regime Historical Market Backtest
+# 2. Run 365-Day 5-Regime scenario stress-test (NOT real historical market data — each
+#    regime uses assumed constant daily returns/shock magnitudes; see BACKTEST_REPORT.md)
 node scripts/run_backtest.js
 
 # 3. Run Policy & Risk Engine Verification Tests

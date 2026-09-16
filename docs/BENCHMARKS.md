@@ -1,39 +1,19 @@
 # Hikari Protocol — Gas, CPU & Execution Benchmarks
 
-> **Soroban Protocol 27 Execution Performance & Instruction Metrics**
-> Empirical benchmarks measured on the Stellar Testnet and local Soroban sandbox environments.
+> This document previously presented a table of "Empirical benchmarks measured on the Stellar
+> Testnet" (CPU instructions, RAM footprint, ledger read bytes, gas fees per operation) and a
+> "reproduce it yourself" command (`cargo test ... -- --nocapture benchmark`). None of those
+> numbers were ever measured — there is no benchmark test anywhere in `contracts/` (`grep -rl
+> benchmark contracts --include="*.rs"` returns nothing), so that reproduction command matches
+> zero tests and produces no output. The whole table was invented.
 
----
+## Real status
 
-## 1. Smart Contract Resource Metrics
+No CPU/gas/RAM benchmarking has been done for this protocol's Soroban contracts. To produce real
+numbers, use Soroban's own resource accounting instead of a fabricated table:
 
-Soroban enforces strict CPU instruction and memory limits per transaction. Hikari’s contracts are optimized in Rust with zero heavy heap allocations in the critical deposit/withdrawal paths.
+- `soroban-cli contract invoke --cost ...` — prints real CPU instructions and memory bytes for a single invocation against a running network or sandbox.
+- `env.cost_estimate()` inside a Rust unit test (`soroban-sdk`'s testutils) — reports real CPU/memory budget consumed during that test's contract calls.
+- Real settlement latency can be read from Horizon: the time between submitting a transaction and its ledger close, which is close to the network's actual ~5s ledger close time — but that has not been measured and reported for this protocol's specific flows yet.
 
-| Operation | CPU Instructions | RAM Footprint | Ledger Read Bytes | Network Gas Fee |
-| --------- | ---------------- | ------------- | ----------------- | --------------- |
-| **Deposit XLM & Mint hXLM** | 1,420,500 | 48.2 KB | 1,840 bytes | ~0.000021 XLM |
-| **Request Unbond (Queue)** | 1,180,200 | 36.4 KB | 1,220 bytes | ~0.000018 XLM |
-| **Claim Mature Ticket** | 895,400 | 28.1 KB | 980 bytes | ~0.000014 XLM |
-| **Wrap / Unwrap (whXLM)** | 620,100 | 18.9 KB | 640 bytes | ~0.000009 XLM |
-| **Autonomous Rebalance** | 3,240,000 | 92.5 KB | 4,620 bytes | ~0.000048 XLM |
-| **Oracle Telemetry Update** | 1,050,000 | 32.0 KB | 1,100 bytes | ~0.000015 XLM |
-
----
-
-## 2. Settlement Latency
-
-| Flow | Average Time | Variance | Settlement Mechanism |
-| ---- | ------------ | -------- | -------------------- |
-| **Staking Confirmation** | 4.8 seconds | $\pm 0.6$ s | 1 Stellar Consensus Protocol (SCP) ledger close. |
-| **Instant DEX Unbonding** | 6.2 seconds | $\pm 1.2$ s | Atomic swap routed through Phoenix / Soroswap. |
-| **Queue-based Unbonding** | 1–3 days | Fixed epoch | Orderly unwinding from Blend money markets. |
-| **Direct to Bank Payout** | 3.4 minutes | $\pm 1.5$ min | SEP-24 / SEP-6 domestic anchor wire. |
-
----
-
-## 3. How to Reproduce Benchmarks
-
-Run the automated benchmark suite in the contracts directory:
-```bash
-cargo test --manifest-path contracts/Cargo.toml -- --nocapture benchmark
-```
+Until someone runs and records these, this document should not claim specific numbers.

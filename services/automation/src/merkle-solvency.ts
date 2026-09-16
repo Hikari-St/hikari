@@ -1,5 +1,13 @@
 // Hikari Protocol: Cryptographic Merkle Proof of Solvency Engine
 // Lead Architect & Maintainer: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
+//
+// This engine builds a real SHA-256 Merkle tree over whatever depositor data it is given — the
+// cryptography is genuine. What it does NOT do is invent that data. A previous version shipped
+// a hardcoded list of 9 fake depositors (using addresses shorter than a real Stellar strkey) and
+// a reserve constant deliberately chosen to print "104.8% over-collateralized" — that produced a
+// real Merkle proof over fabricated numbers, which is worse than an obviously-fake stat because
+// it *looks* verified. Callers now MUST supply real on-chain-sourced reserves/ledger; there is no
+// seeded fallback data.
 
 import crypto from "crypto";
 
@@ -16,9 +24,10 @@ export interface SolvencyReport {
   totalLiabilitiesXlm: number;
   totalAuditedReservesXlm: number;
   surplusBufferXlm: number;
-  reserveRatioPercent: number; // e.g. 104.8%
+  reserveRatioPercent: number | null; // null when there are no tracked liabilities yet
   isFullySolvent: boolean;
   leafCount: number;
+  depositorRegistryStatus: "REAL" | "EMPTY_NOT_YET_TRACKED";
 }
 
 export interface SolvencyInclusionProof {
@@ -32,30 +41,26 @@ export interface SolvencyInclusionProof {
 }
 
 export class HikariSolvencyEngine {
-  private depositors: DepositorLiability[] = [];
-  private auditedReservesXlm: number = 508280.0; // 104.8% of 485,000 XLM liabilities
-  private verifiedLedger: number = 341890;
+  private depositors: DepositorLiability[];
+  private auditedReservesXlm: number;
+  private verifiedLedger: number;
 
-  constructor() {
-    this.seedDepositorRegistry();
+  /**
+   * @param auditedReservesXlm Real on-chain vault reserves (e.g. from total_assets()). Required —
+   *        no fabricated default.
+   * @param verifiedLedger Real current Horizon/Soroban ledger sequence. Required.
+   * @param depositors Real registered depositor liabilities, if any are tracked yet. Defaults to
+   *        empty — this protocol does not yet maintain a real per-depositor liability registry,
+   *        and an empty list is the honest representation of that, not a fabricated one.
+   */
+  constructor(auditedReservesXlm: number, verifiedLedger: number, depositors: DepositorLiability[] = []) {
+    this.auditedReservesXlm = auditedReservesXlm;
+    this.verifiedLedger = verifiedLedger;
+    this.depositors = depositors;
   }
 
   private hash(data: string): string {
     return crypto.createHash("sha256").update(data).digest("hex");
-  }
-
-  private seedDepositorRegistry() {
-    this.depositors = [
-      { address: "GAKN7F4E5678WXYZ", shares: "142500.00", underlyingValueXlm: 148200.0 },
-      { address: "GBZX9K2M1234ABCD", shares: "98240.00", underlyingValueXlm: 102169.6 },
-      { address: "GCLP3R8W9876EFGH", shares: "64100.00", underlyingValueXlm: 66664.0 },
-      { address: "GDTV1B7C5432IJKL", shares: "42800.00", underlyingValueXlm: 44512.0 },
-      { address: "GEFM5N0Q1122MNOP", shares: "29450.00", underlyingValueXlm: 30628.0 },
-      { address: "GFRT8H3S3344QRST", shares: "21500.00", underlyingValueXlm: 22360.0 },
-      { address: "GGHY2U9L5566UVWX", shares: "18900.00", underlyingValueXlm: 19656.0 },
-      { address: "GHJK6P4X7788YZAB", shares: "15200.00", underlyingValueXlm: 15808.0 },
-      { address: "GIBO1V7L9900CDEF", shares: "52310.00", underlyingValueXlm: 35002.4 }, // Maintainer test account
-    ];
   }
 
   public getLeafHash(depositor: DepositorLiability): string {
@@ -63,7 +68,7 @@ export class HikariSolvencyEngine {
   }
 
   public computeMerkleTree(): { root: string; leaves: string[]; tree: string[][] } {
-    const leaves = this.depositors.map(d => this.getLeafHash(d));
+    const leaves = this.depositors.map((d) => this.getLeafHash(d));
     let currentLevel = [...leaves];
     const tree: string[][] = [currentLevel];
 
@@ -86,7 +91,7 @@ export class HikariSolvencyEngine {
     const { root, leaves } = this.computeMerkleTree();
     const totalLiabilities = this.depositors.reduce((sum, d) => sum + d.underlyingValueXlm, 0);
     const surplusBuffer = this.auditedReservesXlm - totalLiabilities;
-    const reserveRatio = (this.auditedReservesXlm / totalLiabilities) * 100;
+    const reserveRatio = totalLiabilities > 0 ? (this.auditedReservesXlm / totalLiabilities) * 100 : null;
 
     return {
       timestamp: new Date().toISOString(),
@@ -95,15 +100,16 @@ export class HikariSolvencyEngine {
       totalLiabilitiesXlm: Math.round(totalLiabilities),
       totalAuditedReservesXlm: this.auditedReservesXlm,
       surplusBufferXlm: Math.round(surplusBuffer),
-      reserveRatioPercent: parseFloat(reserveRatio.toFixed(2)),
+      reserveRatioPercent: reserveRatio !== null ? parseFloat(reserveRatio.toFixed(2)) : null,
       isFullySolvent: this.auditedReservesXlm >= totalLiabilities,
       leafCount: leaves.length,
+      depositorRegistryStatus: this.depositors.length > 0 ? "REAL" : "EMPTY_NOT_YET_TRACKED",
     };
   }
 
   public getInclusionProof(targetAddress: string): SolvencyInclusionProof | null {
     const depIndex = this.depositors.findIndex(
-      d => d.address.toLowerCase() === targetAddress.toLowerCase()
+      (d) => d.address.toLowerCase() === targetAddress.toLowerCase()
     );
     if (depIndex === -1) return null;
 
@@ -165,15 +171,3 @@ export class HikariSolvencyEngine {
 // Backwards-compatibility alias
 export const HakiruSolvencyEngine = HikariSolvencyEngine;
 export type HakiruSolvencyEngine = HikariSolvencyEngine;
-
-if (require.main === module) {
-  const engine = new HikariSolvencyEngine();
-  const report = engine.generateSolvencyReport();
-  console.log("--- SOLVENCY REPORT ---");
-  console.log(report);
-
-  const proof = engine.getInclusionProof("GIBO1V7L9900CDEF");
-  console.log("\n--- INCLUSION PROOF FOR GIBO... ---");
-  console.log(proof);
-}
-

@@ -1,6 +1,14 @@
 """
 Hikari Protocol: AI Trading Agents - Stellar XLM Data Feed & Market Snapshot
 Lead Architect: ibochivincent-lang <ibochivincent-lang@users.noreply.github.com>
+
+SYNTHETIC DATA ONLY — NOT A LIVE FEED. get_historical_ohlcv() generates a seeded random walk
+(random.gauss), and get_stellar_fundamentals()/get_stellar_yield_matrix()/get_sentiment_and_news()
+return hardcoded numbers (including "24.70% APY", "$68.4M volume", "104.8% solvency" and fabricated
+news headlines like a "Circle CCTP V2" integration that does not exist in this codebase). This
+class exists to exercise agents/trading_agents' analysis logic (analysts.py, indicators.py) offline
+— it is disconnected from frontend/server.js and the live app entirely. Do not present its output
+as real market data, real Stellar network stats, or a live trading signal.
 """
 
 import math
@@ -9,7 +17,8 @@ from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Any
 
 class StellarMarketDataFeed:
-    """Provides market, on-chain fundamental, and sentiment feeds for XLM."""
+    """Synthetic market/fundamental/sentiment data generator for offline testing of the
+    analysis pipeline in this package. See module docstring — not a live data source."""
 
     def __init__(self, base_price: float = 0.1285):
         self.base_price = base_price
